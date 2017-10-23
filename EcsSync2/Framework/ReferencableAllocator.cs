@@ -7,7 +7,7 @@ namespace EcsSync2
 	{
 		void Reset();
 
-		IReferenceCounter ReferenceCounter { get; }
+		IReferenceCounter ReferenceCounter { get; set; }
 	}
 
 	public static class ReferencableExtensions
@@ -88,7 +88,9 @@ namespace EcsSync2
 
 			public ReferencableCounter(ReferencableAllocator allocator)
 			{
+				m_allocator = allocator;
 				m_value = new T();
+				m_value.ReferenceCounter = this;
 			}
 
 			public void Retain()
