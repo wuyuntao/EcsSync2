@@ -2,18 +2,20 @@
 {
 	public static class Settings
 	{
-		public static int DefaultCommandBufferSize = 3;
+		public const int DefaultCommandBufferSize = 3;
 
-		public static int StopExhaustCommandBufferSize = 6;
+		public const int StopExhaustCommandBufferSize = 6;
 
-		public static uint FixedDeltaTime = 16;
+		public const uint SimulationDeltaTime = 16;
 
-		public static int SyncFixedDeltaTime = 16 * 3;
+		public const int SynchronizationDeltaTime = 16 * 3;
 
-		public static float SynchorizedClockDesyncThreshold = 1f;
+		public const float SynchorizedClockDesyncThreshold = 1f;
 
-		public static float SynchorizedClockAdjustmentThreshold = 1f;
+		public const float SynchorizedClockAdjustmentThreshold = 1f;
 
-		public static float SynchronizedClockAdjustmentRatio = 0.1f;
+		public const float SynchronizedClockAdjustmentRatio = 0.1f;
+
+		public const int TimelineDefaultCapacity = 500 / 16;
 	}
 }

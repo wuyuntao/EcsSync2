@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace EcsSync2
 {
@@ -24,26 +23,33 @@ namespace EcsSync2
 			return buffer;
 		}
 
+		internal CommandFrame FetchCommands(ulong userId, uint time)
+		{
+			var buffer = EnsureBuffer( userId );
+
+			return buffer.Dequeue( time );
+		}
+
 		internal override void OnFixedUpdate()
 		{
 			base.OnFixedUpdate();
 
-			foreach( var player in GetPlayers() )
+			foreach( var buffer in m_buffers.Values )
 			{
-				var buffer = EnsureBuffer( player.UserId );
-
+				// 获取当前帧（和之前未执行）的命令
 				CommandFrame frame;
 				do
 				{
 					frame = buffer.Dequeue( Simulator.FixedTime );
-					Dispatch( player, frame );
+					if( frame != null )
+						Simulator.ComponentScheduler.EnqueueCommands( frame );
 				} while( frame != null );
 
-				// 如果没有取到当前时间的命令的话
+				// 如果没有取到当前帧的命令，将前移帧的输入作为预测
 				if( frame == null || frame.Time != Simulator.FixedTime )
 				{
 					if( buffer.LastFrame != null )
-						Dispatch( player, buffer.LastFrame );
+						Simulator.ComponentScheduler.EnqueueCommands( buffer.LastFrame );
 
 					if( !buffer.IsExhausted )
 					{
@@ -60,25 +66,6 @@ namespace EcsSync2
 					}
 				}
 			}
-		}
-
-		IEnumerable<Player> GetPlayers()
-		{
-			throw new NotImplementedException();
-		}
-
-		void Dispatch(Player player, CommandFrame frame)
-		{
-			if( frame.Commands != null )
-			{
-				foreach( var c in frame.Commands )
-					Dispatch( player, c );
-			}
-		}
-
-		void Dispatch(Player player, Command command)
-		{
-			// 检查命令的有效性
 		}
 
 		class CommandFrameBuffer

@@ -3,6 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <RootNamespace>EcsSync2.Examples</RootNamespace>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EcsSync2\EcsSync2.csproj" />
+  </ItemGroup>
 
 </Project>

@@ -21,13 +21,17 @@ namespace EcsSync2
 		public SynchronizedClock SynchronizedClock { get; }
 		public InputManager InputManager { get; }
 		public CommandDispatcher CommandDispatcher { get; }
+		public SceneManager SceneManager { get; }
+		public ComponentScheduler ComponentScheduler { get; }
+
+		public EventBus EventBus { get; }
+		public InterpolationManager InterpolationManager { get; }
 
 		public uint FixedTime { get; private set; }
-		public uint FixedDeltaTime => Settings.FixedDeltaTime;
+		public uint FixedDeltaTime => Settings.SimulationDeltaTime;
 
 		public uint Time => (uint)Math.Round( SynchronizedClock.Time * 1000 );
 		public uint DeltaTime => (uint)Math.Round( SynchronizedClock.DeltaTime * 1000 );
-
 
 		public Simulator(IContext context, bool isServer, bool isClient, int? randomSeed, ulong? localUserId)
 		{
@@ -44,6 +48,17 @@ namespace EcsSync2
 				InputManager = AddComponent<InputManager>();
 
 			CommandDispatcher = AddComponent<CommandDispatcher>();
+			SceneManager = AddComponent<SceneManager>();
+
+			if( isServer )
+				ComponentScheduler = AddComponent<ServerComponentScheduler>();
+			else
+				ComponentScheduler = AddComponent<ClientComponentScheduler>();
+
+			EventBus = AddComponent<EventBus>();
+
+			if( isClient )
+				InterpolationManager = AddComponent<InterpolationManager>();
 		}
 
 		T AddComponent<T>()

@@ -4,8 +4,7 @@ using System.Text;
 
 namespace EcsSync2
 {
-    class Player
-    {
-		public ulong UserId;
-    }
+	public class EventBus : SimulatorComponent
+	{
+	}
 }
