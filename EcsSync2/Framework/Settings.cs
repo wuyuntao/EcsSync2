@@ -9,5 +9,11 @@
 		public static uint FixedDeltaTime = 16;
 
 		public static int SyncFixedDeltaTime = 16 * 3;
+
+		public static float SynchorizedClockDesyncThreshold = 1f;
+
+		public static float SynchorizedClockAdjustmentThreshold = 1f;
+
+		public static float SynchronizedClockAdjustmentRatio = 0.1f;
 	}
 }

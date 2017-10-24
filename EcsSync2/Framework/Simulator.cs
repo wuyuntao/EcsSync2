@@ -18,14 +18,15 @@ namespace EcsSync2
 		public ulong? LocalUserId { get; }
 
 		public ReferencableAllocator ReferencableAllocator { get; }
+		public SynchronizedClock SynchronizedClock { get; }
 		public InputManager InputManager { get; }
 		public CommandDispatcher CommandDispatcher { get; }
 
-		public uint Time { get; private set; }
-		public uint DeltaTime { get; private set; }
-
 		public uint FixedTime { get; private set; }
 		public uint FixedDeltaTime => Settings.FixedDeltaTime;
+
+		public uint Time => (uint)Math.Round( SynchronizedClock.Time * 1000 );
+		public uint DeltaTime => (uint)Math.Round( SynchronizedClock.DeltaTime * 1000 );
 
 
 		public Simulator(IContext context, bool isServer, bool isClient, int? randomSeed, ulong? localUserId)
@@ -37,6 +38,7 @@ namespace EcsSync2
 			LocalUserId = localUserId;
 
 			ReferencableAllocator = new ReferencableAllocator();
+			SynchronizedClock = new SynchronizedClock();
 
 			if( isClient )
 				InputManager = AddComponent<InputManager>();
@@ -47,7 +49,7 @@ namespace EcsSync2
 		T AddComponent<T>()
 			where T : SimulatorComponent, new()
 		{
-			if( Time > 0 )
+			if( SynchronizedClock.Time > 0 )
 				throw new InvalidOperationException( "Cannot add manager after simulator started" );
 
 			var m = new T();
@@ -57,10 +59,9 @@ namespace EcsSync2
 			return m;
 		}
 
-		public void Simulate(uint deltaTime)
+		public void Simulate(float deltaTime)
 		{
-			Time += deltaTime;
-			DeltaTime = deltaTime;
+			SynchronizedClock.Tick( deltaTime );
 
 			foreach( var m in m_components )
 				m.OnUpdate();
