@@ -1,4 +1,6 @@
-﻿namespace EcsSync2
+﻿using System;
+
+namespace EcsSync2
 {
 	class Timepoint
 	{
@@ -38,6 +40,11 @@
 			point.Snapshot?.Release();
 			point.Snapshot = snapshot;
 			point.Snapshot.Retain();
+		}
+
+		public void Clear()
+		{
+			m_points.Clear();
 		}
 	}
 }

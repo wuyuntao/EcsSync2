@@ -28,6 +28,6 @@ namespace EcsSync2
 			throw new NotImplementedException();
 		}
 
-		protected abstract Snapshot OnEventApplied(ITickContext ctx, Snapshot state, Event @event);
+		
 	}
 }
