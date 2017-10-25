@@ -11,7 +11,7 @@ namespace EcsSync2
 		{
 		}
 
-		public void Enqueue(ulong userId, CommandFrame frame)
+		public void EnqueueCommands(ulong userId, CommandFrame frame)
 		{
 			frame.Retain();
 

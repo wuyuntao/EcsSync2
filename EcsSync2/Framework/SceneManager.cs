@@ -14,15 +14,48 @@ namespace EcsSync2
 		{
 		}
 
+		public T LoadScene<T>()
+			where T : Scene, new()
+		{
+			var scene = new T();
+			m_scene = scene;
+			m_scene.OnInitialize( this );
+			return scene;
+		}
+
+		internal T CreateEntity<T>(InstanceId id, EntitySettings settings)
+			where T : Entity, new()
+		{
+			var entity = new T();
+			entity.OnInitialize( this, id );
+			m_entities.Add( id, entity );
+			foreach( var component in entity.Components )
+				m_components.Add( component.Id, component );
+			return entity;
+		}
+
+		internal bool RemoveEntity(InstanceId id)
+		{
+			var entity = FindEntity( id );
+			if( entity == null )
+				return false;
+
+			m_entities.Remove( id );
+			foreach( var component in entity.Components )
+				m_components.Remove( component.Id );
+			return true;
+		}
+
+		internal Entity FindEntity(InstanceId id)
+		{
+			m_entities.TryGetValue( id, out Entity entity );
+			return entity;
+		}
+
 		internal Component FindComponent(InstanceId id)
 		{
 			m_components.TryGetValue( id, out Component component );
 			return component;
-		}
-
-		internal Entity CreateEntity(InstanceId id, EntitySettings settings)
-		{
-			throw new NotImplementedException();
 		}
 
 		internal List<Component> GetPredictedComponents()

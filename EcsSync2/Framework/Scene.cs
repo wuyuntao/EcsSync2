@@ -1,15 +1,39 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	public abstract class Scene
+	public abstract class Scene : Tickable
 	{
-		public IList<Player> Players { get; set; }
+		public SceneManager SceneManager { get; private set; }
+		public List<Player> Players { get; private set; } = new List<Player>();
 
-		internal abstract SceneSnapshot OnStart(Component.ITickContext ctx);
+		internal virtual void OnInitialize(SceneManager sceneManager)
+		{
+			SceneManager = sceneManager;
+		}
 
-		internal abstract SceneSnapshot OnFixedUpdate(Component.ITickContext ctx, SceneSnapshot state);
+		protected internal abstract Entity CreateEntity(InstanceId id, EntitySettings settings);
 
-		internal abstract SceneSnapshot OnEventApplied(Component.ITickContext ctx, Event @event);
+		//internal void ReceiveCommand(Component.ITickContext ctx, SceneCommand command)
+		//{
+		//}
+
+		//internal abstract void OnCommandReceived(Component.ITickContext ctx, SceneCommand command);
+
+		protected internal void ApplyEvent(ITickContext ctx, SceneEvent @event)
+		{
+		}
+
+		protected virtual SceneSnapshot OnEventApplied(ITickContext ctx, SceneEvent @event)
+		{
+			throw new NotImplementedException();
+		}
+
+		//internal T AllocateEvent<T>()
+		//	where T : SceneEvent, new()
+		//{
+		//	return SceneManager.Simulator.ReferencableAllocator.Allocate<T>();
+		//}
 	}
 }

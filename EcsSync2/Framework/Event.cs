@@ -4,7 +4,15 @@
 	{
 	}
 
-	public class SceneEvent : Event
+	public abstract class SceneEvent : Event
+	{
+	}
+
+	public class EntityCreatedEvent : SceneEvent
+	{
+	}
+
+	public class EntityRemovedEvent : SceneEvent
 	{
 	}
 

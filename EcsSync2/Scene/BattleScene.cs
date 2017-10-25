@@ -4,19 +4,35 @@ namespace EcsSync2
 {
 	public class BattleScene : Scene
 	{
-		internal override SceneSnapshot OnStart(Component.ITickContext ctx)
+		internal override void OnInitialize(SceneManager sceneManager)
+		{
+			base.OnInitialize( sceneManager );
+
+			// TODO Load colliders
+
+			if( sceneManager.Simulator.IsServer )
+			{
+				GameManager = SceneManager.CreateEntity<GameManager>(
+					sceneManager.Simulator.InstanceIdAllocator.Allocate(),
+					new GameManagerSettings() );
+			}
+		}
+
+		protected internal override Entity CreateEntity(InstanceId instanceId, EntitySettings settings)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal override SceneSnapshot OnFixedUpdate(Component.ITickContext ctx, SceneSnapshot state)
+		protected override Snapshot OnEventApplied(ITickContext ctx, Snapshot state, Event @event)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal override SceneSnapshot OnEventApplied(Component.ITickContext ctx, Event @event)
+		protected override void OnSnapshotRecovered(ITickContext ctx, Snapshot cs)
 		{
 			throw new NotImplementedException();
 		}
+
+		public GameManager GameManager { get; private set; }
 	}
 }

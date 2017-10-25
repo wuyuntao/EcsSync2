@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace EcsSync2.Examples
+﻿namespace EcsSync2.Examples
 {
 	class Program
 	{
@@ -13,6 +11,7 @@ namespace EcsSync2.Examples
 		{
 			var context = new SimulatorContext();
 			var simulator = new Simulator( context, true, true, 1, 1 );
+			simulator.SceneManager.LoadScene<BattleScene>();
 
 			for( int i = 0; i < 1000; i++ )
 				simulator.Simulate( Settings.SimulationDeltaTime );

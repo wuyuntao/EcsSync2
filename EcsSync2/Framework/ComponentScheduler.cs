@@ -12,7 +12,7 @@ namespace EcsSync2
 
 		internal abstract void FixedUpdate();
 
-		protected void DispatchCommands(Component.ITickContext ctx, CommandFrame frame)
+		protected void DispatchCommands(Tickable.ITickContext ctx, CommandFrame frame)
 		{
 			if( frame.Commands != null )
 			{
@@ -24,7 +24,7 @@ namespace EcsSync2
 			}
 		}
 
-		protected void FixedUpdateComponents(Component.ITickContext ctx)
+		protected void FixedUpdateComponents(Tickable.ITickContext ctx)
 		{
 		}
 	}
@@ -46,7 +46,7 @@ namespace EcsSync2
 			FixedUpdateComponents( m_tickContext );
 		}
 
-		void DispatchCommands(Component.ITickContext ctx)
+		void DispatchCommands(Tickable.ITickContext ctx)
 		{
 			foreach( var player in Simulator.SceneManager.Scene.Players )
 			{
@@ -97,7 +97,7 @@ namespace EcsSync2
 
 		#region TickContext
 
-		class TickContext : Component.ITickContext
+		class TickContext : Tickable.ITickContext
 		{
 			Simulator m_simulator;
 
@@ -106,9 +106,9 @@ namespace EcsSync2
 				m_simulator = simulator;
 			}
 
-			uint Component.ITickContext.Time => m_simulator.FixedTime;
+			uint Tickable.ITickContext.Time => m_simulator.FixedTime;
 
-			uint Component.ITickContext.DeltaTime => m_simulator.FixedDeltaTime;
+			uint Tickable.ITickContext.DeltaTime => m_simulator.FixedDeltaTime;
 		}
 
 		#endregion
@@ -121,8 +121,8 @@ namespace EcsSync2
 		TickContext m_predictionTickContext = new TickContext();
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
 
-		public ClientComponentScheduler(Simulator simulator) : base( simulator )
-
+		public ClientComponentScheduler(Simulator simulator)
+			: base( simulator )
 		{
 		}
 
@@ -161,12 +161,12 @@ namespace EcsSync2
 		{
 			foreach( var es in frame.Entities )
 			{
-				Simulator.SceneManager.CreateEntity( es.Id, es.Settings );
+				Simulator.SceneManager.Scene.CreateEntity( es.Id, es.Settings );
 
 				foreach( var cs in es.Components )
 				{
 					var component = Simulator.SceneManager.FindComponent( cs.Id );
-					component.OnSnapshotRecovered( m_syncTickContext, cs );
+					component.RecoverSnapshot( m_syncTickContext, cs );
 				}
 			}
 		}
@@ -177,15 +177,15 @@ namespace EcsSync2
 			{
 				if( e is SceneEvent se )
 				{
-					Simulator.SceneManager.Scene.OnEventApplied( m_syncTickContext, se );
+					Simulator.SceneManager.Scene.ApplyEvent( m_syncTickContext, se );
 				}
 				else if( e is ComponentEvent ce )
 				{
 					var component = Simulator.SceneManager.FindComponent( ce.ComponentId );
-					component.ApplyEvent( m_syncTickContext, e );
+					component.ApplyEvent( m_syncTickContext, ce );
 				}
 				else
-					throw new NotSupportedException();
+					throw new NotSupportedException( e.ToString() );
 			}
 		}
 
@@ -212,7 +212,7 @@ namespace EcsSync2
 			// 回滚到同步状态
 			foreach( var component in components )
 			{
-				var syncState = component.GetState( m_syncTickContext );
+				var syncState = component.GetSnapshot( m_syncTickContext );
 				component.RecoverSnapshot( m_reconcilationTickContext, syncState );
 			}
 
@@ -228,10 +228,10 @@ namespace EcsSync2
 			// 以和解后的状态和最新预测的状态的中间值，来纠正最新的预测
 			foreach( var component in components )
 			{
-				var reconcilationState = component.GetState( m_reconcilationTickContext );
+				var reconcilationState = component.GetSnapshot( m_reconcilationTickContext );
 				if( Settings.ComponentReconcilationRatio < 1 )
 				{
-					var predictionState = component.GetState( m_predictionTickContext );
+					var predictionState = component.GetSnapshot( m_predictionTickContext );
 					reconcilationState = predictionState.Interpolate( reconcilationState, Settings.ComponentReconcilationRatio );
 				}
 				component.RecoverSnapshot( m_predictionTickContext, reconcilationState );
@@ -248,8 +248,8 @@ namespace EcsSync2
 		{
 			foreach( var component in components )
 			{
-				var syncState = component.GetState( m_syncTickContext );
-				var predictionState = component.GetState( m_reconcilationTickContext );
+				var syncState = component.GetSnapshot( m_syncTickContext );
+				var predictionState = component.GetSnapshot( m_reconcilationTickContext );
 				if( !syncState.IsApproximate( predictionState ) )
 					return true;
 			}
@@ -269,7 +269,7 @@ namespace EcsSync2
 			FixedUpdateComponents( m_predictionTickContext );
 		}
 
-		void DispatchCommands(Component.ITickContext ctx)
+		void DispatchCommands(Tickable.ITickContext ctx)
 		{
 			var frame = Simulator.CommandQueue.FetchCommands( Simulator.LocalUserId.Value, ctx.Time );
 
@@ -280,7 +280,7 @@ namespace EcsSync2
 
 		#region TickContext
 
-		class TickContext : Component.ITickContext
+		class TickContext : Tickable.ITickContext
 		{
 			public uint Time { get; set; }
 

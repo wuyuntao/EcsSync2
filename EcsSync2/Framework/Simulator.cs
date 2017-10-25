@@ -18,6 +18,7 @@ namespace EcsSync2
 		public SynchronizedClock SynchronizedClock { get; }
 		public InputManager InputManager { get; }
 		public CommandQueue CommandQueue { get; }
+		public InstanceIdAllocator InstanceIdAllocator { get; }
 		public SceneManager SceneManager { get; }
 		public ComponentScheduler ComponentScheduler { get; }
 		public EventBus EventBus { get; }
@@ -40,6 +41,7 @@ namespace EcsSync2
 			ReferencableAllocator = new ReferencableAllocator( this );
 			SynchronizedClock = new SynchronizedClock( this );
 			CommandQueue = new CommandQueue( this );
+			InstanceIdAllocator = new InstanceIdAllocator( this );
 			SceneManager = new SceneManager( this );
 			EventBus = new EventBus( this );
 

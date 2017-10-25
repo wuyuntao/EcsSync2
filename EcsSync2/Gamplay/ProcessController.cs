@@ -9,27 +9,27 @@ namespace EcsSync2
 			throw new NotImplementedException();
 		}
 
-		internal override Snapshot OnFixedUpdate(ITickContext ctx, Snapshot state)
-		{
-			throw new NotImplementedException();
-		}
-
 		internal override void OnDestroy(ITickContext ctx, Snapshot state)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal override Snapshot OnCommandReceived(ITickContext ctx, Snapshot state)
+		protected override Snapshot OnEventApplied(ITickContext ctx, Snapshot state, Event @event)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal override Snapshot OnEventApplied(ITickContext ctx, Snapshot state, Event @event)
+		protected override void OnSnapshotRecovered(ITickContext ctx, Snapshot cs)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal override void OnSnapshotRecovered(ITickContext ctx, ComponentSnapshot cs)
+		internal override void OnFixedUpdate(ITickContext ctx, Snapshot state)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal override void OnCommandReceived(ITickContext ctx, Snapshot state, Command command)
 		{
 			throw new NotImplementedException();
 		}

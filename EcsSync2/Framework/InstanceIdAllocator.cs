@@ -4,18 +4,38 @@ namespace EcsSync2
 {
 	public struct InstanceId : IEquatable<InstanceId>
 	{
-		const int OwnerIndexOffset = 27;
+		const int EntityIdOffset = 5;
 
 		public readonly uint Value;
 
-		internal InstanceId(uint rawValue)
+		InstanceId(uint rawValue)
 		{
 			Value = rawValue;
 		}
 
-		internal InstanceId(byte ownerIndex, uint value)
+		public static InstanceId CreateEntityId(uint value)
 		{
-			Value = ( (uint)ownerIndex << OwnerIndexOffset ) | value;
+			return new InstanceId( value << EntityIdOffset );
+		}
+
+		public uint CreateEntityId()
+		{
+			return new InstanceId( Value >> EntityIdOffset << EntityIdOffset );
+		}
+
+		public InstanceId CreateComponentId(uint componentId)
+		{
+			return new InstanceId( Value | componentId );
+		}
+
+		public bool IsEntityId()
+		{
+			return CreateEntityId( this ) == this;
+		}
+
+		public bool IsComponentId()
+		{
+			return CreateEntityId( this ) != this;
 		}
 
 		public bool Equals(InstanceId other)
@@ -67,20 +87,18 @@ namespace EcsSync2
 		}
 	}
 
-	public class InstanceIdAllocator
+	public class InstanceIdAllocator : SimulatorComponent
 	{
-		byte m_ownerIndex;
 		uint m_counter;
 
-		public InstanceIdAllocator(byte ownerIndex, uint counter = 0)
+		public InstanceIdAllocator(Simulator simulator)
+			: base( simulator )
 		{
-			m_ownerIndex = ownerIndex;
-			m_counter = counter;
 		}
 
 		public InstanceId Allocate()
 		{
-			return new InstanceId( m_ownerIndex, ++m_counter );
+			return InstanceId.CreateEntityId( ++m_counter );
 		}
 	}
 }

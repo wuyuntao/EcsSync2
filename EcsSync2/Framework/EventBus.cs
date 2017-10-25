@@ -11,7 +11,6 @@ namespace EcsSync2
 
 		internal void DispatchEvents()
 		{
-			throw new NotImplementedException();
 		}
 	}
 }

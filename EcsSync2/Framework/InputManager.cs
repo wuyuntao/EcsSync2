@@ -43,7 +43,7 @@ namespace EcsSync2
 				command.Magnitude = m_joystickMagnitude;
 			}
 
-			Simulator.CommandQueue.Enqueue( Simulator.LocalUserId.Value, frame );
+			Simulator.CommandQueue.EnqueueCommands( Simulator.LocalUserId.Value, frame );
 
 			frame.Release();
 		}

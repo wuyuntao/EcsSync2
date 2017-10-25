@@ -18,8 +18,8 @@ namespace EcsSync2
 
 		public SceneManager Scene { get; private set; }
 		public InstanceId Id { get; private set; }
+		public List<Component> Components { get; } = new List<Component>();
 
-		List<Component> m_components = new List<Component>();
 		State m_state = State.Initial;
 
 		internal virtual void OnInitialize(SceneManager scene, InstanceId id)
@@ -39,7 +39,7 @@ namespace EcsSync2
 
 			var component = new T();
 			component.OnInitialize( this, Id );     // TODO How to allocate id
-			m_components.Add( component );
+			Components.Add( component );
 			return component;
 		}
 	}
