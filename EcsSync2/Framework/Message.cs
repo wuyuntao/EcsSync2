@@ -13,6 +13,8 @@ namespace EcsSync2
 
 		IReferenceCounter IReferencable.ReferenceCounter { get; set; }
 
+		protected IReferenceCounter ReferenceCounter => ( (IReferencable)this ).ReferenceCounter;
+
 		void IReferencable.Reset()
 		{
 			Reset();

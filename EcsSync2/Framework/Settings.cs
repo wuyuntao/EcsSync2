@@ -2,8 +2,6 @@
 {
 	public static class Settings
 	{
-		public const int DefaultCommandBufferSize = 3;
-
 		public const int StopExhaustCommandBufferSize = 6;
 
 		public const uint SimulationDeltaTime = 16;

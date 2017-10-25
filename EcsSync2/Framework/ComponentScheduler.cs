@@ -5,27 +5,14 @@ namespace EcsSync2
 {
 	public abstract class ComponentScheduler : SimulatorComponent
 	{
-		Queue<CommandFrame> m_commands = new Queue<CommandFrame>();
-
-		internal void EnqueueCommands(CommandFrame frame)
+		protected void DispatchCommands(Component.ITickContext ctx, CommandFrame frame)
 		{
-			frame.Retain();
-
-			m_commands.Enqueue( frame );
-		}
-
-		protected void DispatchCommands(Component.ITickContext ctx)
-		{
-			while( m_commands.Count > 0 )
+			if( frame.Commands != null )
 			{
-				var frame = m_commands.Dequeue();
-				if( frame.Commands != null )
+				foreach( var command in frame.Commands )
 				{
-					foreach( var command in frame.Commands )
-					{
-						var component = Simulator.SceneManager.FindComponent( command.Receiver );
-						component.ReceiveCommand( ctx, command );
-					}
+					var component = Simulator.SceneManager.FindComponent( command.Receiver );
+					component.ReceiveCommand( ctx, command );
 				}
 			}
 		}
@@ -38,6 +25,7 @@ namespace EcsSync2
 	public class ServerComponentScheduler : ComponentScheduler
 	{
 		TickContext m_tickContext;
+		SortedList<ulong, CommandFrame> m_dispatchedCommands = new SortedList<ulong, CommandFrame>();
 
 		internal override void OnInitialize(Simulator simulator)
 		{
@@ -52,6 +40,55 @@ namespace EcsSync2
 
 			DispatchCommands( m_tickContext );
 			FixedUpdateComponents( m_tickContext );
+		}
+
+		void DispatchCommands(Component.ITickContext ctx)
+		{
+			foreach( var player in Simulator.SceneManager.Scene.Players )
+			{
+				if( player.IsAI )
+					continue;
+
+				// TODO 减少按 UserId 的查询
+				m_dispatchedCommands.TryGetValue( player.UserId, out CommandFrame lastFrame );
+
+				// 尝试执行从上一次应用的命令帧开始，到当前帧之间的所有命令
+				var lastFrameChanged = false;
+				for( var time = lastFrame != null ? lastFrame.Time + ctx.DeltaTime : ctx.Time;
+					time <= ctx.Time;
+					time += ctx.DeltaTime )
+				{
+					var frame = Simulator.CommandQueue.FetchCommands( player.UserId, time );
+					if( frame == null )
+						break;
+
+					DispatchCommands( ctx, frame );
+					lastFrame = frame;
+					lastFrameChanged = true;
+				}
+
+				if( lastFrame != null )
+				{
+					// 更新当前应用的命令帧
+					if( lastFrameChanged )
+						m_dispatchedCommands[player.UserId] = lastFrame;
+
+					// 如果无法获取当前帧的话，总是重复上一次的命令帧
+					if( lastFrame.Time != ctx.Time )
+					{
+						DispatchCommands( ctx, lastFrame );
+
+						// TODO 按需加速客户端
+					}
+					else
+					{
+						// TODO 按需恢复客户端加速
+					}
+
+					// 清理已应用命令
+					Simulator.CommandQueue.DequeueBefore( player.UserId, lastFrame.Time );
+				}
+			}
 		}
 
 		#region TickContext
@@ -127,9 +164,9 @@ namespace EcsSync2
 			}
 		}
 
-		void ApplyDeltaSyncFrame(DeltaSyncFrame dsf)
+		void ApplyDeltaSyncFrame(DeltaSyncFrame frame)
 		{
-			foreach( var e in dsf.Events )
+			foreach( var e in frame.Events )
 			{
 				if( e is SceneEvent se )
 				{
@@ -195,6 +232,9 @@ namespace EcsSync2
 
 			// 重置和解时间
 			m_reconcilationTickContext.Time = m_syncTickContext.Time;
+
+			// 清理已确认命令
+			Simulator.CommandQueue.DequeueBefore( Simulator.LocalUserId.Value, m_syncTickContext.Time );
 		}
 
 		bool RequireReconcilation(List<Component> components)
@@ -220,6 +260,13 @@ namespace EcsSync2
 
 			DispatchCommands( m_predictionTickContext );
 			FixedUpdateComponents( m_predictionTickContext );
+		}
+
+		void DispatchCommands(Component.ITickContext ctx)
+		{
+			var frame = Simulator.CommandQueue.FetchCommands( Simulator.LocalUserId.Value, ctx.Time );
+
+			DispatchCommands( ctx, frame );
 		}
 
 		#endregion

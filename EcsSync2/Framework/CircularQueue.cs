@@ -4,8 +4,8 @@
 		where T : class, new()
 	{
 		T[] m_values;
-		int m_firstIndex = -1;
-		int m_lastIndex = -1;
+		int m_head = 0;
+		int m_tail = 0;
 		int m_count = 0;
 
 		public CircularQueue(int capacity)
@@ -17,20 +17,14 @@
 
 		public T Enqueue()
 		{
-			if( m_count == 0 )
-			{
-				m_firstIndex = m_lastIndex = 0;
-			}
-			else
-			{
-				m_lastIndex = ( m_lastIndex + 1 ) % m_values.Length;
-				if( m_lastIndex == m_firstIndex )
-					m_firstIndex = ( m_firstIndex + 1 ) % m_values.Length;
-				else
-					m_count++;
-			}
+			// Auto remove head when queue is full
+			if( m_values.Length == m_count )
+				Dequeue();
 
-			return m_values[m_lastIndex];
+			var value = m_values[m_tail];
+			m_tail++;
+			m_count++;
+			return value;
 		}
 
 		public T Dequeue()
@@ -38,30 +32,20 @@
 			if( m_count == 0 )
 				return null;
 
-			var value = m_values[m_firstIndex];
-			if( m_firstIndex == m_lastIndex )
-			{
-				m_firstIndex = m_lastIndex = -1;
-				m_count = 0;
-			}
-			else
-			{
-				m_firstIndex++;
-				m_count--;
-			}
-
+			var value = m_values[m_head];
+			m_head++;
+			m_count--;
 			return value;
 		}
 
 		public void Clear()
 		{
-			m_firstIndex = m_lastIndex = -1;
-			m_count = 0;
+			m_head = m_tail = m_count = 0;
 		}
 
-		public T First => m_firstIndex >= 0 ? m_values[m_firstIndex] : null;
+		public T First => m_count > 0 ? m_values[m_head % m_values.Length] : null;
 
-		public T Last => m_lastIndex >= 0 ? m_values[m_lastIndex] : null;
+		public T Last => m_count > 0 ? m_values[( m_tail - 1 ) % m_values.Length] : null;
 
 		public int Count => m_count;
 

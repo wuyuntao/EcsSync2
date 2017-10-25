@@ -34,8 +34,15 @@ namespace EcsSync2
 			base.OnFixedUpdate();
 
 			var frame = Simulator.ReferencableAllocator.Allocate<CommandFrame>();
+			frame.Time = Simulator.FixedTime;
 
-			Simulator.CommandDispatcher.Enqueue( Simulator.LocalUserId.Value, frame.Value );
+			var command = frame.AddCommand<MoveCharacterCommand>();
+			{
+				command.Direction = new float[] { m_joystickDirection[0], m_joystickDirection[1] };
+				command.Magnitude = m_joystickMagnitude;
+			}
+
+			Simulator.CommandQueue.Enqueue( Simulator.LocalUserId.Value, frame );
 
 			frame.Release();
 		}

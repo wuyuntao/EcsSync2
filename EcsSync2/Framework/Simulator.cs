@@ -20,7 +20,7 @@ namespace EcsSync2
 		public ReferencableAllocator ReferencableAllocator { get; }
 		public SynchronizedClock SynchronizedClock { get; }
 		public InputManager InputManager { get; }
-		public CommandDispatcher CommandDispatcher { get; }
+		public CommandQueue CommandQueue { get; }
 		public SceneManager SceneManager { get; }
 		public ComponentScheduler ComponentScheduler { get; }
 
@@ -47,7 +47,7 @@ namespace EcsSync2
 			if( isClient )
 				InputManager = AddComponent<InputManager>();
 
-			CommandDispatcher = AddComponent<CommandDispatcher>();
+			CommandQueue = new CommandQueue();
 			SceneManager = AddComponent<SceneManager>();
 
 			if( isServer )
