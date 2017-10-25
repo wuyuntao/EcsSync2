@@ -9,6 +9,11 @@ namespace EcsSync2
 		Dictionary<InstanceId, Entity> m_entities = new Dictionary<InstanceId, Entity>();
 		Dictionary<InstanceId, Component> m_components = new Dictionary<InstanceId, Component>();
 
+		public SceneManager(Simulator simulator)
+			: base( simulator )
+		{
+		}
+
 		internal Component FindComponent(InstanceId id)
 		{
 			m_components.TryGetValue( id, out Component component );

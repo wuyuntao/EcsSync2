@@ -2,9 +2,14 @@
 
 namespace EcsSync2
 {
-	public class CommandQueue
+	public class CommandQueue : SimulatorComponent
 	{
 		SortedList<ulong, Queue<CommandFrame>> m_queues = new SortedList<ulong, Queue<CommandFrame>>();
+
+		public CommandQueue(Simulator simulator)
+			: base( simulator )
+		{
+		}
 
 		public void Enqueue(ulong userId, CommandFrame frame)
 		{

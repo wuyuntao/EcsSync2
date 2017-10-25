@@ -15,10 +15,13 @@ namespace EcsSync2
 		float m_joystickMagnitude = 0;
 		bool[] m_buttons = new bool[3];
 
-		internal override void OnUpdate()
+		public InputManager(Simulator simulator)
+			: base( simulator )
 		{
-			base.OnUpdate();
+		}
 
+		internal void SetInput()
+		{
 			var c = Simulator.Context;
 			m_joystickDirection[0] = c.GetAxis( "Horizontal" );
 			m_joystickDirection[1] = c.GetAxis( "Vertical" );
@@ -29,10 +32,8 @@ namespace EcsSync2
 			m_buttons[2] = c.GetButton( "Abort" );
 		}
 
-		internal override void OnFixedUpdate()
+		internal void EnqueueCommands()
 		{
-			base.OnFixedUpdate();
-
 			var frame = Simulator.ReferencableAllocator.Allocate<CommandFrame>();
 			frame.Time = Simulator.FixedTime;
 
@@ -47,10 +48,8 @@ namespace EcsSync2
 			frame.Release();
 		}
 
-		internal override void OnLateUpdate()
+		internal void ResetInput()
 		{
-			base.OnLateUpdate();
-
 			m_joystickMagnitude = 0;
 			m_buttons[0] = false;
 			m_buttons[1] = false;

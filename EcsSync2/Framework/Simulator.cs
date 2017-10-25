@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace EcsSync2
 {
@@ -8,8 +7,6 @@ namespace EcsSync2
 		public interface IContext : InputManager.IContext
 		{
 		}
-
-		List<SimulatorComponent> m_components = new List<SimulatorComponent>();
 
 		public IContext Context { get; }
 		public bool IsServer { get; }
@@ -23,7 +20,6 @@ namespace EcsSync2
 		public CommandQueue CommandQueue { get; }
 		public SceneManager SceneManager { get; }
 		public ComponentScheduler ComponentScheduler { get; }
-
 		public EventBus EventBus { get; }
 		public InterpolationManager InterpolationManager { get; }
 
@@ -41,56 +37,42 @@ namespace EcsSync2
 			Random = randomSeed != null ? new Random( randomSeed.Value ) : null;
 			LocalUserId = localUserId;
 
-			ReferencableAllocator = new ReferencableAllocator();
-			SynchronizedClock = new SynchronizedClock();
+			ReferencableAllocator = new ReferencableAllocator( this );
+			SynchronizedClock = new SynchronizedClock( this );
+			CommandQueue = new CommandQueue( this );
+			SceneManager = new SceneManager( this );
+			EventBus = new EventBus( this );
 
 			if( isClient )
-				InputManager = AddComponent<InputManager>();
-
-			CommandQueue = new CommandQueue();
-			SceneManager = AddComponent<SceneManager>();
-
+			{
+				InputManager = new InputManager( this );
+				InterpolationManager = new InterpolationManager( this );
+			}
+			
 			if( isServer )
-				ComponentScheduler = AddComponent<ServerComponentScheduler>();
+				ComponentScheduler = new ServerComponentScheduler( this );
 			else
-				ComponentScheduler = AddComponent<ClientComponentScheduler>();
-
-			EventBus = AddComponent<EventBus>();
-
-			if( isClient )
-				InterpolationManager = AddComponent<InterpolationManager>();
-		}
-
-		T AddComponent<T>()
-			where T : SimulatorComponent, new()
-		{
-			if( SynchronizedClock.Time > 0 )
-				throw new InvalidOperationException( "Cannot add manager after simulator started" );
-
-			var m = new T();
-			m.OnInitialize( this );
-			m_components.Add( m );
-			m.OnStart();
-			return m;
+				ComponentScheduler = new ClientComponentScheduler( this );
 		}
 
 		public void Simulate(float deltaTime)
 		{
 			SynchronizedClock.Tick( deltaTime );
 
-			foreach( var m in m_components )
-				m.OnUpdate();
-
 			while( FixedTime <= Time + FixedDeltaTime )
 			{
 				FixedTime += FixedDeltaTime;
 
-				foreach( var m in m_components )
-					m.OnFixedUpdate();
+				InputManager?.SetInput();
+				InputManager?.EnqueueCommands();
+
+				ComponentScheduler.FixedUpdate();
+				EventBus.DispatchEvents();
+
+				InputManager?.ResetInput();
 			}
 
-			foreach( var m in m_components )
-				m.OnLateUpdate();
+			InterpolationManager.Interpolate();
 		}
 	}
 }

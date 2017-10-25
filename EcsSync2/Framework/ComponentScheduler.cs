@@ -5,6 +5,13 @@ namespace EcsSync2
 {
 	public abstract class ComponentScheduler : SimulatorComponent
 	{
+		protected ComponentScheduler(Simulator simulator)
+			: base( simulator )
+		{
+		}
+
+		internal abstract void FixedUpdate();
+
 		protected void DispatchCommands(Component.ITickContext ctx, CommandFrame frame)
 		{
 			if( frame.Commands != null )
@@ -27,17 +34,14 @@ namespace EcsSync2
 		TickContext m_tickContext;
 		SortedList<ulong, CommandFrame> m_dispatchedCommands = new SortedList<ulong, CommandFrame>();
 
-		internal override void OnInitialize(Simulator simulator)
+		public ServerComponentScheduler(Simulator simulator)
+			: base( simulator )
 		{
-			base.OnInitialize( simulator );
-
 			m_tickContext = new TickContext( simulator );
 		}
 
-		internal override void OnFixedUpdate()
+		internal override void FixedUpdate()
 		{
-			base.OnFixedUpdate();
-
 			DispatchCommands( m_tickContext );
 			FixedUpdateComponents( m_tickContext );
 		}
@@ -117,10 +121,13 @@ namespace EcsSync2
 		TickContext m_predictionTickContext = new TickContext();
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
 
-		internal override void OnFixedUpdate()
-		{
-			base.OnFixedUpdate();
+		public ClientComponentScheduler(Simulator simulator) : base( simulator )
 
+		{
+		}
+
+		internal override void FixedUpdate()
+		{
 			ApplySyncFrames();
 			ReconcilePredictions();
 			Predict();

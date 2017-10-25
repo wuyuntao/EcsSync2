@@ -44,12 +44,13 @@ namespace EcsSync2
 		T Value { get; }
 	}
 
-	public class ReferencableAllocator
+	public class ReferencableAllocator : SimulatorComponent
 	{
 		int m_maxCapacity;
 		Dictionary<Type, ReferencableCounterPool> m_pools = new Dictionary<Type, ReferencableCounterPool>();
 
-		public ReferencableAllocator(int maxCapacity = 100)
+		public ReferencableAllocator(Simulator simulator, int maxCapacity = 100)
+			: base( simulator )
 		{
 			m_maxCapacity = maxCapacity;
 		}
