@@ -2,10 +2,10 @@
 {
 	public abstract class Scene
 	{
-		internal abstract SceneSnapshot OnStart(ComponentScheduler.ITickContext context);
+		internal abstract SceneSnapshot OnStart(Component.ITickContext ctx);
 
-		internal abstract SceneSnapshot OnFixedUpdate(ComponentScheduler.ITickContext context, SceneSnapshot state);
+		internal abstract SceneSnapshot OnFixedUpdate(Component.ITickContext ctx, SceneSnapshot state);
 
-		internal abstract SceneSnapshot OnEventApplied(ComponentScheduler.ITickContext context, Event @event);
+		internal abstract SceneSnapshot OnEventApplied(Component.ITickContext ctx, Event @event);
 	}
 }

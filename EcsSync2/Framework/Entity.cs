@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace EcsSync2
 {
+	public abstract class EntitySettings
+	{
+	}
+
 	public abstract class Entity
 	{
 		public enum State
@@ -24,18 +28,6 @@ namespace EcsSync2
 			Id = id;
 		}
 
-		internal virtual void OnStart()
-		{
-			foreach( var component in m_components )
-				component.OnStart();
-		}
-
-		internal virtual void OnDestroy()
-		{
-			foreach( var component in m_components )
-				component.OnDestroy();
-		}
-
 		protected T AddComponent<T>()
 			where T : Component, new()
 		{
@@ -48,7 +40,6 @@ namespace EcsSync2
 			var component = new T();
 			component.OnInitialize( this, Id );     // TODO How to allocate id
 			m_components.Add( component );
-			component.OnStart();
 			return component;
 		}
 	}

@@ -4,6 +4,13 @@ namespace EcsSync2
 {
 	public abstract class Component
 	{
+		public interface ITickContext
+		{
+			uint Time { get; }
+
+			uint DeltaTime { get; }
+		}
+
 		public Entity Entity { get; private set; }
 		public InstanceId Id { get; private set; }
 
@@ -13,22 +20,34 @@ namespace EcsSync2
 			Id = id;
 		}
 
-		internal abstract Snapshot OnStart(ComponentScheduler.ITickContext context);
+		internal abstract Snapshot OnStart(ITickContext ctx);
 
-		internal abstract Snapshot OnFixedUpdate(ComponentScheduler.ITickContext context, Snapshot state);
+		internal abstract Snapshot OnFixedUpdate(ITickContext ctx, Snapshot state);
 
-		internal abstract void OnDestroy(ComponentScheduler.ITickContext context, Snapshot state);
+		internal abstract void OnDestroy(ITickContext ctx, Snapshot state);
 
-		internal abstract Snapshot OnCommandReceived(ComponentScheduler.ITickContext context, Snapshot state);
-
-		internal abstract Snapshot OnEventApplied(ComponentScheduler.ITickContext context, Snapshot state, Event @event);
-
-		internal void ReceiveCommand(ComponentScheduler.ITickContext context, Command command)
+		internal void ReceiveCommand(ITickContext ctx, Command command)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal Snapshot GetState(ComponentScheduler.ITickContext context)
+		internal abstract Snapshot OnCommandReceived(ITickContext ctx, Snapshot state);
+
+		internal void ApplyEvent(ITickContext ctx, Event e)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal abstract Snapshot OnEventApplied(ITickContext ctx, Snapshot state, Event @event);
+
+		internal Snapshot GetState(ITickContext ctx)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal abstract void OnSnapshotRecovered(ITickContext ctx, ComponentSnapshot cs);
+
+		internal void RecoverSnapshot(ITickContext ctx, Snapshot state)
 		{
 			throw new NotImplementedException();
 		}

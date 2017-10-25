@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EcsSync2
 {
@@ -13,5 +14,17 @@ namespace EcsSync2
 			m_components.TryGetValue( id, out Component component );
 			return component;
 		}
+
+		internal Entity CreateEntity(InstanceId id, EntitySettings settings)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal List<Component> GetPredictedComponents()
+		{
+			throw new NotImplementedException();
+		}
+
+		public Scene Scene => m_scene;
 	}
 }

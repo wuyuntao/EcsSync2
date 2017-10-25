@@ -1,6 +1,15 @@
 ﻿namespace EcsSync2
 {
-	abstract class Event : Message
+	public abstract class Event : Message
 	{
+	}
+
+	public class SceneEvent : Event
+	{
+	}
+
+	public class ComponentEvent : Event
+	{
+		public InstanceId ComponentId;
 	}
 }
