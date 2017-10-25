@@ -9,16 +9,12 @@
 	class Timeline
 	{
 		Simulator m_simulator;
-		Timepoint[] m_points;
-		int m_firstIndex = -1;
-		int m_lastIndex = -1;
+		CircularQueue<Timepoint> m_points;
 
 		public Timeline(Simulator simulator, int capacity)
 		{
 			m_simulator = simulator;
-			m_points = new Timepoint[capacity];
-			for( int i = 0; i < capacity; i++ )
-				m_points[i] = new Timepoint();
+			m_points = new CircularQueue<Timepoint>( capacity );
 		}
 
 		public Timeline(Simulator simulator)
@@ -28,35 +24,20 @@
 
 		public void AddPoint(uint time, Message snapshot)
 		{
-			snapshot.Retain();
-
-			if( m_firstIndex < 0 )
+			Timepoint point;
+			if( m_points.Last != null && m_points.Last.Time == time )
 			{
-				var first = m_points[0];
-				first.Time = time;
-				first.Snapshot = snapshot;
-				m_firstIndex = m_lastIndex = 0;
-				return;
+				point = m_points.Last;
+			}
+			else
+			{
+				point = m_points.Enqueue();
+				point.Time = time;
 			}
 
-			var last = m_points[m_lastIndex];
-			if( last.Time == time )
-			{
-				last.Snapshot.Release();
-				last.Snapshot = snapshot;
-				return;
-			}
-
-			var index = ( m_lastIndex + 1 ) % m_points.Length;
-			if( index == m_firstIndex )
-			{
-				m_points[m_firstIndex].Release();
-				m_firstIndex = ( m_firstIndex + 1 ) % m_points.Length;
-			}
-
-			var current = m_points[index];
-			current.Time = time;
-			current.Snapshot = snapshot;
+			point.Snapshot?.Release();
+			point.Snapshot = snapshot;
+			point.Snapshot.Retain();
 		}
 	}
 }

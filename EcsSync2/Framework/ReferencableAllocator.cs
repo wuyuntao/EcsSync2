@@ -42,56 +42,107 @@ namespace EcsSync2
 
 	public class ReferencableAllocator
 	{
-		Dictionary<Type, Queue<IReferenceCounter>> m_unreferenced = new Dictionary<Type, Queue<IReferenceCounter>>();
-		Dictionary<Type, Queue<IReferenceCounter>> m_referenced = new Dictionary<Type, Queue<IReferenceCounter>>();
+		Dictionary<Type, ReferencableCounterPool> m_pools = new Dictionary<Type, ReferencableCounterPool>();
 
 		public IReferenceCounter<T> Allocate<T>()
 			where T : class, IReferencable, new()
 		{
-			var unreferenced = EnsureQueue( m_unreferenced, typeof( T ) );
-			var counter = EnsureCounter<T>( unreferenced );
-			var referenced = EnsureQueue( m_referenced, typeof( T ) );
-			referenced.Enqueue( counter );
-			return counter;
+			return EnsurePool<T>().Allocate<T>();
 		}
 
-		Queue<IReferenceCounter> EnsureQueue(Dictionary<Type, Queue<IReferenceCounter>> queues, Type type)
-		{
-			if( !queues.TryGetValue( type, out Queue<IReferenceCounter> queue ) )
-			{
-				queue = new Queue<IReferenceCounter>();
-				queues.Add( type, queue );
-			}
-			return queue;
-		}
-
-		IReferenceCounter<T> EnsureCounter<T>(Queue<IReferenceCounter> queue)
+		public IReferenceCounter<T> Allocate<T>(T value)
 			where T : class, IReferencable, new()
 		{
-			IReferenceCounter<T> counter;
-			if( queue.Count > 0 )
-				counter = (IReferenceCounter<T>)queue.Dequeue();
-			else
-				counter = new ReferencableCounter<T>( this );
-
-			return counter;
+			return EnsurePool<T>().Allocate<T>( value );
 		}
+
+		public void Clear()
+		{
+			m_pools.Clear();
+		}
+
+		ReferencableCounterPool EnsurePool<T>()
+			where T : class, IReferencable, new()
+		{
+			if( !m_pools.TryGetValue( typeof( T ), out ReferencableCounterPool pool ) )
+			{
+				pool = new ReferencableCounterPool();
+				m_pools.Add( typeof( T ), pool );
+			}
+
+			return pool;
+		}
+
+		#region ReferencableCounterPool
+
+		class ReferencableCounterPool
+		{
+			readonly List<IReferenceCounter> m_counters;
+			readonly Queue<int> m_unreferenced;
+
+			public ReferencableCounterPool(int initialCapacity = 16)
+			{
+				m_counters = new List<IReferenceCounter>( initialCapacity );
+				m_unreferenced = new Queue<int>( initialCapacity );
+			}
+
+			public IReferenceCounter<T> Allocate<T>()
+				where T : class, IReferencable, new()
+			{
+				if( m_unreferenced.Count > 0 )
+				{
+					var index = m_unreferenced.Dequeue();
+					return (IReferenceCounter<T>)m_counters[index];
+				}
+				else
+				{
+					var counter = new ReferencableCounter<T>( this, m_counters.Count );
+					m_counters.Add( counter );
+					return counter;
+				}
+			}
+
+			public IReferenceCounter<T> Allocate<T>(T value)
+				where T : class, IReferencable, new()
+			{
+				var counter = new ReferencableCounter<T>( this, m_counters.Count, value );
+				m_counters.Add( counter );
+				return counter;
+			}
+
+			public void Release(int index)
+			{
+				m_unreferenced.Enqueue( index );
+			}
+		}
+
+		#endregion
 
 		#region ReferencableCounter
 
 		class ReferencableCounter<T> : IReferenceCounter<T>
 			where T : class, IReferencable, new()
 		{
-			readonly ReferencableAllocator m_allocator;
+			readonly ReferencableCounterPool m_pool;
+			readonly int m_index;
 			readonly T m_value;
 			int m_referencedCount;
 
-			public ReferencableCounter(ReferencableAllocator allocator)
+			public ReferencableCounter(ReferencableCounterPool pool, int index, T value)
 			{
-				m_allocator = allocator;
-				m_value = new T();
+				if( value.ReferenceCounter != null )
+					throw new InvalidOperationException( "Already allocated" );
+
+				m_pool = pool;
+				m_index = index;
+				m_value = value;
 				m_value.ReferenceCounter = this;
+				m_referencedCount = 1;
 			}
+
+			public ReferencableCounter(ReferencableCounterPool pool, int index)
+				: this( pool, index, new T() )
+			{ }
 
 			public void Retain()
 			{
@@ -107,8 +158,7 @@ namespace EcsSync2
 				{
 					m_value.Reset();
 
-					var unreferenced = m_allocator.EnsureQueue( m_allocator.m_unreferenced, typeof( T ) );
-					unreferenced.Enqueue( (IReferenceCounter)this );
+					m_pool.Release( m_index );
 				}
 			}
 
