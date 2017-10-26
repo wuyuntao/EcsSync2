@@ -1,4 +1,4 @@
-﻿namespace EcsSync2
+﻿namespace EcsSync2.FpsExample
 {
 	public class GameManagerSettings : EntitySettings
 	{

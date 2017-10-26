@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace EcsSync2
+namespace EcsSync2.FpsExample
 {
-	public class ProcessController : Component
+	public class ConnectionManager : Component
 	{
 		protected override void OnCommandReceived(Command command)
 		{

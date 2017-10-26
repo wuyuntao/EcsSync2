@@ -22,7 +22,7 @@ namespace EcsSync2
 			return scene;
 		}
 
-		internal T CreateEntity<T>(InstanceId id, EntitySettings settings)
+		public T CreateEntity<T>(InstanceId id, EntitySettings settings)
 			where T : Entity, new()
 		{
 			var entity = new T();

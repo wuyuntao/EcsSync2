@@ -49,5 +49,7 @@ namespace EcsSync2
 			}
 			return queue;
 		}
+
+		public IEnumerable<ulong> UserIds => m_queues.Keys;
 	}
 }

@@ -6,7 +6,6 @@ namespace EcsSync2
 	public abstract class Scene
 	{
 		public SceneManager SceneManager { get; private set; }
-		public List<Player> Players { get; private set; } = new List<Player>();
 
 		internal virtual void Initialize(SceneManager sceneManager)
 		{

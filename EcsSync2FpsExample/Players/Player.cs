@@ -1,4 +1,4 @@
-﻿namespace EcsSync2
+﻿namespace EcsSync2.FpsExample
 {
 	public class PlayerSettings : EntitySettings
 	{
@@ -6,10 +6,6 @@
 
 	public class Player : Entity
 	{
-		public ulong UserId;
-
-		public bool IsAI;
-
 		protected override void OnInitialize()
 		{
 		}

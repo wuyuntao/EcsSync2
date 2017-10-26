@@ -24,13 +24,11 @@ namespace EcsSync2
 
 		void DispatchCommands(TickContext context)
 		{
-			foreach( var player in Simulator.SceneManager.Scene.Players )
+			// TODO 合并 CommandQueue
+			foreach( var userId in Simulator.CommandQueue.UserIds )
 			{
-				if( player.IsAI )
-					continue;
-
 				// TODO 减少按 UserId 的查询
-				m_dispatchedCommands.TryGetValue( player.UserId, out CommandFrame lastFrame );
+				m_dispatchedCommands.TryGetValue( userId, out CommandFrame lastFrame );
 
 				// 尝试执行从上一次应用的命令帧开始，到当前帧之间的所有命令
 				var lastFrameChanged = false;
@@ -38,7 +36,7 @@ namespace EcsSync2
 					time <= context.Time;
 					time += context.DeltaTime )
 				{
-					var frame = Simulator.CommandQueue.FetchCommands( player.UserId, time );
+					var frame = Simulator.CommandQueue.FetchCommands( userId, time );
 					if( frame == null )
 						break;
 
@@ -51,7 +49,7 @@ namespace EcsSync2
 				{
 					// 更新当前应用的命令帧
 					if( lastFrameChanged )
-						m_dispatchedCommands[player.UserId] = lastFrame;
+						m_dispatchedCommands[userId] = lastFrame;
 
 					// 如果无法获取当前帧的话，总是重复上一次的命令帧
 					if( lastFrame.Time != context.Time )
@@ -66,7 +64,7 @@ namespace EcsSync2
 					}
 
 					// 清理已应用命令
-					Simulator.CommandQueue.DequeueBefore( player.UserId, lastFrame.Time );
+					Simulator.CommandQueue.DequeueBefore( userId, lastFrame.Time );
 				}
 			}
 		}

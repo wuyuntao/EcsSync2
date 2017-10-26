@@ -1,4 +1,6 @@
-﻿namespace EcsSync2.Examples
+﻿using EcsSync2.FpsExample;
+
+namespace EcsSync2.Examples
 {
 	class Program
 	{
