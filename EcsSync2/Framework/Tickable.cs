@@ -40,6 +40,19 @@ namespace EcsSync2
 			m_context = null;
 		}
 
+		internal Snapshot GetState(TickScheduler.TickContext context)
+		{
+			ValidateTickContext();
+
+			throw new NotSupportedException();
+		}
+		internal void SetState(TickScheduler.TickContext context, Snapshot snapshot)
+		{
+			ValidateTickContext();
+
+			throw new NotSupportedException();
+		}
+
 		#endregion
 
 		#region Life-cycle
@@ -59,6 +72,16 @@ namespace EcsSync2
 			ValidateTickContext();
 
 			OnFixedUpdate();
+		}
+
+		internal void RecoverSnapshot(Snapshot cs)
+		{
+			ValidateTickContext();
+		}
+
+		internal void ApplyEvent(Event @event)
+		{
+			ValidateTickContext();
 		}
 
 		#endregion
@@ -85,7 +108,7 @@ namespace EcsSync2
 
 		#endregion
 
-		#region Private Helpers
+		#region Internal Helpers
 
 		void ValidateTickContext()
 		{

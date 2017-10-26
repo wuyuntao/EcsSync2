@@ -18,21 +18,23 @@ namespace EcsSync2
 
 		public SceneManager SceneManager { get; private set; }
 		public InstanceId Id { get; private set; }
+		public EntitySettings Settings { get; private set; }
 		public List<Component> Components { get; } = new List<Component>();
 
 		State m_state = State.Initial;
 
-		internal void Initialize(SceneManager sceneManager, InstanceId id)
+		internal void Initialize(SceneManager sceneManager, InstanceId id, EntitySettings settings)
 		{
 			SceneManager = sceneManager;
 			Id = id;
+			Settings = settings;
 
 			OnInitialize();
 		}
 
 		protected abstract void OnInitialize();
 
-		protected T AddComponent<T>()
+		protected T AddComponent<T>(ComponentSettings settings = null)
 			where T : Component, new()
 		{
 			if( SceneManager == null )
@@ -42,7 +44,7 @@ namespace EcsSync2
 				throw new InvalidOperationException( "Aready started" );
 
 			var component = new T();
-			component.OnInitialize( this, Id );     // TODO How to allocate id
+			component.OnInitialize( this, Id, settings );
 			Components.Add( component );
 			return component;
 		}

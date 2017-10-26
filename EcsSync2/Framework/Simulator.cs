@@ -4,7 +4,7 @@ namespace EcsSync2
 {
 	public class Simulator
 	{
-		public interface IContext : InputManager.IContext
+		public interface IContext
 		{
 		}
 
@@ -22,14 +22,12 @@ namespace EcsSync2
 		public SceneManager SceneManager { get; }
 		public TickScheduler TickScheduler { get; }
 		public ServerTickScheduler ServerTickScheduler { get; }
+		public ClientTickScheduler ClientTickScheduler { get; }
 		public EventBus EventBus { get; }
 		public InterpolationManager InterpolationManager { get; }
 
 		public uint FixedTime { get; private set; }
 		public uint FixedDeltaTime => Settings.SimulationDeltaTime;
-
-		public uint Time => (uint)Math.Round( SynchronizedClock.Time * 1000 );
-		public uint DeltaTime => (uint)Math.Round( SynchronizedClock.DeltaTime * 1000 );
 
 		public Simulator(IContext context, bool isServer, bool isClient, int? randomSeed, ulong? localUserId)
 		{
@@ -53,32 +51,24 @@ namespace EcsSync2
 			}
 
 			if( isServer )
-			{
 				TickScheduler = ServerTickScheduler = new ServerTickScheduler( this );
-			}
 			else
-			{
-			}
+				TickScheduler = ClientTickScheduler = new ClientTickScheduler( this );
 		}
 
 		public void Simulate(float deltaTime)
 		{
 			SynchronizedClock.Tick( deltaTime );
 
-			while( FixedTime <= Time + FixedDeltaTime )
+			while( FixedTime <= SynchronizedClock.Time * 1000 + FixedDeltaTime )
 			{
 				FixedTime += FixedDeltaTime;
 
-				InputManager?.SetInput();
-				InputManager?.EnqueueCommands();
-
 				TickScheduler.FixedUpdate();
 				EventBus.DispatchEvents();
-
-				InputManager?.ResetInput();
 			}
 
-			InterpolationManager.Interpolate();
+			InterpolationManager?.Interpolate();
 		}
 	}
 }

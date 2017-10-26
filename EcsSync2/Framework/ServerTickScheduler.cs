@@ -40,7 +40,7 @@ namespace EcsSync2
 					if( frame == null )
 						break;
 
-					DispatchCommands( context, frame );
+					DispatchCommands( frame );
 					lastFrame = frame;
 					lastFrameChanged = true;
 				}
@@ -54,7 +54,7 @@ namespace EcsSync2
 					// 如果无法获取当前帧的话，总是重复上一次的命令帧
 					if( lastFrame.Time != context.Time )
 					{
-						DispatchCommands( context, lastFrame );
+						DispatchCommands( lastFrame );
 
 						// TODO 按需加速客户端
 					}
@@ -69,7 +69,7 @@ namespace EcsSync2
 			}
 		}
 
-		void DispatchCommands(TickContext context, CommandFrame frame)
+		void DispatchCommands(CommandFrame frame)
 		{
 			if( frame.Commands != null )
 			{

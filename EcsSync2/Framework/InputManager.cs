@@ -22,7 +22,7 @@ namespace EcsSync2
 
 		internal void SetInput()
 		{
-			var c = Simulator.Context;
+			var c = (IContext)Simulator.Context;
 			m_joystickDirection[0] = c.GetAxis( "Horizontal" );
 			m_joystickDirection[1] = c.GetAxis( "Vertical" );
 			m_joystickMagnitude = (float)Math.Sqrt( m_joystickDirection[0] * m_joystickDirection[0] + m_joystickDirection[1] + m_joystickDirection[1] );
@@ -37,11 +37,11 @@ namespace EcsSync2
 			var frame = Simulator.ReferencableAllocator.Allocate<CommandFrame>();
 			frame.Time = Simulator.FixedTime;
 
-			var command = frame.AddCommand<MoveCharacterCommand>();
-			{
-				command.Direction = new float[] { m_joystickDirection[0], m_joystickDirection[1] };
-				command.Magnitude = m_joystickMagnitude;
-			}
+			//var command = frame.AddCommand<MoveCharacterCommand>();
+			//{
+			//	command.Direction = new float[] { m_joystickDirection[0], m_joystickDirection[1] };
+			//	command.Magnitude = m_joystickMagnitude;
+			//}
 
 			Simulator.CommandQueue.EnqueueCommands( Simulator.LocalUserId.Value, frame );
 

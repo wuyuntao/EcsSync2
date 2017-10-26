@@ -26,7 +26,7 @@ namespace EcsSync2
 			where T : Entity, new()
 		{
 			var entity = new T();
-			entity.Initialize( this, id );
+			entity.Initialize( this, id, settings );
 			m_entities.Add( id, entity );
 			foreach( var component in entity.Components )
 				m_components.Add( component.Id, component );

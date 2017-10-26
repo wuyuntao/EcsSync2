@@ -1,6 +1,6 @@
 ﻿namespace EcsSync2.Examples
 {
-	class SimulatorContext : Simulator.IContext
+	class SimulatorContext : Simulator.IContext, InputManager.IContext
 	{
 		float InputManager.IContext.GetAxis(string name)
 		{

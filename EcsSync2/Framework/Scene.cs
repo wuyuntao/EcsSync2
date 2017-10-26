@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace EcsSync2
 {
@@ -16,7 +15,12 @@ namespace EcsSync2
 
 		protected abstract void OnInitialize();
 
-		protected abstract Entity CreateEntity(InstanceId id, EntitySettings settings);
+		protected internal abstract Entity CreateEntity(InstanceId id, EntitySettings settings);
+
+		internal void ApplyEvent(Event @event)
+		{
+			throw new NotImplementedException();
+		}
 
 		internal void OnEventApplied(Event @event)
 		{

@@ -4,11 +4,4 @@
 	{
 		public InstanceId Receiver;
 	}
-
-	public class MoveCharacterCommand : Command
-	{
-		public float[] Direction;
-
-		public float Magnitude;
-	}
 }
