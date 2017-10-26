@@ -180,18 +180,6 @@ namespace EcsSync2
 			DispatchCommands( frame );
 		}
 
-		void DispatchCommands(CommandFrame frame)
-		{
-			if( frame.Commands != null )
-			{
-				foreach( var command in frame.Commands )
-				{
-					var component = Simulator.SceneManager.FindComponent( command.Receiver );
-					component.ReceiveCommand( command );
-				}
-			}
-		}
-
 		#endregion
 	}
 }

@@ -49,6 +49,18 @@ namespace EcsSync2
 
 		internal abstract void Tick();
 
+		protected void DispatchCommands(CommandFrame frame)
+		{
+			if( frame.Commands != null )
+			{
+				foreach( var command in frame.Commands )
+				{
+					var c = Simulator.SceneManager.FindComponent( command.Receiver );
+					c.ReceiveCommand( command );
+				}
+			}
+		}
+
 		internal void FixedUpdate()
 		{
 			foreach( var t in Tickables )
