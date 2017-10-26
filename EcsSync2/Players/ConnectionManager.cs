@@ -4,32 +4,27 @@ namespace EcsSync2
 {
 	public class ConnectionManager : Component
 	{
-		internal override Snapshot OnStart(ITickContext context)
+		protected override void OnCommandReceived(Command command)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal override void OnDestroy(ITickContext context, Snapshot state)
+		protected override Snapshot OnEventApplied(Snapshot state, Event @event)
 		{
 			throw new NotImplementedException();
 		}
 
-		protected override Snapshot OnEventApplied(ITickContext ctx, Snapshot state, Event @event)
+		protected override void OnFixedUpdate()
 		{
 			throw new NotImplementedException();
 		}
 
-		protected override void OnSnapshotRecovered(ITickContext ctx, Snapshot cs)
+		protected override void OnSnapshotRecovered(Snapshot state)
 		{
 			throw new NotImplementedException();
 		}
 
-		internal override void OnFixedUpdate(ITickContext ctx, Snapshot state)
-		{
-			throw new NotImplementedException();
-		}
-
-		internal override void OnCommandReceived(ITickContext ctx, Snapshot state, Command command)
+		protected override Snapshot OnStart()
 		{
 			throw new NotImplementedException();
 		}

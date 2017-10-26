@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace EcsSync2
 {
@@ -19,7 +18,7 @@ namespace EcsSync2
 		{
 			var scene = new T();
 			m_scene = scene;
-			m_scene.OnInitialize( this );
+			m_scene.Initialize( this );
 			return scene;
 		}
 
@@ -27,7 +26,7 @@ namespace EcsSync2
 			where T : Entity, new()
 		{
 			var entity = new T();
-			entity.OnInitialize( this, id );
+			entity.Initialize( this, id );
 			m_entities.Add( id, entity );
 			foreach( var component in entity.Components )
 				m_components.Add( component.Id, component );
@@ -56,11 +55,6 @@ namespace EcsSync2
 		{
 			m_components.TryGetValue( id, out Component component );
 			return component;
-		}
-
-		internal List<Component> GetPredictedComponents()
-		{
-			throw new NotImplementedException();
 		}
 
 		public Scene Scene => m_scene;

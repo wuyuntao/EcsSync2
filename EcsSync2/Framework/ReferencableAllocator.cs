@@ -35,13 +35,11 @@ namespace EcsSync2
 
 		T Allocate<T>(T value) where T : class, IReferencable, new();
 
-		int ReferencedCount { get; }
-	}
+		IReferencable Allocate(Type type);
 
-	public interface IReferenceCounter<T> : IReferenceCounter
-		where T : IReferencable
-	{
-		T Value { get; }
+		int ReferencedCount { get; }
+
+		IReferencable Value { get; }
 	}
 
 	public class ReferencableAllocator : SimulatorComponent
@@ -58,13 +56,18 @@ namespace EcsSync2
 		public T Allocate<T>()
 			where T : class, IReferencable, new()
 		{
-			return EnsurePool<T>().Allocate<T>().Value;
+			return (T)EnsurePool( typeof( T ) ).Allocate<T>().Value;
+		}
+
+		public object Allocate(Type type)
+		{
+			return EnsurePool( type ).Allocate( type ).Value;
 		}
 
 		public T Allocate<T>(T value)
 			where T : class, IReferencable, new()
 		{
-			return EnsurePool<T>().Allocate( value ).Value;
+			return (T)EnsurePool( typeof( T ) ).Allocate( value ).Value;
 		}
 
 		public void Clear()
@@ -72,13 +75,12 @@ namespace EcsSync2
 			m_pools.Clear();
 		}
 
-		ReferencableCounterPool EnsurePool<T>()
-			where T : class, IReferencable, new()
+		ReferencableCounterPool EnsurePool(Type type)
 		{
-			if( !m_pools.TryGetValue( typeof( T ), out ReferencableCounterPool pool ) )
+			if( !m_pools.TryGetValue( type, out ReferencableCounterPool pool ) )
 			{
 				pool = new ReferencableCounterPool( this );
-				m_pools.Add( typeof( T ), pool );
+				m_pools.Add( type, pool );
 			}
 
 			return pool;
@@ -98,38 +100,43 @@ namespace EcsSync2
 				m_unreferenced = new Queue<int>( initialCapacity );
 			}
 
-			public IReferenceCounter<T> Allocate<T>()
+			public IReferenceCounter Allocate<T>()
 				where T : class, IReferencable, new()
 			{
-				if( m_unreferenced.Count > 0 )
-				{
-					var index = m_unreferenced.Dequeue();
-					return (IReferenceCounter<T>)m_counters[index];
-				}
-				else if( m_counters.Count < Allocator.m_maxCapacity )
-				{
-					var counter = new ReferencableCounter<T>( this, m_counters.Count );
-					m_counters.Add( counter );
-					return counter;
-				}
-				else
-				{
-					return new ReferencableCounter<T>( this, -1 );
-				}
+				return Allocate( typeof( T ) );
 			}
 
-			public IReferenceCounter<T> Allocate<T>(T value)
+			public IReferenceCounter Allocate<T>(T value)
 				where T : class, IReferencable, new()
 			{
 				if( m_counters.Count < Allocator.m_maxCapacity )
 				{
-					var counter = new ReferencableCounter<T>( this, m_counters.Count, value );
+					var counter = new ReferencableCounter( this, m_counters.Count, value );
 					m_counters.Add( counter );
 					return counter;
 				}
 				else
 				{
-					return new ReferencableCounter<T>( this, -1, value );
+					return new ReferencableCounter( this, -1, value );
+				}
+			}
+
+			public IReferenceCounter Allocate(Type type)
+			{
+				if( m_unreferenced.Count > 0 )
+				{
+					var index = m_unreferenced.Dequeue();
+					return m_counters[index];
+				}
+				else if( m_counters.Count < Allocator.m_maxCapacity )
+				{
+					var counter = new ReferencableCounter( this, m_counters.Count, (IReferencable)Activator.CreateInstance( type ) );
+					m_counters.Add( counter );
+					return counter;
+				}
+				else
+				{
+					return new ReferencableCounter( this, -1, (IReferencable)Activator.CreateInstance( type ) );
 				}
 			}
 
@@ -145,15 +152,14 @@ namespace EcsSync2
 
 		#region ReferencableCounter
 
-		class ReferencableCounter<T> : IReferenceCounter<T>
-			where T : class, IReferencable, new()
+		class ReferencableCounter : IReferenceCounter
 		{
 			readonly ReferencableCounterPool m_pool;
 			readonly int m_index;
-			readonly T m_value;
+			readonly IReferencable m_value;
 			int m_referencedCount;
 
-			public ReferencableCounter(ReferencableCounterPool pool, int index, T value)
+			public ReferencableCounter(ReferencableCounterPool pool, int index, IReferencable value)
 			{
 				if( value.ReferenceCounter != null )
 					throw new InvalidOperationException( "Already allocated" );
@@ -164,10 +170,6 @@ namespace EcsSync2
 				m_value.ReferenceCounter = this;
 				m_referencedCount = 1;
 			}
-
-			public ReferencableCounter(ReferencableCounterPool pool, int index)
-				: this( pool, index, new T() )
-			{ }
 
 			public void Retain()
 			{
@@ -191,16 +193,21 @@ namespace EcsSync2
 			public T1 Allocate<T1>()
 				where T1 : class, IReferencable, new()
 			{
-				return m_pool.Allocator.Allocate<T1>();
+				return (T1)m_pool.Allocate<T1>().Value;
 			}
 
 			public T1 Allocate<T1>(T1 value)
 				where T1 : class, IReferencable, new()
 			{
-				return m_pool.Allocator.Allocate<T1>( value );
+				return (T1)m_pool.Allocate<T1>( value ).Value;
 			}
 
-			public T Value => m_value;
+			public IReferencable Allocate(Type type)
+			{
+				return m_pool.Allocate( type ).Value;
+			}
+
+			public IReferencable Value => m_value;
 
 			public int ReferencedCount => m_referencedCount;
 		}

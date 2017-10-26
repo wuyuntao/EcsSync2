@@ -8,10 +8,8 @@
 	{
 		public ProcessController ProcessController { get; private set; }
 
-		internal override void OnInitialize(SceneManager scene, InstanceId id)
+		protected override void OnInitialize()
 		{
-			base.OnInitialize( scene, id );
-
 			ProcessController = AddComponent<ProcessController>();
 		}
 	}

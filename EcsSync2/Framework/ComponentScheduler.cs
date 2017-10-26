@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace EcsSync2
 {
+	/*
 	public abstract class ComponentScheduler : SimulatorComponent
 	{
 		protected ComponentScheduler(Simulator simulator)
@@ -232,7 +233,7 @@ namespace EcsSync2
 				if( Settings.ComponentReconcilationRatio < 1 )
 				{
 					var predictionState = component.GetSnapshot( m_predictionTickContext );
-					reconcilationState = predictionState.Interpolate( reconcilationState, Settings.ComponentReconcilationRatio );
+					reconcilationState = predictionState.Interpolate( Simulator.ReferencableAllocator, reconcilationState, Settings.ComponentReconcilationRatio );
 				}
 				component.RecoverSnapshot( m_predictionTickContext, reconcilationState );
 			}
@@ -289,4 +290,5 @@ namespace EcsSync2
 
 		#endregion
 	}
+	*/
 }

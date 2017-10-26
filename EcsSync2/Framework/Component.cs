@@ -13,17 +13,10 @@ namespace EcsSync2
 			Id = id;
 		}
 
-		internal abstract Snapshot OnStart(ITickContext ctx);
-
-		internal abstract void OnFixedUpdate(ITickContext ctx, Snapshot state);
-
-		internal abstract void OnDestroy(ITickContext ctx, Snapshot state);
-
-		internal void ReceiveCommand(ITickContext ctx, Command command)
+		internal void ReceiveCommand(Command command)
 		{
-			throw new NotImplementedException();
 		}
 
-		internal abstract void OnCommandReceived(ITickContext ctx, Snapshot state, Command command);
+		protected abstract void OnCommandReceived(Command command);
 	}
 }

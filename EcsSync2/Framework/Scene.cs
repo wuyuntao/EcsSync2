@@ -3,37 +3,37 @@ using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	public abstract class Scene : Tickable
+	public abstract class Scene
 	{
 		public SceneManager SceneManager { get; private set; }
 		public List<Player> Players { get; private set; } = new List<Player>();
 
-		internal virtual void OnInitialize(SceneManager sceneManager)
+		internal virtual void Initialize(SceneManager sceneManager)
 		{
 			SceneManager = sceneManager;
+
+			OnInitialize();
 		}
 
-		protected internal abstract Entity CreateEntity(InstanceId id, EntitySettings settings);
+		protected abstract void OnInitialize();
 
-		//internal void ReceiveCommand(Component.ITickContext ctx, SceneCommand command)
-		//{
-		//}
+		protected abstract Entity CreateEntity(InstanceId id, EntitySettings settings);
 
-		//internal abstract void OnCommandReceived(Component.ITickContext ctx, SceneCommand command);
-
-		protected internal void ApplyEvent(ITickContext ctx, SceneEvent @event)
+		internal void OnEventApplied(Event @event)
 		{
-		}
+			switch( @event )
+			{
+				case EntityCreatedEvent e:
+					CreateEntity( e.Id, e.Settings );
+					break;
 
-		protected virtual SceneSnapshot OnEventApplied(ITickContext ctx, SceneEvent @event)
-		{
-			throw new NotImplementedException();
-		}
+				case EntityRemovedEvent e:
+					SceneManager.RemoveEntity( e.Id );
+					break;
 
-		//internal T AllocateEvent<T>()
-		//	where T : SceneEvent, new()
-		//{
-		//	return SceneManager.Simulator.ReferencableAllocator.Allocate<T>();
-		//}
+				default:
+					throw new NotSupportedException( @event.ToString() );
+			}
+		}
 	}
 }

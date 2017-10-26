@@ -16,22 +16,26 @@ namespace EcsSync2
 			Destroyed
 		}
 
-		public SceneManager Scene { get; private set; }
+		public SceneManager SceneManager { get; private set; }
 		public InstanceId Id { get; private set; }
 		public List<Component> Components { get; } = new List<Component>();
 
 		State m_state = State.Initial;
 
-		internal virtual void OnInitialize(SceneManager scene, InstanceId id)
+		internal void Initialize(SceneManager sceneManager, InstanceId id)
 		{
-			Scene = scene;
+			SceneManager = sceneManager;
 			Id = id;
+
+			OnInitialize();
 		}
+
+		protected abstract void OnInitialize();
 
 		protected T AddComponent<T>()
 			where T : Component, new()
 		{
-			if( Scene == null )
+			if( SceneManager == null )
 				throw new InvalidOperationException( "Not initialized yet" );
 
 			if( m_state != State.Initial )

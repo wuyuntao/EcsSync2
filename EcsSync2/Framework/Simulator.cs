@@ -20,7 +20,8 @@ namespace EcsSync2
 		public CommandQueue CommandQueue { get; }
 		public InstanceIdAllocator InstanceIdAllocator { get; }
 		public SceneManager SceneManager { get; }
-		public ComponentScheduler ComponentScheduler { get; }
+		public TickScheduler TickScheduler { get; }
+		public ServerTickScheduler ServerTickScheduler { get; }
 		public EventBus EventBus { get; }
 		public InterpolationManager InterpolationManager { get; }
 
@@ -50,11 +51,14 @@ namespace EcsSync2
 				InputManager = new InputManager( this );
 				InterpolationManager = new InterpolationManager( this );
 			}
-			
+
 			if( isServer )
-				ComponentScheduler = new ServerComponentScheduler( this );
+			{
+				TickScheduler = ServerTickScheduler = new ServerTickScheduler( this );
+			}
 			else
-				ComponentScheduler = new ClientComponentScheduler( this );
+			{
+			}
 		}
 
 		public void Simulate(float deltaTime)
@@ -68,7 +72,7 @@ namespace EcsSync2
 				InputManager?.SetInput();
 				InputManager?.EnqueueCommands();
 
-				ComponentScheduler.FixedUpdate();
+				TickScheduler.FixedUpdate();
 				EventBus.DispatchEvents();
 
 				InputManager?.ResetInput();

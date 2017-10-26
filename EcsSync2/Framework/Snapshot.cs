@@ -7,21 +7,42 @@ namespace EcsSync2
 	{
 		internal abstract bool IsApproximate(Snapshot other);
 
-		internal abstract Snapshot Interpolate(Snapshot other, float factor);
+		internal abstract Snapshot Interpolate(ReferencableAllocator allocator, Snapshot other, float factor);
+
+		internal abstract Snapshot Clone(ReferencableAllocator allocator);
+
+		internal abstract Snapshot Extrapolate(ReferencableAllocator allocator, uint time, uint extrapolateTime);
+
+		internal abstract Snapshot Interpolate(ReferencableAllocator allocator, uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime);
 	}
 
 	public class SceneSnapshot : Snapshot
 	{
 		public List<InstanceId> Entities = new List<InstanceId>();
 
-		internal override Snapshot Interpolate(Snapshot other, float factor)
+		internal override Snapshot Clone(ReferencableAllocator allocator)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal override Snapshot Extrapolate(ReferencableAllocator allocator, uint time, uint extrapolateTime)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal override Snapshot Interpolate(ReferencableAllocator allocator, Snapshot other, float factor)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal override Snapshot Interpolate(ReferencableAllocator allocator, uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime)
 		{
 			throw new NotImplementedException();
 		}
 
 		internal override bool IsApproximate(Snapshot other)
 		{
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 	}
 
@@ -33,14 +54,29 @@ namespace EcsSync2
 
 		public List<ComponentSnapshot> Components = new List<ComponentSnapshot>();
 
-		internal override Snapshot Interpolate(Snapshot other, float factor)
+		internal override Snapshot Clone(ReferencableAllocator allocator)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal override Snapshot Extrapolate(ReferencableAllocator allocator, uint time, uint extrapolateTime)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal override Snapshot Interpolate(ReferencableAllocator allocator, Snapshot other, float factor)
+		{
+			throw new NotImplementedException();
+		}
+
+		internal override Snapshot Interpolate(ReferencableAllocator allocator, uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime)
 		{
 			throw new NotImplementedException();
 		}
 
 		internal override bool IsApproximate(Snapshot other)
 		{
-			throw new System.NotImplementedException();
+			throw new NotImplementedException();
 		}
 	}
 
