@@ -27,23 +27,23 @@ namespace EcsSync2
 		}
 
 		public TickContext CurrentContext { get; private set; }
-		public List<Tickable> Tickables { get; } = new List<Tickable>();
+		public List<Component> Components { get; } = new List<Component>();
 
 		protected TickScheduler(Simulator simulator)
 			: base( simulator )
 		{
 		}
 
-		internal void AddTickable(Tickable tickable)
+		internal void AddComponent(Component component)
 		{
-			Tickables.Add( tickable );
+			Components.Add( component );
 		}
 
 		internal void EnterContext(TickContext context)
 		{
 			CurrentContext = context;
 
-			foreach( var t in Tickables )
+			foreach( var t in Components )
 				t.EnterContext( context );
 		}
 
@@ -63,13 +63,13 @@ namespace EcsSync2
 
 		internal void FixedUpdate()
 		{
-			foreach( var t in Tickables )
+			foreach( var t in Components )
 				t.FixedUpdate();
 		}
 
 		internal void LeaveContext()
 		{
-			foreach( var t in Tickables )
+			foreach( var t in Components )
 				t.LeaveContext();
 
 			CurrentContext = null;

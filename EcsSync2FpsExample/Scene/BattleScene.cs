@@ -6,6 +6,8 @@ namespace EcsSync2.FpsExample
 	{
 		protected override void OnInitialize()
 		{
+			if( SceneManager.Simulator.IsServer )
+				CreateEntity( SceneManager.Simulator.InstanceIdAllocator.Allocate(), new GameManagerSettings() );
 		}
 
 		protected override Entity CreateEntity(InstanceId id, EntitySettings settings)

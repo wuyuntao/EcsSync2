@@ -1,4 +1,5 @@
 ﻿using EcsSync2.FpsExample;
+using System;
 
 namespace EcsSync2.Examples
 {
@@ -16,7 +17,10 @@ namespace EcsSync2.Examples
 			simulator.SceneManager.LoadScene<BattleScene>();
 
 			for( int i = 0; i < 1000; i++ )
+			{
 				simulator.Simulate( Settings.SimulationDeltaTime );
+				Console.WriteLine( $"Simulate #{i}" );
+			}
 		}
 	}
 }

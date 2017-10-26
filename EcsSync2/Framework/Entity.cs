@@ -44,7 +44,7 @@ namespace EcsSync2
 				throw new InvalidOperationException( "Aready started" );
 
 			var component = new T();
-			component.OnInitialize( this, Id, settings );
+			component.Initialize( this, Id, settings );
 			Components.Add( component );
 			return component;
 		}

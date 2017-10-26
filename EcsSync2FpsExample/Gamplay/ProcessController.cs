@@ -16,7 +16,6 @@ namespace EcsSync2.FpsExample
 
 		protected override void OnFixedUpdate()
 		{
-			throw new NotImplementedException();
 		}
 
 		protected override void OnSnapshotRecovered(Snapshot state)

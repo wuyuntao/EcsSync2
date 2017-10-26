@@ -64,7 +64,7 @@ namespace EcsSync2
 			{
 				FixedTime += FixedDeltaTime;
 
-				TickScheduler.FixedUpdate();
+				TickScheduler.Tick();
 				EventBus.DispatchEvents();
 			}
 
