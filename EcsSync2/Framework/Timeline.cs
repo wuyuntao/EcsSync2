@@ -27,13 +27,13 @@ namespace EcsSync2
 		}
 
 		public Timeline(Simulator simulator)
-			: this( simulator, Settings.TimelineDefaultCapacity )
+			: this( simulator, Configuration.TimelineDefaultCapacity )
 		{
 		}
 
 		public void AddPoint(uint time, Snapshot snapshot)
 		{
-			Debug.Assert( ( time % Settings.SimulationDeltaTime ) == 0 );
+			Debug.Assert( ( time % Configuration.SimulationDeltaTime ) == 0 );
 
 			var lastPoint = LastPoint;
 			if( lastPoint != null && time < lastPoint.Time )
@@ -52,7 +52,7 @@ namespace EcsSync2
 
 		public Snapshot GetPoint(uint time)
 		{
-			Debug.Assert( ( time % Settings.SimulationDeltaTime ) == 0 );
+			Debug.Assert( ( time % Configuration.SimulationDeltaTime ) == 0 );
 
 			if( m_count == 0 )
 				return null;
@@ -80,15 +80,15 @@ namespace EcsSync2
 
 				// Equals
 				if( time == prevPoint.Time )
-					return prevPoint.Snapshot.Clone( m_simulator.ReferencableAllocator );
+					return prevPoint.Snapshot.Clone();
 
 				// Extrapolation
 				if( i == m_tail - 1 )
-					return prevPoint.Snapshot.Extrapolate( m_simulator.ReferencableAllocator, prevPoint.Time, time );
+					return prevPoint.Snapshot.Extrapolate(prevPoint.Time, time);
 
 				// Interpolation
 				var nextPoint = m_points[( i + 1 ) % m_points.Length];
-				return prevPoint.Snapshot.Interpolate( m_simulator.ReferencableAllocator, prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time );
+				return prevPoint.Snapshot.Interpolate(prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time);
 			}
 
 			return null;

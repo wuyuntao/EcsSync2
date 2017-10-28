@@ -18,7 +18,7 @@ namespace EcsSync2.Examples
 
 			for( int i = 0; i < 1000; i++ )
 			{
-				simulator.Simulate( Settings.SimulationDeltaTime );
+				simulator.Simulate( Configuration.SimulationDeltaTime );
 				Console.WriteLine( $"Simulate #{i}" );
 			}
 		}

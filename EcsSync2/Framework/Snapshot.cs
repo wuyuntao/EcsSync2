@@ -5,42 +5,42 @@ namespace EcsSync2
 {
 	public abstract class Snapshot : Message
 	{
-		internal abstract bool IsApproximate(Snapshot other);
+		protected internal abstract bool IsApproximate(Snapshot other);
 
-		internal abstract Snapshot Interpolate(ReferencableAllocator allocator, Snapshot other, float factor);
+        protected internal abstract Snapshot Interpolate(Snapshot other, float factor);
 
-		internal abstract Snapshot Clone(ReferencableAllocator allocator);
+        public abstract Snapshot Clone();
 
-		internal abstract Snapshot Extrapolate(ReferencableAllocator allocator, uint time, uint extrapolateTime);
+        protected internal abstract Snapshot Extrapolate(uint time, uint extrapolateTime);
 
-		internal abstract Snapshot Interpolate(ReferencableAllocator allocator, uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime);
+        protected internal abstract Snapshot Interpolate(uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime);
 	}
 
 	public class SceneSnapshot : Snapshot
 	{
 		public List<InstanceId> Entities = new List<InstanceId>();
 
-		internal override Snapshot Clone(ReferencableAllocator allocator)
+        public override Snapshot Clone()
 		{
 			throw new NotImplementedException();
 		}
 
-		internal override Snapshot Extrapolate(ReferencableAllocator allocator, uint time, uint extrapolateTime)
-		{
+        protected internal override Snapshot Extrapolate(uint time, uint extrapolateTime)
+        {
 			throw new NotImplementedException();
 		}
 
-		internal override Snapshot Interpolate(ReferencableAllocator allocator, Snapshot other, float factor)
-		{
+        protected internal override Snapshot Interpolate(Snapshot other, float factor)
+        {
 			throw new NotImplementedException();
 		}
 
-		internal override Snapshot Interpolate(ReferencableAllocator allocator, uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime)
-		{
+        protected internal override Snapshot Interpolate(uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime)
+        {
 			throw new NotImplementedException();
 		}
 
-		internal override bool IsApproximate(Snapshot other)
+        protected internal override bool IsApproximate(Snapshot other)
 		{
 			throw new NotImplementedException();
 		}
@@ -54,27 +54,27 @@ namespace EcsSync2
 
 		public List<ComponentSnapshot> Components = new List<ComponentSnapshot>();
 
-		internal override Snapshot Clone(ReferencableAllocator allocator)
-		{
+        public override Snapshot Clone()
+        {
+            throw new NotImplementedException();
+		}
+
+        protected internal override Snapshot Extrapolate(uint time, uint extrapolateTime)
+        {
 			throw new NotImplementedException();
 		}
 
-		internal override Snapshot Extrapolate(ReferencableAllocator allocator, uint time, uint extrapolateTime)
-		{
+        protected internal override Snapshot Interpolate(Snapshot other, float factor)
+        {
 			throw new NotImplementedException();
 		}
 
-		internal override Snapshot Interpolate(ReferencableAllocator allocator, Snapshot other, float factor)
-		{
+        protected internal override Snapshot Interpolate(uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime)
+        {
 			throw new NotImplementedException();
 		}
 
-		internal override Snapshot Interpolate(ReferencableAllocator allocator, uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime)
-		{
-			throw new NotImplementedException();
-		}
-
-		internal override bool IsApproximate(Snapshot other)
+        protected internal override bool IsApproximate(Snapshot other)
 		{
 			throw new NotImplementedException();
 		}

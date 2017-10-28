@@ -27,7 +27,7 @@ namespace EcsSync2
 		public InterpolationManager InterpolationManager { get; }
 
 		public uint FixedTime { get; private set; }
-		public uint FixedDeltaTime => Settings.SimulationDeltaTime;
+		public uint FixedDeltaTime => Configuration.SimulationDeltaTime;
 
 		public Simulator(IContext context, bool isServer, bool isClient, int? randomSeed, ulong? localUserId)
 		{

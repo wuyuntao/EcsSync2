@@ -1,6 +1,6 @@
 ﻿namespace EcsSync2
 {
-	public static class Settings
+	public static class Configuration
 	{
 		public const int StopExhaustCommandBufferSize = 6;
 

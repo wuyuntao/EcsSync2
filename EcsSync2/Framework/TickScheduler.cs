@@ -18,7 +18,7 @@ namespace EcsSync2
 
 			public uint Time { get; set; }
 
-			public uint DeltaTime { get => Settings.SimulationDeltaTime; }
+			public uint DeltaTime { get => Configuration.SimulationDeltaTime; }
 
 			public TickContext(TickContextType type)
 			{

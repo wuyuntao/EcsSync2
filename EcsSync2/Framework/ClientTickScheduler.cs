@@ -111,7 +111,7 @@ namespace EcsSync2
 			// 以和解模式更新到最新预测的状态
 			while( m_reconcilationTickContext.Time < m_predictionTickContext.Time )
 			{
-				m_reconcilationTickContext.Time += Settings.SimulationDeltaTime;
+				m_reconcilationTickContext.Time += Configuration.SimulationDeltaTime;
 
 				EnterContext( m_reconcilationTickContext );
 				DispatchCommands( m_reconcilationTickContext );
@@ -123,10 +123,10 @@ namespace EcsSync2
 			foreach( var component in components )
 			{
 				var reconcilationState = component.GetState( m_reconcilationTickContext );
-				if( Settings.ComponentReconcilationRatio < 1 )
+				if( Configuration.ComponentReconcilationRatio < 1 )
 				{
 					var predictionState = component.GetState( m_predictionTickContext );
-					reconcilationState = predictionState.Interpolate( Simulator.ReferencableAllocator, reconcilationState, Settings.ComponentReconcilationRatio );
+					reconcilationState = predictionState.Interpolate(reconcilationState, Configuration.ComponentReconcilationRatio);
 				}
 				component.SetState( m_predictionTickContext, reconcilationState );
 			}

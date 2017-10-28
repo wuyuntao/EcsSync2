@@ -19,7 +19,7 @@ namespace EcsSync2
 			m_remoteTime = ( serverTime + rtt / 2f );
 			m_rtt = rtt;
 
-			if( Math.Abs( m_time - m_remoteTime ) > Settings.SynchorizedClockDesyncThreshold )
+			if( Math.Abs( m_time - m_remoteTime ) > Configuration.SynchorizedClockDesyncThreshold )
 				m_time = Math.Max( m_time, m_remoteTime );
 		}
 
@@ -28,10 +28,10 @@ namespace EcsSync2
 			m_deltaTime = deltaTime;
 			m_remoteTime += m_deltaTime;
 
-			if( m_time + m_deltaTime > m_remoteTime + Settings.SynchorizedClockAdjustmentThreshold )
-				m_deltaTime *= ( 1 - Settings.SynchronizedClockAdjustmentRatio );
-			else if( m_time + m_deltaTime < m_remoteTime - Settings.SynchorizedClockAdjustmentThreshold )
-				m_deltaTime *= ( 1 + Settings.SynchronizedClockAdjustmentRatio );
+			if( m_time + m_deltaTime > m_remoteTime + Configuration.SynchorizedClockAdjustmentThreshold )
+				m_deltaTime *= ( 1 - Configuration.SynchronizedClockAdjustmentRatio );
+			else if( m_time + m_deltaTime < m_remoteTime - Configuration.SynchorizedClockAdjustmentThreshold )
+				m_deltaTime *= ( 1 + Configuration.SynchronizedClockAdjustmentRatio );
 
 			m_time += m_deltaTime;
 		}

@@ -58,7 +58,7 @@ namespace EcsSync2
 		{
 		}
 
-		internal void ApplyEvent(Event @event)
+		protected internal void ApplyEvent(Event @event)
 		{
 			ValidateTickContext();
 		}
@@ -111,7 +111,7 @@ namespace EcsSync2
 		protected abstract void OnCommandReceived(Command command);
 
 		// 完全确定性的修改，不依赖于其他 Scene 或 Component 的状态
-		protected abstract Snapshot OnEventApplied(Snapshot state, Event @event);
+		protected abstract Snapshot OnEventApplied(Event @event);
 
 		protected Snapshot State
 		{
@@ -155,7 +155,7 @@ namespace EcsSync2
 
 		Timeline EnsureTimeline(ref Timeline timeline)
 		{
-			timeline = timeline ?? new Timeline( null, EcsSync2.Settings.TimelineDefaultCapacity );
+			timeline = timeline ?? new Timeline( null, EcsSync2.Configuration.TimelineDefaultCapacity );
 			return timeline;
 		}
 

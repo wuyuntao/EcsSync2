@@ -9,8 +9,8 @@ namespace EcsSync2.FpsExample
 			throw new NotImplementedException();
 		}
 
-		protected override Snapshot OnEventApplied(Snapshot state, Event @event)
-		{
+		protected override Snapshot OnEventApplied(Event @event)
+        {
 			throw new NotImplementedException();
 		}
 
