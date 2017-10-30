@@ -38,14 +38,17 @@ namespace EcsSync2
 		internal void AddComponent(Component component)
 		{
 			Components.Add( component );
+
+			if( CurrentContext != null )
+				component.EnterContext( CurrentContext );
 		}
 
 		internal void EnterContext(TickContext context)
 		{
 			CurrentContext = context;
 
-			foreach( var t in Components )
-				t.EnterContext( context );
+			foreach( var component in Components )
+				component.EnterContext( context );
 		}
 
 		internal abstract void Tick();
@@ -76,14 +79,14 @@ namespace EcsSync2
 
 		internal void FixedUpdate()
 		{
-			foreach( var t in Components )
-				t.FixedUpdate();
+			foreach( var component in Components )
+				component.FixedUpdate();
 		}
 
 		internal void LeaveContext()
 		{
-			foreach( var t in Components )
-				t.LeaveContext();
+			foreach( var component in Components )
+				component.LeaveContext();
 
 			CurrentContext = null;
 		}

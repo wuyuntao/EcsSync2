@@ -84,11 +84,11 @@ namespace EcsSync2
 
 				// Extrapolation
 				if( i == m_tail - 1 )
-					return prevPoint.Snapshot.Extrapolate(prevPoint.Time, time);
+					return prevPoint.Snapshot.Extrapolate( prevPoint.Time, time );
 
 				// Interpolation
 				var nextPoint = m_points[( i + 1 ) % m_points.Length];
-				return prevPoint.Snapshot.Interpolate(prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time);
+				return prevPoint.Snapshot.Interpolate( prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time );
 			}
 
 			return null;
@@ -149,5 +149,7 @@ namespace EcsSync2
 		public Timepoint FirstPoint => m_count > 0 ? m_points[m_head % m_points.Length] : null;
 
 		public Timepoint LastPoint => m_count > 0 ? m_points[( m_tail - 1 ) % m_points.Length] : null;
+
+		public int Count => m_count;
 	}
 }

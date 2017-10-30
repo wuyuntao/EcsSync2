@@ -2,7 +2,7 @@
 
 namespace EcsSync2.FpsExample
 {
-	public class Door : Component
+	public class SPPotion : Component
 	{
 		protected override void OnCommandReceived(Command command)
 		{

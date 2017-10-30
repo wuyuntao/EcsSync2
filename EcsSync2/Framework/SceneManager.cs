@@ -30,6 +30,7 @@ namespace EcsSync2
 			m_entities.Add( id, entity );
 			foreach( var component in entity.Components )
 				m_components.Add( component.Id, component );
+			entity.Start();
 			return entity;
 		}
 
@@ -39,6 +40,7 @@ namespace EcsSync2
 			if( entity == null )
 				return false;
 
+			entity.Destroy();
 			m_entities.Remove( id );
 			foreach( var component in entity.Components )
 				m_components.Remove( component.Id );

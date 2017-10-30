@@ -2,15 +2,35 @@
 
 namespace EcsSync2.FpsExample
 {
+	public class ProcessControllerSnapshot : ComponentSnapshot
+	{
+		public override Snapshot Clone()
+		{
+			return this.Allocate<ProcessControllerSnapshot>();
+		}
+	}
+
 	public class ProcessController : Component
 	{
+		protected override void OnInitialize()
+		{
+		}
+
+		protected override void OnStart()
+		{
+		}
+
+		protected override void OnDestroy()
+		{
+		}
+
 		protected override void OnSnapshotRecovered(Snapshot state)
 		{
 		}
 
-		protected override Snapshot OnFixedStart()
+		protected override Snapshot CreateSnapshot()
 		{
-			throw new NotImplementedException();
+			return Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<ProcessControllerSnapshot>();
 		}
 
 		protected override void OnFixedUpdate()
@@ -23,21 +43,6 @@ namespace EcsSync2.FpsExample
 		}
 
 		protected override Snapshot OnEventApplied(Event @event)
-		{
-			throw new NotImplementedException();
-		}
-
-		protected override void OnInitialize()
-		{
-			throw new NotImplementedException();
-		}
-
-		protected override void OnStart()
-		{
-			throw new NotImplementedException();
-		}
-
-		protected override void OnDestroy()
 		{
 			throw new NotImplementedException();
 		}

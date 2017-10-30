@@ -24,6 +24,9 @@ namespace EcsSync2.FpsExample
 				case SceneElementSettings s:
 					return CreateEntity<SceneElement, SceneElementSettings>( id, s );
 
+				case ItemSettings s:
+					return CreateEntity<Item, ItemSettings>( id, s );
+
 				default:
 					throw new NotSupportedException( settings.ToString() );
 			}

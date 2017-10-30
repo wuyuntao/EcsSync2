@@ -2,6 +2,10 @@
 {
 	public class PlayerSettings : EntitySettings
 	{
+		public ulong UserId;
+
+		public bool IsAI;
+
 		protected override EntitySettings Clone()
 		{
 			throw new System.NotImplementedException();
@@ -16,5 +20,7 @@
 		{
 			ConnectionManager = AddComponent<ConnectionManager>();
 		}
+
+		public PlayerSettings TheSettings => (PlayerSettings)Settings;
 	}
 }

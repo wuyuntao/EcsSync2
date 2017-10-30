@@ -2,116 +2,108 @@
 
 namespace EcsSync2.FpsExample
 {
-    public class TransformSettings : ComponentSettings
-    {
-        public Vector2D Position;
+	public class TransformSettings : ComponentSettings
+	{
+		public Vector2D Position;
 
-        public Vector2D Velocity;
+		public Vector2D Velocity;
 
-        public bool IsStatic;
-    }
+		public bool IsStatic;
+	}
 
-    public class TransformSnapshot : Snapshot
-    {
-        public Vector2D Position;
+	public class TransformSnapshot : Snapshot
+	{
+		public Vector2D Position;
 
-        public Vector2D Velocity;
+		public Vector2D Velocity;
 
-        public override Snapshot Clone()
-        {
-            throw new NotImplementedException();
-        }
+		public override Snapshot Clone()
+		{
+			var s = this.Allocate<TransformSnapshot>();
+			s.Position = Position;
+			s.Velocity = Velocity;
+			return s;
+		}
+	}
 
-        protected override Snapshot Extrapolate(uint time, uint extrapolateTime)
-        {
-            throw new NotImplementedException();
-        }
+	public class TransformMovedEvent : Event
+	{
+		public Vector2D Position;
+	}
 
-        protected override Snapshot Interpolate(Snapshot other, float factor)
-        {
-            throw new NotImplementedException();
-        }
+	public class TransformVelocityChangedEvent : Event
+	{
+		public Vector2D Velocity;
+	}
 
-        protected override Snapshot Interpolate(uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime)
-        {
-            throw new NotImplementedException();
-        }
+	public class Transform : Component
+	{
+		protected override void OnCommandReceived(Command command)
+		{
+			throw new NotSupportedException( command.ToString() );
+		}
 
-        protected override bool IsApproximate(Snapshot other)
-        {
-            throw new NotImplementedException();
-        }
-    }
+		protected override Snapshot OnEventApplied(Event @event)
+		{
+			switch( @event )
+			{
+				case TransformMovedEvent e:
+					var s1 = (TransformSnapshot)State.Clone();
+					s1.Position = e.Position;
+					return s1;
 
-    public class TransformMovedEvent : Event
-    {
-        public Vector2D Position;
-    }
+				case TransformVelocityChangedEvent e:
+					var s2 = (TransformSnapshot)State.Clone();
+					s2.Velocity = e.Velocity;
+					return s2;
 
-    public class TransformVelocityChangedEvent : Event
-    {
-        public Vector2D Velocity;
-    }
+				default:
+					throw new NotSupportedException( @event.ToString() );
+			}
+		}
 
-    public class Transform : Component
-    {
-        protected override void OnCommandReceived(Command command)
-        {
-            throw new NotImplementedException();
-        }
+		protected override void OnFixedUpdate()
+		{
+		}
 
-        protected override Snapshot OnEventApplied(Event @event)
-        {
-            throw new NotImplementedException();
-        }
+		protected override void OnSnapshotRecovered(Snapshot state)
+		{
+		}
 
-        protected override void OnFixedUpdate()
-        {
-            throw new NotImplementedException();
-        }
+		protected override Snapshot CreateSnapshot()
+		{
+			return Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<TransformSnapshot>();
+		}
 
-        protected override void OnSnapshotRecovered(Snapshot state)
-        {
-            throw new NotImplementedException();
-        }
+		internal void ApplyTransformMovedEvent(Vector2D offset)
+		{
+			var s = (TransformSnapshot)State;
+			var e = s.Allocate<TransformMovedEvent>();
+			e.Position = s.Position + offset;
+			ApplyEvent( e );
+		}
 
-        protected override Snapshot OnFixedStart()
-        {
-            throw new NotImplementedException();
-        }
+		internal void ApplyTransformVelocityChangedEvent(Vector2D velocity)
+		{
+			var s = (TransformSnapshot)State;
+			if( s.Velocity == velocity )
+				return;
 
-        internal void ApplyTransformMovedEvent(Vector2D offset)
-        {
-            var s = (TransformSnapshot)State;
-            var e = s.Allocate<TransformMovedEvent>();
-            e.Position = s.Position + offset;
-            ApplyEvent(e);
-        }
-
-        internal void ApplyTransformVelocityChangedEvent(Vector2D velocity)
-        {
-            var s = (TransformSnapshot)State;
-            if (s.Velocity == velocity)
-                return;
-
-            var e = State.Allocate<TransformVelocityChangedEvent>();
-            e.Velocity = velocity;
-            ApplyEvent(e);
-        }
+			var e = State.Allocate<TransformVelocityChangedEvent>();
+			e.Velocity = velocity;
+			ApplyEvent( e );
+		}
 
 		protected override void OnInitialize()
 		{
-			throw new NotImplementedException();
 		}
 
 		protected override void OnStart()
 		{
-			throw new NotImplementedException();
 		}
 
 		protected override void OnDestroy()
 		{
-			throw new NotImplementedException();
 		}
 	}
 }

@@ -60,7 +60,7 @@ namespace EcsSync2
 		{
 			SynchronizedClock.Tick( deltaTime );
 
-			while( FixedTime <= SynchronizedClock.Time * 1000 + FixedDeltaTime )
+			while( FixedTime + FixedDeltaTime <= SynchronizedClock.Time * 1000 )
 			{
 				FixedTime += FixedDeltaTime;
 

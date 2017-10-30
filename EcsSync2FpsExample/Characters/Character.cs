@@ -2,6 +2,8 @@
 {
 	public class CharacterSettings : EntitySettings
 	{
+		public ulong UserId;
+
 		protected override EntitySettings Clone()
 		{
 			throw new System.NotImplementedException();

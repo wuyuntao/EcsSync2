@@ -15,6 +15,7 @@ namespace EcsSync2
 
 		TickScheduler.TickContext m_context;
 		Snapshot m_state;
+		bool m_stateChanged;
 
 		Timeline m_syncTimeline;
 		Timeline m_reconcilationTimeline;
@@ -30,17 +31,30 @@ namespace EcsSync2
 			Settings = settings;
 
 			entity.SceneManager.Simulator.TickScheduler.AddComponent( this );
+
+			OnInitialize();
 		}
 
 		internal void Start()
 		{
 			ValidateTickContext();
 
-			var state = OnFixedStart();
-			var timeline = EnsureTimeline();
-			timeline.AddPoint( m_context.Time, state );
+			var state = CreateSnapshot();
+			if( state != null )
+			{
+				State = state;
+				state.Release();
+			}
+
+			OnStart();
 		}
 
+		internal void Destroy()
+		{
+			ValidateTickContext();
+
+			OnDestroy();
+		}
 
 		internal void FixedUpdate()
 		{
@@ -49,18 +63,34 @@ namespace EcsSync2
 			OnFixedUpdate();
 		}
 
-		internal void RecoverSnapshot(Snapshot cs)
+		internal void RecoverSnapshot(Snapshot state)
 		{
 			ValidateTickContext();
+
+			if( state != null )
+			{
+				var timeline = EnsureTimeline();
+				timeline.AddPoint( m_context.Time, state );
+			}
+
+			OnSnapshotRecovered( state );
 		}
 
 		internal void ReceiveCommand(Command command)
 		{
+			ValidateTickContext();
+
+			OnCommandReceived( command );
 		}
 
 		protected internal void ApplyEvent(Event @event)
 		{
 			ValidateTickContext();
+
+			State = OnEventApplied( @event );
+			Entity.SceneManager.Simulator.EventBus.EnqueueEvent( @event );
+
+			@event.Release();
 		}
 
 		#endregion
@@ -73,7 +103,8 @@ namespace EcsSync2
 			Debug.Assert( m_state == null );
 
 			m_context = context;
-			// TODO GetState
+			m_state = GetState( m_context );
+			m_stateChanged = false;
 		}
 
 		internal void LeaveContext()
@@ -81,21 +112,28 @@ namespace EcsSync2
 			if( m_context == null )
 				throw new InvalidOperationException( "Has not enter any context" );
 
-			// TODO SetState
+			if( m_stateChanged )
+				SetState( m_context, m_state );
+
 			m_context = null;
+			m_state = null;
+			m_stateChanged = false;
 		}
 
 		internal Snapshot GetState(TickScheduler.TickContext context)
 		{
 			ValidateTickContext();
 
-			throw new NotSupportedException();
+			var timeline = EnsureTimeline();
+			return timeline.GetPoint( context.Time );
 		}
-		internal void SetState(TickScheduler.TickContext context, Snapshot snapshot)
+
+		internal void SetState(TickScheduler.TickContext context, Snapshot state)
 		{
 			ValidateTickContext();
 
-			throw new NotSupportedException();
+			var timeline = EnsureTimeline();
+			timeline.AddPoint( context.Time, state );
 		}
 
 		#endregion
@@ -108,23 +146,36 @@ namespace EcsSync2
 
 		protected abstract void OnDestroy();
 
-		protected abstract Snapshot OnFixedStart();
-
-		protected abstract void OnFixedUpdate();
+		protected abstract Snapshot CreateSnapshot();
 
 		protected abstract void OnSnapshotRecovered(Snapshot state);
+
+		protected abstract void OnFixedUpdate();
 
 		protected abstract void OnCommandReceived(Command command);
 
 		// 完全确定性的修改，不依赖于其他 Scene 或 Component 的状态
 		protected abstract Snapshot OnEventApplied(Event @event);
 
-		protected Snapshot State
+		protected internal Snapshot State
 		{
 			get
 			{
 				ValidateTickContext();
+
 				return m_state;
+			}
+			internal set
+			{
+				ValidateTickContext();
+
+				if( m_state == value )
+					return;
+
+				m_state?.Release();
+				m_state = value;
+				m_state.Retain();
+				m_stateChanged = true;
 			}
 		}
 
@@ -140,28 +191,39 @@ namespace EcsSync2
 
 		Timeline EnsureTimeline()
 		{
+			Timeline timeline;
 			switch( m_context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
-					return EnsureTimeline( ref m_syncTimeline );
+					timeline = EnsureTimeline( ref m_syncTimeline );
+					break;
 
 				case TickScheduler.TickContextType.Reconcilation:
-					return EnsureTimeline( ref m_reconcilationTimeline );
+					timeline = EnsureTimeline( ref m_reconcilationTimeline );
+					if( timeline.Count == 0 )
+						timeline = EnsureTimeline( ref m_syncTimeline );
+					break;
 
 				case TickScheduler.TickContextType.Prediction:
-					return EnsureTimeline( ref m_predictionTimeline );
+					timeline = EnsureTimeline( ref m_predictionTimeline );
+					if( timeline.Count == 0 )
+						timeline = EnsureTimeline( ref m_syncTimeline );
+					break;
 
 				case TickScheduler.TickContextType.Interpolation:
-					return EnsureTimeline( ref m_interpolationTimeline );
+					timeline = EnsureTimeline( ref m_interpolationTimeline );
+					break;
 
 				default:
 					throw new NotSupportedException( m_context.Type.ToString() );
 			}
+
+			return timeline;
 		}
 
 		Timeline EnsureTimeline(ref Timeline timeline)
 		{
-			timeline = timeline ?? new Timeline( null, EcsSync2.Configuration.TimelineDefaultCapacity );
+			timeline = timeline ?? new Timeline( null, Configuration.TimelineDefaultCapacity );
 			return timeline;
 		}
 
@@ -176,12 +238,6 @@ namespace EcsSync2
 				default:
 					throw new NotSupportedException( m_context.Type.ToString() );
 			}
-		}
-
-		void SetState()
-		{
-			m_state.Release();
-			m_state = null;
 		}
 
 		#endregion

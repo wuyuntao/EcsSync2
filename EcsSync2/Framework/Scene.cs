@@ -42,21 +42,37 @@ namespace EcsSync2
 		protected internal abstract Entity CreateEntity(InstanceId id, EntitySettings settings);
 
 		protected Entity CreateEntity<TEntity, TEntitySettigns>(InstanceId id, EntitySettings settings)
-			where TEntity : Entity
+			where TEntity : Entity, new()
 			where TEntitySettigns : EntitySettings
 		{
-			throw new NotSupportedException();
+			return SceneManager.CreateEntity<TEntity>( id, settings );
 		}
 
-		protected void ApplyEntityCreatedEvent(EntitySettings settings)
+		public void ApplyEntityCreatedEvent(EntitySettings settings)
 		{
+			var e = SceneManager.Simulator.ReferencableAllocator.Allocate<EntityCreatedEvent>();
+			e.Id = SceneManager.Simulator.InstanceIdAllocator.Allocate();
+			e.Settings = settings;
+			ApplyEvent( e );
 		}
-		protected void ApplyEntityRemovedEvent(InstanceId id)
+
+		public void ApplyEntityRemovedEvent(InstanceId id)
 		{
+			var e = SceneManager.Simulator.ReferencableAllocator.Allocate<EntityRemovedEvent>();
+			e.Id = SceneManager.Simulator.InstanceIdAllocator.Allocate();
+			ApplyEvent( e );
+		}
+
+		internal void ReceiveCommand(Command command)
+		{
+			OnCommandReceived( command );
 		}
 
 		protected virtual void OnCommandReceived(Command command)
 		{
+			if( !SceneManager.Simulator.IsServer )
+				return;
+
 			switch( command )
 			{
 				case CreateEntityCommand c:
@@ -72,14 +88,11 @@ namespace EcsSync2
 			}
 		}
 
-		internal void ReceiveCommand(Command command)
-		{
-			OnCommandReceived( command );
-		}
-
 		internal void ApplyEvent(Event @event)
 		{
-			throw new NotImplementedException();
+			OnEventApplied( @event );
+			SceneManager.Simulator.EventBus.EnqueueEvent( @event );
+			@event.Release();
 		}
 
 		protected virtual void OnEventApplied(Event @event)

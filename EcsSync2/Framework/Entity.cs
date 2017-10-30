@@ -35,6 +35,18 @@ namespace EcsSync2
 
 		protected abstract void OnInitialize();
 
+		internal void Start()
+		{
+			foreach( var component in Components )
+				component.Start();
+		}
+
+		internal void Destroy()
+		{
+			foreach( var component in Components )
+				component.Destroy();
+		}
+
 		protected T AddComponent<T>(ComponentSettings settings = null)
 			where T : Component, new()
 		{
@@ -45,7 +57,7 @@ namespace EcsSync2
 				throw new InvalidOperationException( "Aready started" );
 
 			var component = new T();
-			component.Initialize( this, Id, settings );
+			component.Initialize( this, Id.CreateComponentId( (uint)( Components.Count + 1 ) ), settings );
 			Components.Add( component );
 			return component;
 		}

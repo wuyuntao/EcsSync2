@@ -2,113 +2,96 @@
 
 namespace EcsSync2.FpsExample
 {
-    class CharacterMotionControllerSnapshot : Snapshot
-    {
-        public Vector2D InputDirection;
+	class CharacterMotionControllerSnapshot : Snapshot
+	{
+		public Vector2D InputDirection;
 
-        public float InputMagnitude;
+		public float InputMagnitude;
 
-        public float MaxSpeed;
+		public float MaxSpeed;
 
-        public override Snapshot Clone()
-        {
-            throw new NotImplementedException();
-        }
+		public override Snapshot Clone()
+		{
+			var s = this.Allocate<CharacterMotionControllerSnapshot>();
+			s.InputDirection = InputDirection;
+			s.InputMagnitude = InputMagnitude;
+			s.MaxSpeed = MaxSpeed;
+			return s;
+		}
+	}
 
-        protected override Snapshot Extrapolate(uint time, uint extrapolateTime)
-        {
-            throw new NotImplementedException();
-        }
+	public class MoveCharacterCommand : ComponentCommand
+	{
+		public Vector2D InputDirection;
 
-        protected override Snapshot Interpolate(Snapshot other, float factor)
-        {
-            throw new NotImplementedException();
-        }
+		public float InputMagnitude;
+	}
 
-        protected override Snapshot Interpolate(uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime)
-        {
-            throw new NotImplementedException();
-        }
+	public class InputChangedEvent : Event
+	{
+		public Vector2D InputDirection;
 
-        protected override bool IsApproximate(Snapshot other)
-        {
-            throw new NotImplementedException();
-        }
-    }
+		public float InputMagnitude;
+	}
 
-    public class MoveCharacterCommand : ComponentCommand
-    {
-        public Vector2D InputDirection;
+	public class CharacterMotionController : Component
+	{
+		protected override void OnCommandReceived(Command command)
+		{
+			switch( command )
+			{
+				case MoveCharacterCommand c:
+					var e = c.Allocate<InputChangedEvent>();
+					var s = (CharacterMotionControllerSnapshot)State;
+					e.InputDirection = c.InputMagnitude > 0 ? c.InputDirection : s.InputDirection;
+					e.InputMagnitude = c.InputMagnitude;
+					ApplyEvent( e );
+					break;
 
-        public float InputMagnitude;
-    }
+				default:
+					throw new NotSupportedException( command.ToString() );
+			}
+		}
 
-    public class InputChangedEvent : Event
-    {
-        public Vector2D InputDirection;
+		protected override Snapshot OnEventApplied(Event @event)
+		{
+			switch( @event )
+			{
+				case InputChangedEvent e:
+					var s = (CharacterMotionControllerSnapshot)State.Clone();
+					s.InputDirection = e.InputDirection;
+					s.InputMagnitude = e.InputMagnitude;
+					return s;
 
-        public float InputMagnitude;
-    }
+				default:
+					throw new NotSupportedException( @event.ToString() );
+			}
+		}
 
-    public class CharacterMotionController : Component
-    {
-        protected override void OnCommandReceived(Command command)
-        {
-            switch (command)
-            {
-                case MoveCharacterCommand c:
-                    var e = c.Allocate<InputChangedEvent>();
-                    var s = (CharacterMotionControllerSnapshot)State;
-                    e.InputDirection = c.InputMagnitude > 0 ? c.InputDirection : s.InputDirection;
-                    e.InputMagnitude = c.InputMagnitude;
-                    ApplyEvent(e);
-                    break;
+		protected override void OnFixedUpdate()
+		{
+			var s = (CharacterMotionControllerSnapshot)State;
+			var velocity = s.InputDirection * s.InputMagnitude * s.MaxSpeed;
+			var offset = velocity * Configuration.SimulationDeltaTime / 1000f;
 
-                default:
-                    throw new NotSupportedException(command.ToString());
-            }
-        }
+			Character.Transform.ApplyTransformVelocityChangedEvent( velocity );
 
-        protected override Snapshot OnEventApplied(Event @event)
-        {
-            switch (@event)
-            {
-                case InputChangedEvent e:
-                    var s = (CharacterMotionControllerSnapshot)State.Clone();
-                    s.InputDirection = e.InputDirection;
-                    s.InputMagnitude = e.InputMagnitude;
-                    return s;
+			if( offset.LengthSquared() > 0 )
+				Character.Transform.ApplyTransformMovedEvent( offset );
+		}
 
-                default:
-                    throw new NotSupportedException(@event.ToString());
-            }
-        }
+		protected override void OnSnapshotRecovered(Snapshot state)
+		{
+		}
 
-        protected override void OnFixedUpdate()
-        {
-            var s = (CharacterMotionControllerSnapshot)State;
-            var velocity = s.InputDirection * s.InputMagnitude * s.MaxSpeed;
-            var offset = velocity * Configuration.SimulationDeltaTime / 1000f;
-
-            Character.Transform.ApplyTransformVelocityChangedEvent(velocity);
-
-            if (offset.LengthSquared() > 0)
-                Character.Transform.ApplyTransformMovedEvent(offset);
-        }
-
-        protected override void OnSnapshotRecovered(Snapshot state)
-        {
-        }
-
-        protected override Snapshot OnFixedStart()
-        {
-            return new CharacterMotionControllerSnapshot()
-            {
-                InputDirection = new Vector2D(0, 1),
-                InputMagnitude = 0,
-                MaxSpeed = 3,
-            };
-        }
+		protected override Snapshot CreateSnapshot()
+		{
+			var s = Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<CharacterMotionControllerSnapshot>();
+			s.InputDirection = new Vector2D( 0, 1 );
+			s.InputMagnitude = 0;
+			s.MaxSpeed = 3;
+			return s;
+		}
 
 		protected override void OnInitialize()
 		{
@@ -123,5 +106,5 @@ namespace EcsSync2.FpsExample
 		}
 
 		Character Character => (Character)Entity;
-    }
+	}
 }
