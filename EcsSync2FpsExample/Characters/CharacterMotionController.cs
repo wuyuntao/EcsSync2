@@ -36,7 +36,7 @@ namespace EcsSync2.FpsExample
         }
     }
 
-    public class MoveCharacterCommand : Command
+    public class MoveCharacterCommand : ComponentCommand
     {
         public Vector2D InputDirection;
 
@@ -100,7 +100,7 @@ namespace EcsSync2.FpsExample
         {
         }
 
-        protected override Snapshot OnStart()
+        protected override Snapshot OnFixedStart()
         {
             return new CharacterMotionControllerSnapshot()
             {
@@ -110,6 +110,18 @@ namespace EcsSync2.FpsExample
             };
         }
 
-        Character Character => (Character)Entity;
+		protected override void OnInitialize()
+		{
+		}
+
+		protected override void OnStart()
+		{
+		}
+
+		protected override void OnDestroy()
+		{
+		}
+
+		Character Character => (Character)Entity;
     }
 }

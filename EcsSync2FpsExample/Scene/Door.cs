@@ -2,7 +2,7 @@
 
 namespace EcsSync2.FpsExample
 {
-	public class ConnectionManager : Component
+	public class Door : Component
 	{
 		protected override void OnCommandReceived(Command command)
 		{
@@ -10,7 +10,7 @@ namespace EcsSync2.FpsExample
 		}
 
 		protected override Snapshot OnEventApplied(Event @event)
-        {
+		{
 			throw new NotImplementedException();
 		}
 

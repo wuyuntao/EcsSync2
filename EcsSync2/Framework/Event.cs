@@ -8,18 +8,6 @@
 	{
 	}
 
-	public class EntityCreatedEvent : SceneEvent
-	{
-		public InstanceId Id;
-
-		public EntitySettings Settings;
-	}
-
-	public class EntityRemovedEvent : SceneEvent
-	{
-		public InstanceId Id;
-	}
-
 	public class ComponentEvent : Event
 	{
 		public InstanceId ComponentId;

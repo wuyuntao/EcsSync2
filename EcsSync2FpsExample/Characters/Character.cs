@@ -1,5 +1,13 @@
 ﻿namespace EcsSync2.FpsExample
 {
+	public class CharacterSettings : EntitySettings
+	{
+		protected override EntitySettings Clone()
+		{
+			throw new System.NotImplementedException();
+		}
+	}
+
 	public class Character : Entity
 	{
 		public Transform Transform { get; private set; }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EcsSync2
 {
@@ -55,8 +56,20 @@ namespace EcsSync2
 			{
 				foreach( var command in frame.Commands )
 				{
-					var c = Simulator.SceneManager.FindComponent( command.Receiver );
-					c.ReceiveCommand( command );
+					switch( command )
+					{
+						case SceneCommand c:
+							Simulator.SceneManager.Scene.ReceiveCommand( c );
+							break;
+
+						case ComponentCommand c:
+							var component = Simulator.SceneManager.FindComponent( c.Receiver );
+							component.ReceiveCommand( command );
+							break;
+
+						default:
+							throw new NotSupportedException( command.ToString() );
+					}
 				}
 			}
 		}

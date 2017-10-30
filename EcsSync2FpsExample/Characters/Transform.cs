@@ -75,7 +75,7 @@ namespace EcsSync2.FpsExample
             throw new NotImplementedException();
         }
 
-        protected override Snapshot OnStart()
+        protected override Snapshot OnFixedStart()
         {
             throw new NotImplementedException();
         }
@@ -98,5 +98,20 @@ namespace EcsSync2.FpsExample
             e.Velocity = velocity;
             ApplyEvent(e);
         }
-    }
+
+		protected override void OnInitialize()
+		{
+			throw new NotImplementedException();
+		}
+
+		protected override void OnStart()
+		{
+			throw new NotImplementedException();
+		}
+
+		protected override void OnDestroy()
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

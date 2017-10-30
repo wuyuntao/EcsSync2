@@ -6,8 +6,6 @@ namespace EcsSync2.FpsExample
 	{
 		protected override void OnInitialize()
 		{
-			if( SceneManager.Simulator.IsServer )
-				CreateEntity( SceneManager.Simulator.InstanceIdAllocator.Allocate(), new GameManagerSettings() );
 		}
 
 		protected override Entity CreateEntity(InstanceId id, EntitySettings settings)
@@ -15,10 +13,16 @@ namespace EcsSync2.FpsExample
 			switch( settings )
 			{
 				case GameManagerSettings s:
-					return SceneManager.CreateEntity<GameManager>( id, s );
+					return CreateEntity<GameManager, GameManagerSettings>( id, s );
 
 				case PlayerSettings s:
-					return SceneManager.CreateEntity<Player>( id, s );
+					return CreateEntity<Player, PlayerSettings>( id, s );
+
+				case CharacterSettings s:
+					return CreateEntity<Character, CharacterSettings>( id, s );
+
+				case SceneElementSettings s:
+					return CreateEntity<SceneElement, SceneElementSettings>( id, s );
 
 				default:
 					throw new NotSupportedException( settings.ToString() );

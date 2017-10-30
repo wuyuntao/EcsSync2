@@ -2,6 +2,10 @@
 {
 	public class GameManagerSettings : EntitySettings
 	{
+		protected override EntitySettings Clone()
+		{
+			throw new System.NotImplementedException();
+		}
 	}
 
 	public class GameManager : Entity

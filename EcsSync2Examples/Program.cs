@@ -16,6 +16,13 @@ namespace EcsSync2.Examples
 			var simulator = new Simulator( context, true, true, 1, 1 );
 			simulator.SceneManager.LoadScene<BattleScene>();
 
+			var frame = simulator.ReferencableAllocator.Allocate<CommandFrame>();
+			frame.Time = Configuration.SimulationDeltaTime;
+			var command = frame.AddCommand<CreateEntityCommand>();
+			command.Settings = new GameManagerSettings();
+			simulator.CommandQueue.EnqueueCommands( 0, frame );
+			frame.Release();
+
 			for( int i = 0; i < 1000; i++ )
 			{
 				simulator.Simulate( Configuration.SimulationDeltaTime );

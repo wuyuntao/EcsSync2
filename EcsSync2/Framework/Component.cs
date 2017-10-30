@@ -36,7 +36,7 @@ namespace EcsSync2
 		{
 			ValidateTickContext();
 
-			var state = OnStart();
+			var state = OnFixedStart();
 			var timeline = EnsureTimeline();
 			timeline.AddPoint( m_context.Time, state );
 		}
@@ -102,7 +102,13 @@ namespace EcsSync2
 
 		#region Public Interface
 
-		protected abstract Snapshot OnStart();
+		protected abstract void OnInitialize();
+
+		protected abstract void OnStart();
+
+		protected abstract void OnDestroy();
+
+		protected abstract Snapshot OnFixedStart();
 
 		protected abstract void OnFixedUpdate();
 
