@@ -1,12 +1,10 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 
 namespace EcsSync2.FpsExample
 {
-	public abstract class ConnectionManagerSnapshot : ComponentSnapshot
-	{
-	}
-
-	public class ConnectingSnapshot : ConnectionManagerSnapshot
+	[MessagePackObject]
+	public class ConnectingSnapshot : ComponentSnapshot, IComponentSnapshotUnion
 	{
 		public override Snapshot Clone()
 		{
@@ -14,7 +12,8 @@ namespace EcsSync2.FpsExample
 		}
 	}
 
-	public class ConnectedSnapshot : ConnectionManagerSnapshot
+	[MessagePackObject]
+	public class ConnectedSnapshot : ComponentSnapshot, IComponentSnapshotUnion
 	{
 		public override Snapshot Clone()
 		{
@@ -22,7 +21,8 @@ namespace EcsSync2.FpsExample
 		}
 	}
 
-	public class DisconnectedSnapshot : ConnectionManagerSnapshot
+	[MessagePackObject]
+	public class DisconnectedSnapshot : ComponentSnapshot, IComponentSnapshotUnion
 	{
 		public override Snapshot Clone()
 		{
@@ -30,11 +30,13 @@ namespace EcsSync2.FpsExample
 		}
 	}
 
-	public class PlayerConnectCommand : ComponentCommand
+	[MessagePackObject]
+	public class PlayerConnectCommand : ComponentCommand, ICommandUnion
 	{
 	}
 
-	public class PlayerConnectedEvent : ComponentEvent
+	[MessagePackObject]
+	public class PlayerConnectedEvent : ComponentEvent, IEventUnion
 	{
 	}
 

@@ -1,11 +1,10 @@
-﻿namespace EcsSync2.FpsExample
+﻿using MessagePack;
+
+namespace EcsSync2.FpsExample
 {
-	public class GameManagerSettings : EntitySettings
+	[MessagePackObject]
+	public class GameManagerSettings : EntitySettings, IEntitySettingsUnion
 	{
-		protected override EntitySettings Clone()
-		{
-			throw new System.NotImplementedException();
-		}
 	}
 
 	public class GameManager : Entity

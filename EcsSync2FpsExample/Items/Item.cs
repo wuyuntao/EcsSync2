@@ -1,15 +1,13 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 
 namespace EcsSync2.FpsExample
 {
-	public class ItemSettings : EntitySettings
+	[MessagePackObject]
+	public class ItemSettings : EntitySettings, IEntitySettingsUnion
 	{
+		[Key( 0 )]
 		public string Type = "SPPotion";
-
-		protected override EntitySettings Clone()
-		{
-			throw new NotImplementedException();
-		}
 	}
 
 	public class Item : Entity

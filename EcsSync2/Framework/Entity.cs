@@ -5,7 +5,6 @@ namespace EcsSync2
 {
 	public abstract class EntitySettings
 	{
-		protected internal abstract EntitySettings Clone();
 	}
 
 	public abstract class Entity

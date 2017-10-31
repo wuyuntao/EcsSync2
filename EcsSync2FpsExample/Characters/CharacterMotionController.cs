@@ -1,13 +1,18 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 
 namespace EcsSync2.FpsExample
 {
-	class CharacterMotionControllerSnapshot : Snapshot
+	[MessagePackObject]
+	class CharacterMotionControllerSnapshot : Snapshot, IComponentSnapshotUnion
 	{
+		[Key( 0 )]
 		public Vector2D InputDirection;
 
+		[Key( 1 )]
 		public float InputMagnitude;
 
+		[Key( 2 )]
 		public float MaxSpeed;
 
 		public override Snapshot Clone()
@@ -20,17 +25,24 @@ namespace EcsSync2.FpsExample
 		}
 	}
 
-	public class MoveCharacterCommand : ComponentCommand
+	[MessagePackObject]
+	public class MoveCharacterCommand : ComponentCommand, ICommandUnion
 	{
+		[Key( 0 )]
+		//[MessagePackFormatter( typeof( Vector2DFormatter ) )]
 		public Vector2D InputDirection;
 
+		[Key( 1 )]
 		public float InputMagnitude;
 	}
 
-	public class InputChangedEvent : Event
+	[MessagePackObject]
+	public class InputChangedEvent : Event, IEventUnion
 	{
+		[Key( 0 )]
 		public Vector2D InputDirection;
 
+		[Key( 1 )]
 		public float InputMagnitude;
 	}
 

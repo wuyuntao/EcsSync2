@@ -1,15 +1,15 @@
-﻿namespace EcsSync2.FpsExample
+﻿using MessagePack;
+
+namespace EcsSync2.FpsExample
 {
-	public class PlayerSettings : EntitySettings
+	[MessagePackObject]
+	public class PlayerSettings : EntitySettings, IEntitySettingsUnion
 	{
+		[Key( 0 )]
 		public ulong UserId;
 
+		[Key( 1 )]
 		public bool IsAI;
-
-		protected override EntitySettings Clone()
-		{
-			throw new System.NotImplementedException();
-		}
 	}
 
 	public class Player : Entity

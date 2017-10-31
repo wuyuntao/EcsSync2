@@ -1,8 +1,10 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 
 namespace EcsSync2.FpsExample
 {
-	public class ProcessControllerSnapshot : ComponentSnapshot
+	[MessagePackObject]
+	public class ProcessControllerSnapshot : ComponentSnapshot, IComponentSnapshotUnion
 	{
 		public override Snapshot Clone()
 		{

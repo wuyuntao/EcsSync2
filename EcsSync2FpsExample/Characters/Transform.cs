@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 
 namespace EcsSync2.FpsExample
 {
@@ -11,10 +12,13 @@ namespace EcsSync2.FpsExample
 		public bool IsStatic;
 	}
 
-	public class TransformSnapshot : Snapshot
+	[MessagePackObject]
+	public class TransformSnapshot : Snapshot, IComponentSnapshotUnion
 	{
+		[Key( 0 )]
 		public Vector2D Position;
 
+		[Key( 1 )]
 		public Vector2D Velocity;
 
 		public override Snapshot Clone()
@@ -26,13 +30,17 @@ namespace EcsSync2.FpsExample
 		}
 	}
 
-	public class TransformMovedEvent : Event
+	[MessagePackObject]
+	public class TransformMovedEvent : Event, IEventUnion
 	{
+		[Key( 0 )]
 		public Vector2D Position;
 	}
 
-	public class TransformVelocityChangedEvent : Event
+	[MessagePackObject]
+	public class TransformVelocityChangedEvent : Event, IEventUnion
 	{
+		[Key( 0 )]
 		public Vector2D Velocity;
 	}
 

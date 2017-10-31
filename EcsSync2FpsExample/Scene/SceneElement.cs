@@ -1,15 +1,13 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 
 namespace EcsSync2.FpsExample
 {
-	public class SceneElementSettings : EntitySettings
+	[MessagePackObject]
+	public class SceneElementSettings : EntitySettings, IEntitySettingsUnion
 	{
+		[Key( 0 )]
 		public string Type = "Door";
-
-		protected override EntitySettings Clone()
-		{
-			throw new NotImplementedException();
-		}
 	}
 
 	public class SceneElement : Entity

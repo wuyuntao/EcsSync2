@@ -2,7 +2,6 @@
 
 namespace EcsSync2
 {
-
 	public class CreateEntityCommand : SceneCommand
 	{
 		public EntitySettings Settings;

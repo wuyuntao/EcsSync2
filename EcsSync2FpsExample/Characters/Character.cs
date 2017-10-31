@@ -1,13 +1,12 @@
-﻿namespace EcsSync2.FpsExample
-{
-	public class CharacterSettings : EntitySettings
-	{
-		public ulong UserId;
+﻿using MessagePack;
 
-		protected override EntitySettings Clone()
-		{
-			throw new System.NotImplementedException();
-		}
+namespace EcsSync2.FpsExample
+{
+	[MessagePackObject]
+	public class CharacterSettings : EntitySettings, IEntitySettingsUnion
+	{
+		[Key( 0 )]
+		public ulong UserId;
 	}
 
 	public class Character : Entity
