@@ -2,10 +2,12 @@
 
 namespace EcsSync2.Fps
 {
-	[Union( 0, typeof( CommandFrameMessage ) )]
-	[Union( 1, typeof( FullSyncFrameMessage ) )]
-	[Union( 2, typeof( DeltaSyncFrameMessage ) )]
-	public interface IFrameMessage
+	[Union( 0, typeof( LoginRequestMessage ) )]
+	[Union( 1, typeof( LoginResponseMessage ) )]
+	[Union( 2, typeof( CommandFrameMessage ) )]
+	[Union( 3, typeof( FullSyncFrameMessage ) )]
+	[Union( 4, typeof( DeltaSyncFrameMessage ) )]
+	public interface IMessage
 	{
 	}
 
@@ -13,6 +15,6 @@ namespace EcsSync2.Fps
 	public class MessageEnvelop
 	{
 		[Key( 0 )]
-		public IFrameMessage Frame;
+		public IMessage Message;
 	}
 }

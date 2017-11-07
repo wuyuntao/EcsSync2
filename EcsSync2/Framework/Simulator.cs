@@ -4,7 +4,7 @@ namespace EcsSync2
 {
 	public class Simulator
 	{
-		public interface IContext
+		public interface IContext : ILogger
 		{
 		}
 

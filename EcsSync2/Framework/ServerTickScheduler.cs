@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EcsSync2
 {
@@ -82,6 +83,16 @@ namespace EcsSync2
 				// 清理已应用命令
 				Simulator.CommandQueue.DequeueBefore( userId, lastFrame.Time );
 			}
+		}
+
+		public DeltaSyncFrame FetchDeltaSyncFrame()
+		{
+			throw new NotImplementedException();
+		}
+
+		public FullSyncFrame FetchFullSyncFrame()
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

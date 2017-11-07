@@ -1,15 +1,16 @@
-﻿using System;
+﻿using EcsSync2.Fps;
+using System;
 
 namespace EcsSync2
 {
-	public class CreateEntityCommand : SceneCommand
+	public class CreateEntityCommand : SceneCommand, ICommandUnion
 	{
 		public EntitySettings Settings;
 	}
 
-	public class RemoveEntityCommand : SceneCommand
+	public class RemoveEntityCommand : SceneCommand, ICommandUnion
 	{
-		public InstanceId Id;
+		public uint Id;
 	}
 
 
@@ -40,9 +41,9 @@ namespace EcsSync2
 
 		protected internal abstract Entity CreateEntity(InstanceId id, EntitySettings settings);
 
-		protected Entity CreateEntity<TEntity, TEntitySettigns>(InstanceId id, EntitySettings settings)
+		protected Entity CreateEntity<TEntity, TEntitySettings>(InstanceId id, EntitySettings settings)
 			where TEntity : Entity, new()
-			where TEntitySettigns : EntitySettings
+			where TEntitySettings : EntitySettings
 		{
 			return SceneManager.CreateEntity<TEntity>( id, settings );
 		}

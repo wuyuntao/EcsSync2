@@ -1,12 +1,40 @@
-﻿using MessagePack;
+﻿using System;
+using MessagePack;
+using System.Collections.Generic;
 
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class DeltaSyncFrameMessage : IFrameMessage
+	public class DeltaSyncFrameMessage : IMessage
 	{
 		[Key( 0 )]
 		public uint Time;
+
+		[Key( 1 )]
+		public List<IEventUnion> Events;
+
+		public static DeltaSyncFrameMessage FromDeltaSyncFrame(DeltaSyncFrame frame)
+		{
+			var m = new DeltaSyncFrameMessage()
+			{
+				Time = frame.Time,
+				Events = new List<IEventUnion>(),
+			};
+
+			foreach( var c in frame.Events )
+				m.Events.Add( (IEventUnion)c );
+
+			return m;
+		}
+
+		public DeltaSyncFrame ToDeltaSyncFrame(Simulator simulator)
+		{
+			var frame = simulator.ReferencableAllocator.Allocate<DeltaSyncFrame>();
+			frame.Time = Time;
+			foreach( var c in Events )
+				frame.Events.Add( (Event)c );
+			return frame;
+		}
 	}
 
 	[MessagePackObject]

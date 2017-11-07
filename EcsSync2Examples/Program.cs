@@ -8,8 +8,10 @@ namespace EcsSync2.Examples
 	{
 		static void Main(string[] args)
 		{
-			TestSerializer();
+			//TestSerializer();
 			//RunStandaloneSimulator();
+
+			RunServer();
 		}
 
 		static void TestSerializer()
@@ -63,6 +65,16 @@ namespace EcsSync2.Examples
 			handler( command );
 			simulator.CommandQueue.EnqueueCommands( 0, frame );
 			frame.Release();
+		}
+
+		static void RunServer()
+		{
+			var server = new FpsServer( new SimulatorContext(), "0.0.0.0", 3687 );
+
+			Console.WriteLine( "started" );
+			Console.ReadLine();
+
+			server.Stop();
 		}
 	}
 }

@@ -181,5 +181,10 @@ namespace EcsSync2
 		}
 
 		#endregion
+
+		public CommandFrame FetchCommandFrame()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
