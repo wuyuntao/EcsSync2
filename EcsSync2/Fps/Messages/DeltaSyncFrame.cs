@@ -1,9 +1,9 @@
 ﻿using MessagePack;
 
-namespace EcsSync2.FpsExample
+namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class DeltaSyncFrameMessage
+	public class DeltaSyncFrameMessage : IFrameMessage
 	{
 		[Key( 0 )]
 		public uint Time;

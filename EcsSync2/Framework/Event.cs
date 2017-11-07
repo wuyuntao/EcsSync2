@@ -1,4 +1,6 @@
-﻿namespace EcsSync2
+﻿using MessagePack;
+
+namespace EcsSync2
 {
 	public abstract class Event : Message
 	{
@@ -8,8 +10,10 @@
 	{
 	}
 
+	[MessagePackObject]
 	public class ComponentEvent : Event
 	{
-		public InstanceId ComponentId;
+		[Key( 0 )]
+		public uint ComponentId;
 	}
 }

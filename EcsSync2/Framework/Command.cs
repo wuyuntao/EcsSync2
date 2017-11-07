@@ -1,4 +1,6 @@
-﻿namespace EcsSync2
+﻿using MessagePack;
+
+namespace EcsSync2
 {
 	public abstract class Command : Message
 	{
@@ -10,6 +12,7 @@
 
 	public abstract class ComponentCommand : Command
 	{
-		public InstanceId Receiver;
+		[Key( 0 )]
+		public uint Receiver;
 	}
 }

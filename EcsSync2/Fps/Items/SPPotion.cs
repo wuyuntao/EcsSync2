@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EcsSync2.FpsExample
+namespace EcsSync2.Fps
 {
 	public class SPPotion : Component
 	{

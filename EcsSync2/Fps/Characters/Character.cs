@@ -1,6 +1,6 @@
 ﻿using MessagePack;
 
-namespace EcsSync2.FpsExample
+namespace EcsSync2.Fps
 {
 	[MessagePackObject]
 	public class CharacterSettings : EntitySettings, IEntitySettingsUnion

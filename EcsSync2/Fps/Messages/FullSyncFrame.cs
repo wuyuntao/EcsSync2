@@ -1,10 +1,10 @@
 ﻿using MessagePack;
 using System.Collections.Generic;
 
-namespace EcsSync2.FpsExample
+namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class FullSyncFrameMessage
+	public class FullSyncFrameMessage : IFrameMessage
 	{
 		[Key( 0 )]
 		public uint Time;

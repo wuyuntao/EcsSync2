@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace EcsSync2.FpsExample
+namespace EcsSync2.Fps
 {
 	public class BattleScene : Scene
 	{
@@ -8,7 +8,7 @@ namespace EcsSync2.FpsExample
 		{
 		}
 
-		protected override Entity CreateEntity(InstanceId id, EntitySettings settings)
+		protected internal override Entity CreateEntity(InstanceId id, EntitySettings settings)
 		{
 			switch( settings )
 			{

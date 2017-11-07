@@ -1,4 +1,5 @@
-﻿using EcsSync2.FpsExample;
+﻿using EcsSync2.Fps;
+using MessagePack;
 using System;
 
 namespace EcsSync2.Examples
@@ -7,7 +8,15 @@ namespace EcsSync2.Examples
 	{
 		static void Main(string[] args)
 		{
-			RunStandaloneSimulator();
+			TestSerializer();
+			//RunStandaloneSimulator();
+		}
+
+		static void TestSerializer()
+		{
+			var s0 = new PlayerSettings() { UserId = 100, IsAI = true };
+			var bytes = MessagePackSerializer.Serialize( s0 );
+			var s1 = MessagePackSerializer.Deserialize<PlayerSettings>( bytes );
 		}
 
 		static void RunStandaloneSimulator()

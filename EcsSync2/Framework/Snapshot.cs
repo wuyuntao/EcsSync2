@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 using System.Collections.Generic;
 
 namespace EcsSync2
@@ -30,10 +31,13 @@ namespace EcsSync2
 
 	public class EntitySnapshot : Snapshot
 	{
-		public InstanceId Id;
+		[Key( 0 )]
+		public uint Id;
 
+		[Key( 1 )]
 		public EntitySettings Settings;
 
+		[Key( 2 )]
 		public List<ComponentSnapshot> Components = new List<ComponentSnapshot>();
 
 		public override Snapshot Clone()
@@ -44,6 +48,7 @@ namespace EcsSync2
 
 	public abstract class ComponentSnapshot : Snapshot
 	{
-		public InstanceId Id;
+		[Key( 0 )]
+		public uint Id;
 	}
 }

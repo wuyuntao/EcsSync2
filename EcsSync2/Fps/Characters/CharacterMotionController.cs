@@ -1,7 +1,7 @@
 ﻿using MessagePack;
 using System;
 
-namespace EcsSync2.FpsExample
+namespace EcsSync2.Fps
 {
 	[MessagePackObject]
 	class CharacterMotionControllerSnapshot : Snapshot, IComponentSnapshotUnion
@@ -28,11 +28,11 @@ namespace EcsSync2.FpsExample
 	[MessagePackObject]
 	public class MoveCharacterCommand : ComponentCommand, ICommandUnion
 	{
-		[Key( 0 )]
+		[Key( 10 )]
 		//[MessagePackFormatter( typeof( Vector2DFormatter ) )]
 		public Vector2D InputDirection;
 
-		[Key( 1 )]
+		[Key( 11 )]
 		public float InputMagnitude;
 	}
 
