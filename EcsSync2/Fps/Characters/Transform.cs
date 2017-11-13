@@ -13,12 +13,12 @@ namespace EcsSync2.Fps
 	}
 
 	[MessagePackObject]
-	public class TransformSnapshot : Snapshot, IComponentSnapshotUnion
+	public class TransformSnapshot : ComponentSnapshot, IComponentSnapshotUnion
 	{
-		[Key( 0 )]
+		[Key( 11 )]
 		public Vector2D Position;
 
-		[Key( 1 )]
+		[Key( 12 )]
 		public Vector2D Velocity;
 
 		public override Snapshot Clone()
@@ -78,7 +78,7 @@ namespace EcsSync2.Fps
 		{
 		}
 
-		protected override Snapshot CreateSnapshot()
+		protected internal override Snapshot CreateSnapshot()
 		{
 			return Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<TransformSnapshot>();
 		}

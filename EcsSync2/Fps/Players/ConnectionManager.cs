@@ -98,7 +98,7 @@ namespace EcsSync2.Fps
 		{
 		}
 
-		protected override Snapshot CreateSnapshot()
+		protected internal override Snapshot CreateSnapshot()
 		{
 			return Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<ConnectingSnapshot>();
 		}

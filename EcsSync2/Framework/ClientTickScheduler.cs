@@ -53,7 +53,7 @@ namespace EcsSync2
 		{
 			foreach( var es in frame.Entities )
 			{
-				Simulator.SceneManager.Scene.CreateEntity( es.Id, es.Settings );
+				Simulator.SceneManager.Scene.CreateEntity( es.Id, (EntitySettings)es.Settings );
 
 				foreach( var cs in es.Components )
 				{
@@ -126,7 +126,7 @@ namespace EcsSync2
 				if( Configuration.ComponentReconcilationRatio < 1 )
 				{
 					var predictionState = component.GetState( m_predictionTickContext );
-					reconcilationState = predictionState.Interpolate(reconcilationState, Configuration.ComponentReconcilationRatio);
+					reconcilationState = predictionState.Interpolate( reconcilationState, Configuration.ComponentReconcilationRatio );
 				}
 				component.SetState( m_predictionTickContext, reconcilationState );
 			}
@@ -184,7 +184,9 @@ namespace EcsSync2
 
 		public CommandFrame FetchCommandFrame()
 		{
-			throw new NotImplementedException();
+			var f = Simulator.CommandQueue.FetchCommands( Simulator.LocalUserId.Value, m_predictionTickContext.Time );
+			f.Retain();
+			return f;
 		}
 	}
 }

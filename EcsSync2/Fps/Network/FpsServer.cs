@@ -65,7 +65,9 @@ namespace EcsSync2.Fps
 				{
 					Logger.Log( "Send deltaSyncFrame {0}", deltaSyncFrame.Time );
 
-					var bytes = MessagePackSerializer.Serialize( DeltaSyncFrameMessage.FromDeltaSyncFrame( deltaSyncFrame ) );
+					var msg = DeltaSyncFrameMessage.FromDeltaSyncFrame( deltaSyncFrame );
+					var env = new MessageEnvelop() { Message = msg };
+					var bytes = MessagePackSerializer.Serialize( env );
 					deltaSyncFrame.Release();
 
 					foreach( var p in NewPeers )
@@ -81,7 +83,9 @@ namespace EcsSync2.Fps
 
 				Logger.Log( "Send deltaSyncFrame {0}", fullSyncFrame.Time );
 
-				var bytes = MessagePackSerializer.Serialize( FullSyncFrameMessage.FromFullSyncFrame( fullSyncFrame ) );
+				var msg = FullSyncFrameMessage.FromFullSyncFrame( fullSyncFrame );
+				var env = new MessageEnvelop() { Message = msg };
+				var bytes = MessagePackSerializer.Serialize( env );
 				fullSyncFrame.Release();
 
 				foreach( var p in NewPeers )
@@ -117,12 +121,14 @@ namespace EcsSync2.Fps
 					NewPeers.Add( peer );
 
 					var res1 = new LoginResponseMessage() { Ok = true };
-					peer.Send( MessagePackSerializer.Serialize( res1 ), SendOptions.ReliableOrdered );
+					var enb1 = new MessageEnvelop() { Message = res1 };
+					peer.Send( MessagePackSerializer.Serialize( enb1 ), SendOptions.ReliableOrdered );
 					break;
 
 				case HeartbeatRequestMessage m:
 					var res2 = new HeartbeatResponseMessage() { ClientTime = m.ClientTime, ServerTime = (uint)Stopwatch.ElapsedMilliseconds };
-					peer.Send( MessagePackSerializer.Serialize( res2 ), SendOptions.ReliableOrdered );
+					var env2 = new MessageEnvelop() { Message = res2 };
+					peer.Send( MessagePackSerializer.Serialize( env2 ), SendOptions.ReliableOrdered );
 					break;
 
 				case CommandFrameMessage m:

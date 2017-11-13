@@ -1,18 +1,28 @@
 ﻿using EcsSync2.Fps;
 using MessagePack;
 using System;
+using System.Threading;
 
 namespace EcsSync2.Examples
 {
 	class Program
 	{
+		static bool m_end;
+
 		static void Main(string[] args)
 		{
 			//TestSerializer();
 			//RunStandaloneSimulator();
 
-			RunServer();
+			ThreadPool.QueueUserWorkItem( RunServer );
+			ThreadPool.QueueUserWorkItem( RunClient );
+
+			Console.WriteLine( "Press any key to exit" );
+			Console.ReadLine();
+
+			m_end = true;
 		}
+
 
 		static void TestSerializer()
 		{
@@ -67,14 +77,35 @@ namespace EcsSync2.Examples
 			frame.Release();
 		}
 
-		static void RunServer()
+		static void RunServer(object state)
 		{
 			var server = new FpsServer( new SimulatorContext(), "0.0.0.0", 3687 );
+			var interval = TimeSpan.FromSeconds( 1 / 60.0 );
 
-			Console.WriteLine( "started" );
-			Console.ReadLine();
+			while( !m_end )
+			{
+				Thread.Sleep( interval );
+				server.Update();
+			}
 
 			server.Stop();
+		}
+
+		static void RunClient(object state)
+		{
+			Console.WriteLine( "wait server started" );
+			Thread.Sleep( 3000 );
+
+			var client = new FpsClient( new SimulatorContext(), "192.168.92.144", 3687, 1 );
+			var interval = TimeSpan.FromSeconds( 1 / 60.0 );
+
+			while( !m_end )
+			{
+				Thread.Sleep( interval );
+				client.Update();
+			}
+
+			client.Stop();
 		}
 	}
 }

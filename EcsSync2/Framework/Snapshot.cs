@@ -1,4 +1,5 @@
-﻿using MessagePack;
+﻿using EcsSync2.Fps;
+using MessagePack;
 using System;
 using System.Collections.Generic;
 
@@ -35,7 +36,7 @@ namespace EcsSync2
 		public uint Id;
 
 		[Key( 1 )]
-		public EntitySettings Settings;
+		public IEntitySettingsUnion Settings;
 
 		[Key( 2 )]
 		public List<ComponentSnapshot> Components = new List<ComponentSnapshot>();
@@ -43,6 +44,16 @@ namespace EcsSync2
 		public override Snapshot Clone()
 		{
 			throw new NotImplementedException();
+		}
+
+		protected override void Reset()
+		{
+			foreach( var c in Components )
+				c.Release();
+
+			Components.Clear();
+
+			base.Reset();
 		}
 	}
 

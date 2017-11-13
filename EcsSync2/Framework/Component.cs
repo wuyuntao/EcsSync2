@@ -146,7 +146,7 @@ namespace EcsSync2
 
 		protected abstract void OnDestroy();
 
-		protected abstract Snapshot CreateSnapshot();
+		protected internal abstract Snapshot CreateSnapshot();
 
 		protected abstract void OnSnapshotRecovered(Snapshot state);
 

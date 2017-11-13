@@ -60,5 +60,7 @@ namespace EcsSync2
 		}
 
 		public Scene Scene => m_scene;
+
+		public IEnumerable<Entity> Entities => m_entities.Values;
 	}
 }

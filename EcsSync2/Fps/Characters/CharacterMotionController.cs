@@ -4,15 +4,15 @@ using System;
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	class CharacterMotionControllerSnapshot : Snapshot, IComponentSnapshotUnion
+	class CharacterMotionControllerSnapshot : ComponentSnapshot, IComponentSnapshotUnion
 	{
-		[Key( 0 )]
+		[Key( 11 )]
 		public Vector2D InputDirection;
 
-		[Key( 1 )]
+		[Key( 12 )]
 		public float InputMagnitude;
 
-		[Key( 2 )]
+		[Key( 13 )]
 		public float MaxSpeed;
 
 		public override Snapshot Clone()
@@ -95,7 +95,7 @@ namespace EcsSync2.Fps
 		{
 		}
 
-		protected override Snapshot CreateSnapshot()
+		protected internal override Snapshot CreateSnapshot()
 		{
 			var s = Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<CharacterMotionControllerSnapshot>();
 			s.InputDirection = new Vector2D( 0, 1 );

@@ -43,7 +43,7 @@ namespace EcsSync2.Fps
 			{
 				var e = frame.Allocate<EntitySnapshot>();
 				e.Id = c.Id;
-				e.Settings = (EntitySettings)c.Settings;
+				e.Settings = c.Settings;
 				e.Components = e.Components.Cast<ComponentSnapshot>().ToList();
 
 				frame.Entities.Add( e );

@@ -24,7 +24,7 @@ namespace EcsSync2.Fps
 			throw new NotImplementedException();
 		}
 
-		protected override Snapshot CreateSnapshot()
+		protected internal override Snapshot CreateSnapshot()
 		{
 			throw new NotImplementedException();
 		}

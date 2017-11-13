@@ -6,7 +6,6 @@ namespace EcsSync2
 	{
 		protected virtual void Reset()
 		{
-			throw new NotImplementedException();
 		}
 
 		#region IReferencable

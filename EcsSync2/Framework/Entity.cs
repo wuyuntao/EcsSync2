@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EcsSync2.Fps;
+using System;
 using System.Collections.Generic;
 
 namespace EcsSync2
@@ -59,6 +60,22 @@ namespace EcsSync2
 			component.Initialize( this, Id.CreateComponentId( (uint)( Components.Count + 1 ) ), settings );
 			Components.Add( component );
 			return component;
+		}
+
+		internal EntitySnapshot CreateSnapshot()
+		{
+			var s = SceneManager.Simulator.Allocate<EntitySnapshot>();
+			s.Id = Id;
+			s.Settings = (IEntitySettingsUnion)Settings;
+
+			foreach( var c in Components )
+			{
+				var cs = (ComponentSnapshot)c.CreateSnapshot();
+				s.Components.Add( cs );
+				cs.Retain();
+			}
+
+			return s;
 		}
 	}
 }

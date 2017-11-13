@@ -45,7 +45,7 @@ namespace EcsSync2.Fps
 				MergeEnabled = true,
 			};
 
-			NetManager.Start( Port );
+			NetManager.Start();
 			NetManager.Connect( Address, Port );
 
 			Stopwatch = Stopwatch.StartNew();
@@ -65,9 +65,11 @@ namespace EcsSync2.Fps
 				var commandFrame = Simulator.ClientTickScheduler.FetchCommandFrame();
 				if( commandFrame != null )
 				{
-					var bytes = MessagePackSerializer.Serialize( CommandFrameMessage.FromCommandFrame( UserId, commandFrame ) );
-					commandFrame.Release();
+					var msg = CommandFrameMessage.FromCommandFrame( UserId, commandFrame );
+					var env = new MessageEnvelop() { Message = msg };
+					var bytes = MessagePackSerializer.Serialize( env );
 
+					commandFrame.Release();
 					commandFrame = Simulator.ClientTickScheduler.FetchCommandFrame();
 
 					NetPeer.Send( bytes, SendOptions.ReliableOrdered );
@@ -77,7 +79,9 @@ namespace EcsSync2.Fps
 				{
 					LastHeartbeatMs = Stopwatch.ElapsedMilliseconds;
 
-					var bytes = MessagePackSerializer.Serialize( new HeartbeatRequestMessage() { ClientTime = (uint)LastHeartbeatMs } );
+					var msg = new HeartbeatRequestMessage() { ClientTime = (uint)LastHeartbeatMs };
+					var env = new MessageEnvelop() { Message = msg };
+					var bytes = MessagePackSerializer.Serialize( env );
 
 					NetPeer.Send( bytes, SendOptions.ReliableOrdered );
 				}
@@ -95,7 +99,8 @@ namespace EcsSync2.Fps
 			NetPeer = peer;
 
 			var req = new LoginRequestMessage() { UserId = UserId, ClientTime = (uint)Stopwatch.ElapsedMilliseconds };
-			var bytes = MessagePackSerializer.Serialize( req );
+			var env = new MessageEnvelop() { Message = req };
+			var bytes = MessagePackSerializer.Serialize( env );
 			peer.Send( bytes, SendOptions.ReliableOrdered );
 		}
 

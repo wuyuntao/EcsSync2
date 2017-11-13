@@ -87,12 +87,34 @@ namespace EcsSync2
 
 		public DeltaSyncFrame FetchDeltaSyncFrame()
 		{
-			throw new NotImplementedException();
+			var f = Simulator.ReferencableAllocator.Allocate<DeltaSyncFrame>();
+			f.Time = m_context.Time;
+
+			foreach( var e in Simulator.EventBus.FetchUnsyncedEvents() )
+			{
+				f.Events.Add( e );
+				e.Retain();
+			}
+
+			f.Retain();
+			return f;
 		}
 
 		public FullSyncFrame FetchFullSyncFrame()
 		{
-			throw new NotImplementedException();
+			var f = Simulator.ReferencableAllocator.Allocate<FullSyncFrame>();
+			f.Time = m_context.Time;
+
+			foreach( var e in Simulator.SceneManager.Entities )
+			{
+				var s = e.CreateSnapshot();
+				f.Entities.Add( s );
+
+				s.Retain();
+			}
+
+			f.Retain();
+			return f;
 		}
 	}
 }
