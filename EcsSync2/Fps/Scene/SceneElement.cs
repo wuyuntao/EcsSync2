@@ -4,7 +4,7 @@ using System;
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class SceneElementSettings : EntitySettings, IEntitySettingsUnion
+	public class SceneElementSettings : IEntitySettings
 	{
 		[Key( 0 )]
 		public string Type = "Door";

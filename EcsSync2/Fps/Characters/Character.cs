@@ -3,7 +3,7 @@
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class CharacterSettings : EntitySettings, IEntitySettingsUnion
+	public class CharacterSettings : IEntitySettings
 	{
 		[Key( 0 )]
 		public ulong UserId;

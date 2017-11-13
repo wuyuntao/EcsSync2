@@ -27,7 +27,7 @@ namespace EcsSync2.Fps
 				m.Entities.Add( new EntitySnapshotMessage()
 				{
 					Id = e.Id,
-					Settings = (IEntitySettingsUnion)e.Settings,
+					Settings = (IEntitySettings)e.Settings,
 					Components = e.Components.Cast<IComponentSnapshotUnion>().ToList(),
 				} );
 			}
@@ -60,7 +60,7 @@ namespace EcsSync2.Fps
 		public uint Id;
 
 		[Key( 1 )]
-		public IEntitySettingsUnion Settings;
+		public IEntitySettings Settings;
 
 		[Key( 2 )]
 		public List<IComponentSnapshotUnion> Components;

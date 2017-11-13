@@ -5,7 +5,7 @@ namespace EcsSync2
 {
 	public class CreateEntityCommand : SceneCommand, ICommandUnion
 	{
-		public EntitySettings Settings;
+		public IEntitySettings Settings;
 	}
 
 	public class RemoveEntityCommand : SceneCommand, ICommandUnion
@@ -18,7 +18,7 @@ namespace EcsSync2
 	{
 		public InstanceId Id;
 
-		public EntitySettings Settings;
+		public IEntitySettings Settings;
 	}
 
 	public class EntityRemovedEvent : SceneEvent
@@ -39,16 +39,16 @@ namespace EcsSync2
 
 		protected abstract void OnInitialize();
 
-		protected internal abstract Entity CreateEntity(InstanceId id, EntitySettings settings);
+		protected internal abstract Entity CreateEntity(InstanceId id, IEntitySettings settings);
 
-		protected Entity CreateEntity<TEntity, TEntitySettings>(InstanceId id, EntitySettings settings)
+		protected Entity CreateEntity<TEntity, TEntitySettings>(InstanceId id, IEntitySettings settings)
 			where TEntity : Entity, new()
-			where TEntitySettings : EntitySettings
+			where TEntitySettings : IEntitySettings
 		{
 			return SceneManager.CreateEntity<TEntity>( id, settings );
 		}
 
-		public void ApplyEntityCreatedEvent(EntitySettings settings)
+		public void ApplyEntityCreatedEvent(IEntitySettings settings)
 		{
 			var e = SceneManager.Simulator.ReferencableAllocator.Allocate<EntityCreatedEvent>();
 			e.Id = SceneManager.Simulator.InstanceIdAllocator.Allocate();

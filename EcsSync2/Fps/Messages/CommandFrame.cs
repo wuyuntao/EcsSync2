@@ -47,13 +47,4 @@ namespace EcsSync2.Fps
 	public interface ICommandUnion
 	{
 	}
-
-	[Union( 0, typeof( CharacterSettings ) )]
-	[Union( 1, typeof( GameManagerSettings ) )]
-	[Union( 2, typeof( ItemSettings ) )]
-	[Union( 3, typeof( PlayerSettings ) )]
-	[Union( 4, typeof( SceneElementSettings ) )]
-	public interface IEntitySettingsUnion
-	{
-	}
 }

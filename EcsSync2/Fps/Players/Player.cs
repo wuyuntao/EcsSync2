@@ -3,7 +3,7 @@
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class PlayerSettings : EntitySettings, IEntitySettingsUnion
+	public class PlayerSettings : IEntitySettings
 	{
 		[Key( 0 )]
 		public ulong UserId;

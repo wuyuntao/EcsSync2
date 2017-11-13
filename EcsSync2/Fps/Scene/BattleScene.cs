@@ -8,7 +8,7 @@ namespace EcsSync2.Fps
 		{
 		}
 
-		protected internal override Entity CreateEntity(InstanceId id, EntitySettings settings)
+		protected internal override Entity CreateEntity(InstanceId id, IEntitySettings settings)
 		{
 			switch( settings )
 			{

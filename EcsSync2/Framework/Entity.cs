@@ -1,10 +1,16 @@
 ﻿using EcsSync2.Fps;
+using MessagePack;
 using System;
 using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	public abstract class EntitySettings
+	[Union( 0, typeof( CharacterSettings ) )]
+	[Union( 1, typeof( GameManagerSettings ) )]
+	[Union( 2, typeof( ItemSettings ) )]
+	[Union( 3, typeof( PlayerSettings ) )]
+	[Union( 4, typeof( SceneElementSettings ) )]
+	public interface IEntitySettings
 	{
 	}
 
@@ -19,12 +25,12 @@ namespace EcsSync2
 
 		public SceneManager SceneManager { get; private set; }
 		public InstanceId Id { get; private set; }
-		public EntitySettings Settings { get; private set; }
+		public IEntitySettings Settings { get; private set; }
 		public List<Component> Components { get; } = new List<Component>();
 
 		State m_state = State.Initial;
 
-		internal void Initialize(SceneManager sceneManager, InstanceId id, EntitySettings settings)
+		internal void Initialize(SceneManager sceneManager, InstanceId id, IEntitySettings settings)
 		{
 			SceneManager = sceneManager;
 			Id = id;
@@ -66,7 +72,7 @@ namespace EcsSync2
 		{
 			var s = SceneManager.Simulator.Allocate<EntitySnapshot>();
 			s.Id = Id;
-			s.Settings = (IEntitySettingsUnion)Settings;
+			s.Settings = Settings;
 
 			foreach( var c in Components )
 			{

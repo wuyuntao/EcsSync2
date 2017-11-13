@@ -44,7 +44,7 @@ namespace EcsSync2.Fps
 		public uint Id;
 
 		[Key( 1 )]
-		public IEntitySettingsUnion Settings;
+		public IEntitySettings Settings;
 	}
 
 	[MessagePackObject]

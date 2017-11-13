@@ -3,7 +3,7 @@
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class GameManagerSettings : EntitySettings, IEntitySettingsUnion
+	public class GameManagerSettings : IEntitySettings
 	{
 	}
 

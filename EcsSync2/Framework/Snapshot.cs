@@ -36,7 +36,7 @@ namespace EcsSync2
 		public uint Id;
 
 		[Key( 1 )]
-		public IEntitySettingsUnion Settings;
+		public IEntitySettings Settings;
 
 		[Key( 2 )]
 		public List<ComponentSnapshot> Components = new List<ComponentSnapshot>();

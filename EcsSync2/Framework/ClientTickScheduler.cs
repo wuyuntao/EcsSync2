@@ -53,7 +53,7 @@ namespace EcsSync2
 		{
 			foreach( var es in frame.Entities )
 			{
-				Simulator.SceneManager.Scene.CreateEntity( es.Id, (EntitySettings)es.Settings );
+				Simulator.SceneManager.Scene.CreateEntity( es.Id, (IEntitySettings)es.Settings );
 
 				foreach( var cs in es.Components )
 				{

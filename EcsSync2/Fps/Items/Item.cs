@@ -4,7 +4,7 @@ using System;
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class ItemSettings : EntitySettings, IEntitySettingsUnion
+	public class ItemSettings : IEntitySettings
 	{
 		[Key( 0 )]
 		public string Type = "SPPotion";
