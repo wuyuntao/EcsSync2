@@ -120,20 +120,24 @@ namespace EcsSync2.Fps
 					Simulator = new Simulator( Context, false, true, null, UserId );
 					Simulator.SynchronizedClock.Synchronize( m.ServerTime / 1000f, ( LastUpdateMs - m.ClientTime ) / 1000f );
 					Scene = Simulator.SceneManager.LoadScene<BattleScene>();
+					Logger?.Log( "Login {0}", peer );
 					break;
 
 				case HeartbeatResponseMessage m:
 					Simulator.SynchronizedClock.Synchronize( m.ServerTime / 1000f, ( Stopwatch.ElapsedMilliseconds - m.ClientTime ) / 1000f );
+					Logger?.Log( "Heartbeat {0}", peer );
 					break;
 
 				case FullSyncFrameMessage m:
 					var f1 = m.ToFullSyncFrame( Simulator );
 					Simulator.ClientTickScheduler.ReceiveSyncFrame( f1 );
+					Logger?.Log( "FullSyncFrame {0}", peer );
 					break;
 
 				case DeltaSyncFrameMessage m:
 					var f2 = m.ToDeltaSyncFrame( Simulator );
 					Simulator.ClientTickScheduler.ReceiveSyncFrame( f2 );
+					Logger?.Log( "DeltaSyncFrame {0}", peer );
 					break;
 
 				default:

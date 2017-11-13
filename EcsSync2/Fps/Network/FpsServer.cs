@@ -70,7 +70,7 @@ namespace EcsSync2.Fps
 					var bytes = MessagePackSerializer.Serialize( env );
 					deltaSyncFrame.Release();
 
-					foreach( var p in NewPeers )
+					foreach( var p in Peers )
 						p.Send( bytes, SendOptions.ReliableOrdered );
 
 					deltaSyncFrame = Simulator.ServerTickScheduler.FetchDeltaSyncFrame();
@@ -126,17 +126,20 @@ namespace EcsSync2.Fps
 					var res1 = new LoginResponseMessage() { Ok = true };
 					var enb1 = new MessageEnvelop() { Message = res1 };
 					peer.Send( MessagePackSerializer.Serialize( enb1 ), SendOptions.ReliableOrdered );
+					Logger?.Log( "Login {0}", peer );
 					break;
 
 				case HeartbeatRequestMessage m:
 					var res2 = new HeartbeatResponseMessage() { ClientTime = m.ClientTime, ServerTime = (uint)Stopwatch.ElapsedMilliseconds };
 					var env2 = new MessageEnvelop() { Message = res2 };
 					peer.Send( MessagePackSerializer.Serialize( env2 ), SendOptions.ReliableOrdered );
+					Logger?.Log( "Heartbeat {0}", peer );
 					break;
 
 				case CommandFrameMessage m:
 					var f = m.ToCommandFrame( Simulator );
 					Simulator.CommandQueue.EnqueueCommands( m.UserId, f );
+					Logger?.Log( "CommandFrame {0}", peer );
 					break;
 
 				default:
