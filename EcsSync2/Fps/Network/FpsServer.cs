@@ -81,7 +81,7 @@ namespace EcsSync2.Fps
 			{
 				var fullSyncFrame = Simulator.ServerTickScheduler.FetchFullSyncFrame();
 
-				Logger.Log( "Send deltaSyncFrame {0}", fullSyncFrame.Time );
+				Logger.Log( "Send fullSyncFrame {0}", fullSyncFrame.Time );
 
 				var msg = FullSyncFrameMessage.FromFullSyncFrame( fullSyncFrame );
 				var env = new MessageEnvelop() { Message = msg };

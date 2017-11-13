@@ -15,10 +15,10 @@ namespace EcsSync2.Fps
 	[MessagePackObject]
 	public class TransformSnapshot : ComponentSnapshot, IComponentSnapshotUnion
 	{
-		[Key( 11 )]
+		[Key( 10 )]
 		public Vector2D Position;
 
-		[Key( 12 )]
+		[Key( 11 )]
 		public Vector2D Velocity;
 
 		public override Snapshot Clone()
@@ -33,14 +33,14 @@ namespace EcsSync2.Fps
 	[MessagePackObject]
 	public class TransformMovedEvent : Event, IEventUnion
 	{
-		[Key( 0 )]
+		[Key( 20 )]
 		public Vector2D Position;
 	}
 
 	[MessagePackObject]
 	public class TransformVelocityChangedEvent : Event, IEventUnion
 	{
-		[Key( 0 )]
+		[Key( 20 )]
 		public Vector2D Velocity;
 	}
 

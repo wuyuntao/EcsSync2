@@ -140,15 +140,18 @@ namespace EcsSync2
 
 		List<Component> GetPredictedComponents()
 		{
-			throw new NotImplementedException();
+			return Components;
 		}
 
 		bool RequireReconcilation(List<Component> components)
 		{
 			foreach( var component in components )
 			{
-				var syncState = component.GetState( m_syncTickContext );
 				var predictionState = component.GetState( m_reconcilationTickContext );
+				if( predictionState == null )
+					return false;
+
+				var syncState = component.GetState( m_syncTickContext );
 				if( !syncState.IsApproximate( predictionState ) )
 					return true;
 			}

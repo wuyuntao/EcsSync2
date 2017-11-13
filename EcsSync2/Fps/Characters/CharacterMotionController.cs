@@ -6,13 +6,13 @@ namespace EcsSync2.Fps
 	[MessagePackObject]
 	class CharacterMotionControllerSnapshot : ComponentSnapshot, IComponentSnapshotUnion
 	{
-		[Key( 11 )]
+		[Key( 10 )]
 		public Vector2D InputDirection;
 
-		[Key( 12 )]
+		[Key( 11 )]
 		public float InputMagnitude;
 
-		[Key( 13 )]
+		[Key( 12 )]
 		public float MaxSpeed;
 
 		public override Snapshot Clone()
@@ -28,20 +28,20 @@ namespace EcsSync2.Fps
 	[MessagePackObject]
 	public class MoveCharacterCommand : ComponentCommand, ICommandUnion
 	{
-		[Key( 10 )]
+		[Key( 20 )]
 		public Vector2D InputDirection;
 
-		[Key( 11 )]
+		[Key( 21 )]
 		public float InputMagnitude;
 	}
 
 	[MessagePackObject]
 	public class InputChangedEvent : Event, IEventUnion
 	{
-		[Key( 0 )]
+		[Key( 20 )]
 		public Vector2D InputDirection;
 
-		[Key( 1 )]
+		[Key( 21 )]
 		public float InputMagnitude;
 	}
 

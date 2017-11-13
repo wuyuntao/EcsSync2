@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace EcsSync2
 {
@@ -6,6 +7,7 @@ namespace EcsSync2
 	{
 		TickContext m_context = new TickContext( TickContextType.Sync );
 		SortedList<ulong, CommandFrame> m_dispatchedCommands = new SortedList<ulong, CommandFrame>();
+		uint? m_lastDeltaSyncTime;
 
 		public ServerTickScheduler(Simulator simulator)
 			: base( simulator )
@@ -86,14 +88,13 @@ namespace EcsSync2
 
 		public DeltaSyncFrame FetchDeltaSyncFrame()
 		{
-			var f = Simulator.ReferencableAllocator.Allocate<DeltaSyncFrame>();
-			f.Time = m_context.Time;
+			Debug.Assert( m_lastDeltaSyncTime != null );
 
-			foreach( var e in Simulator.EventBus.FetchUnsyncedEvents() )
-			{
-				f.Events.Add( e );
-				e.Retain();
-			}
+			if( m_lastDeltaSyncTime >= m_context.Time )
+				return null;
+
+			var f = Simulator.EventBus.FetchEvents( m_lastDeltaSyncTime.Value + Configuration.SimulationDeltaTime );
+			m_lastDeltaSyncTime += Configuration.SimulationDeltaTime;
 
 			f.Retain();
 			return f;
@@ -111,6 +112,9 @@ namespace EcsSync2
 
 				s.Retain();
 			}
+
+			if( m_lastDeltaSyncTime == null )
+				m_lastDeltaSyncTime = m_context.Time;
 
 			f.Retain();
 			return f;

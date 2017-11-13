@@ -6,7 +6,7 @@ namespace EcsSync2
 	public class EventBus : SimulatorComponent
 	{
 		Queue<Event> m_events = new Queue<Event>();
-		Queue<Event> m_unsyncEvents = new Queue<Event>();
+		SortedList<uint, DeltaSyncFrame> m_deltaSyncFrames = new SortedList<uint, DeltaSyncFrame>();
 
 		public EventBus(Simulator simulator)
 			: base( simulator )
@@ -19,9 +19,7 @@ namespace EcsSync2
 			{
 				var @event = m_events.Dequeue();
 				OnDispatchEvent( @event );
-				//@event.Release();
-
-				m_unsyncEvents.Enqueue( @event );
+				@event.Release();
 			}
 		}
 
@@ -32,16 +30,30 @@ namespace EcsSync2
 		internal void EnqueueEvent(Event @event)
 		{
 			m_events.Enqueue( @event );
-			m_unsyncEvents.Enqueue( @event );
+
+			var frame = EnsureFrame( @event.Time );
+			frame.Events.Add( @event );
 
 			@event.Retain();
 			@event.Retain();
 		}
 
-		internal IEnumerable<Event> FetchUnsyncedEvents()
+		DeltaSyncFrame EnsureFrame(uint time)
 		{
-			while( m_unsyncEvents.Count > 0 )
-				yield return m_unsyncEvents.Dequeue();
+			if( !m_deltaSyncFrames.TryGetValue( time, out DeltaSyncFrame frame ) )
+			{
+				frame = Simulator.ReferencableAllocator.Allocate<DeltaSyncFrame>();
+				frame.Time = time;
+				frame.Retain();
+
+				m_deltaSyncFrames.Add( time, frame );
+			}
+			return frame;
+		}
+
+		internal DeltaSyncFrame FetchEvents(uint time)
+		{
+			return EnsureFrame( time );
 		}
 	}
 }
