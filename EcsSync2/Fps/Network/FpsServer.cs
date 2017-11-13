@@ -109,6 +109,9 @@ namespace EcsSync2.Fps
 		void Listener_PeerDisconnectedEvent(NetPeer peer, DisconnectInfo disconnectInfo)
 		{
 			Logger?.Log( "Listener_PeerDisconnectedEvent {0}, {1}", peer, disconnectInfo );
+
+			if( Peers.Remove( peer ) || NewPeers.Remove( peer ) )
+				Logger?.Log( "Listener_PeerDisconnectedEvent {0} removed", peer );
 		}
 
 		void Listener_NetworkReceiveEvent(NetPeer peer, NetDataReader reader)

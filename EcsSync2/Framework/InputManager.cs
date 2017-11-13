@@ -27,9 +27,9 @@ namespace EcsSync2
 			m_joystickDirection[1] = c.GetAxis( "Vertical" );
 			m_joystickMagnitude = (float)Math.Sqrt( m_joystickDirection[0] * m_joystickDirection[0] + m_joystickDirection[1] + m_joystickDirection[1] );
 
-			m_buttons[0] = c.GetButton( "Skill1" );
-			m_buttons[1] = c.GetButton( "Skill2" );
-			m_buttons[2] = c.GetButton( "Abort" );
+			m_buttons[0] = c.GetButton( "Fire1" );
+			m_buttons[1] = c.GetButton( "Fire2" );
+			m_buttons[2] = c.GetButton( "Jump" );
 		}
 
 		internal void EnqueueCommands()

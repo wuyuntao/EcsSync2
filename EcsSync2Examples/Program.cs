@@ -14,8 +14,9 @@ namespace EcsSync2.Examples
 			//TestSerializer();
 			//RunStandaloneSimulator();
 
-			ThreadPool.QueueUserWorkItem( RunServer );
-			ThreadPool.QueueUserWorkItem( RunClient );
+			RunServer( null );
+			//ThreadPool.QueueUserWorkItem( RunServer );
+			//ThreadPool.QueueUserWorkItem( RunClient );
 
 			Console.WriteLine( "Press any key to exit" );
 			Console.ReadLine();

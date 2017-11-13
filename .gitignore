@@ -259,3 +259,4 @@ paket-files/
 __pycache__/
 *.pyc
 .vscode/
+EcsSync2FpsUnity/Assets/Scripts/Assemblies/*

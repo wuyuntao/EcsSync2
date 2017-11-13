@@ -10,4 +10,8 @@
     <PackageReference Include="MessagePackAnalyzer" Version="1.6.0" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="cp $(TargetDir)\*.dll $(SolutionDir)\EcsSync2FpsUnity\Assets\Scripts\Assemblies" />
+  </Target>
+
 </Project>
