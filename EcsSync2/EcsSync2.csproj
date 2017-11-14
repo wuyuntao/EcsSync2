@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net46</TargetFramework>
+    <DebugType>Full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,7 +12,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="cp $(TargetDir)\*.dll $(SolutionDir)\EcsSync2FpsUnity\Assets\Scripts\Assemblies" />
+    <Exec Command="cp $(TargetDir)\*.dll $(SolutionDir)\EcsSync2FpsUnity\Assets\Scripts\Assemblies&#xD;&#xA;cp $(TargetDir)\*.pdb $(SolutionDir)\EcsSync2FpsUnity\Assets\Scripts\Assemblies" />
   </Target>
 
 </Project>

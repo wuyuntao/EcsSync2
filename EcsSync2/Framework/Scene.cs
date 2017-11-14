@@ -28,6 +28,9 @@ namespace EcsSync2
 
 	public abstract class Scene
 	{
+		public Action<Entity> OnEntityCreated;
+		public Action<Entity> OnEntityRemoved;
+
 		public SceneManager SceneManager { get; private set; }
 
 		internal virtual void Initialize(SceneManager sceneManager)
@@ -54,6 +57,8 @@ namespace EcsSync2
 			e.Id = SceneManager.Simulator.InstanceIdAllocator.Allocate();
 			e.Settings = settings;
 			ApplyEvent( e );
+
+			SceneManager.Simulator.Context.Log( "ApplyEntityCreatedEvent {0} {1}", e.Id, e.Settings );
 		}
 
 		public void ApplyEntityRemovedEvent(InstanceId id)
@@ -61,6 +66,8 @@ namespace EcsSync2
 			var e = SceneManager.Simulator.ReferencableAllocator.Allocate<EntityRemovedEvent>();
 			e.Id = SceneManager.Simulator.InstanceIdAllocator.Allocate();
 			ApplyEvent( e );
+
+			SceneManager.Simulator.Context.Log( "ApplyEntityRemovedEvent {0}", e.Id );
 		}
 
 		internal void ReceiveCommand(Command command)

@@ -1,6 +1,7 @@
 ﻿using EcsSync2.Fps;
 using MessagePack;
 using System;
+using System.Diagnostics;
 using System.Threading;
 
 namespace EcsSync2.Examples
@@ -81,12 +82,12 @@ namespace EcsSync2.Examples
 		static void RunServer(object state)
 		{
 			var server = new FpsServer( new SimulatorContext(), "0.0.0.0", 3687 );
-			var interval = TimeSpan.FromSeconds( 1 / 60.0 );
+			var clock = new Clock();
 
 			while( !m_end )
 			{
-				Thread.Sleep( interval );
 				server.Update();
+				clock.Tick();
 			}
 
 			server.Stop();
@@ -98,15 +99,30 @@ namespace EcsSync2.Examples
 			Thread.Sleep( 3000 );
 
 			var client = new FpsClient( new SimulatorContext(), "192.168.92.144", 3687, 1 );
-			var interval = TimeSpan.FromSeconds( 1 / 60.0 );
+			var clock = new Clock();
 
 			while( !m_end )
 			{
-				Thread.Sleep( interval );
 				client.Update();
+				clock.Tick();
 			}
 
 			client.Stop();
+		}
+
+		class Clock
+		{
+			int m_ticks;
+			Stopwatch m_sw = Stopwatch.StartNew();
+
+			public void Tick()
+			{
+				m_ticks++;
+
+				var ms = m_ticks * Configuration.SynchronizationDeltaTime - (int)m_sw.ElapsedMilliseconds;
+				if( ms > 0 )
+					Thread.Sleep( ms );
+			}
 		}
 	}
 }

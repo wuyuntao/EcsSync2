@@ -8,6 +8,8 @@ namespace EcsSync2.Fps
 {
 	public sealed class FpsClient
 	{
+		public event Action<Simulator> OnLogin;
+
 		public string Address { get; }
 		public int Port { get; }
 		public string ConnectKey { get; }
@@ -118,6 +120,7 @@ namespace EcsSync2.Fps
 				case LoginResponseMessage m:
 					LastUpdateMs = Stopwatch.ElapsedMilliseconds;
 					Simulator = new Simulator( Context, false, true, null, UserId );
+					OnLogin?.Invoke( Simulator );
 					Simulator.SynchronizedClock.Synchronize( m.ServerTime / 1000f, ( LastUpdateMs - m.ClientTime ) / 1000f );
 					Scene = Simulator.SceneManager.LoadScene<BattleScene>();
 					Logger?.Log( "Login {0}", peer );
@@ -125,7 +128,7 @@ namespace EcsSync2.Fps
 
 				case HeartbeatResponseMessage m:
 					Simulator.SynchronizedClock.Synchronize( m.ServerTime / 1000f, ( Stopwatch.ElapsedMilliseconds - m.ClientTime ) / 1000f );
-					Logger?.Log( "Heartbeat {0}", peer );
+					//Logger?.Log( "Heartbeat {0}", peer );
 					break;
 
 				case FullSyncFrameMessage m:
@@ -137,7 +140,7 @@ namespace EcsSync2.Fps
 				case DeltaSyncFrameMessage m:
 					var f2 = m.ToDeltaSyncFrame( Simulator );
 					Simulator.ClientTickScheduler.ReceiveSyncFrame( f2 );
-					Logger?.Log( "DeltaSyncFrame {0}", peer );
+					//Logger?.Log( "DeltaSyncFrame {0}", peer );
 					break;
 
 				default:

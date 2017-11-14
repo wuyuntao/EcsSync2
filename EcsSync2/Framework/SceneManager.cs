@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EcsSync2
 {
 	public class SceneManager : SimulatorComponent
 	{
+		public event Action<Scene> OnSceneLoaded;
+
 		Scene m_scene;
 		Dictionary<InstanceId, Entity> m_entities = new Dictionary<InstanceId, Entity>();
 		Dictionary<InstanceId, Component> m_components = new Dictionary<InstanceId, Component>();
@@ -19,6 +22,7 @@ namespace EcsSync2
 			var scene = new T();
 			m_scene = scene;
 			m_scene.Initialize( this );
+			OnSceneLoaded?.Invoke( m_scene );
 			return scene;
 		}
 
@@ -31,20 +35,22 @@ namespace EcsSync2
 			foreach( var component in entity.Components )
 				m_components.Add( component.Id, component );
 			entity.Start();
+			m_scene.OnEntityCreated?.Invoke( entity );
 			return entity;
 		}
 
-		internal bool RemoveEntity(InstanceId id)
+		internal Entity RemoveEntity(InstanceId id)
 		{
 			var entity = FindEntity( id );
 			if( entity == null )
-				return false;
+				return null;
 
 			entity.Destroy();
 			m_entities.Remove( id );
 			foreach( var component in entity.Components )
 				m_components.Remove( component.Id );
-			return true;
+			m_scene.OnEntityRemoved?.Invoke( entity );
+			return entity;
 		}
 
 		internal Entity FindEntity(InstanceId id)

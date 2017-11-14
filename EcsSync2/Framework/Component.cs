@@ -69,7 +69,7 @@ namespace EcsSync2
 
 			if( state != null )
 			{
-				var timeline = EnsureTimeline();
+				var timeline = EnsureTimeline( m_context );
 				timeline.AddPoint( m_context.Time, state );
 			}
 
@@ -122,17 +122,13 @@ namespace EcsSync2
 
 		internal Snapshot GetState(TickScheduler.TickContext context)
 		{
-			ValidateTickContext();
-
-			var timeline = EnsureTimeline();
+			var timeline = EnsureTimeline( context );
 			return timeline.GetPoint( context.Time );
 		}
 
 		internal void SetState(TickScheduler.TickContext context, Snapshot state)
 		{
-			ValidateTickContext();
-
-			var timeline = EnsureTimeline();
+			var timeline = EnsureTimeline( context );
 			timeline.AddPoint( context.Time, state );
 		}
 
@@ -189,10 +185,10 @@ namespace EcsSync2
 				throw new InvalidOperationException( "Tick context not exist" );
 		}
 
-		Timeline EnsureTimeline()
+		Timeline EnsureTimeline(TickScheduler.TickContext context)
 		{
 			Timeline timeline;
-			switch( m_context.Type )
+			switch( context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
 					timeline = EnsureTimeline( ref m_syncTimeline );
@@ -227,18 +223,18 @@ namespace EcsSync2
 			return timeline;
 		}
 
-		Snapshot GetState()
-		{
-			switch( m_context.Type )
-			{
-				case TickScheduler.TickContextType.Sync:
-					var timeline = EnsureTimeline();
-					return timeline.InterpolatePoint( m_context.Time );
+		//Snapshot GetState()
+		//{
+		//	switch( m_context.Type )
+		//	{
+		//		case TickScheduler.TickContextType.Sync:
+		//			var timeline = EnsureTimeline( m_context );
+		//			return timeline.InterpolatePoint( m_context.Time );
 
-				default:
-					throw new NotSupportedException( m_context.Type.ToString() );
-			}
-		}
+		//		default:
+		//			throw new NotSupportedException( m_context.Type.ToString() );
+		//	}
+		//}
 
 		#endregion
 	}

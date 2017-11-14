@@ -70,7 +70,7 @@ namespace EcsSync2
 
 		internal EntitySnapshot CreateSnapshot()
 		{
-			var s = SceneManager.Simulator.Allocate<EntitySnapshot>();
+			var s = SceneManager.Simulator.ReferencableAllocator.Allocate<EntitySnapshot>();
 			s.Id = Id;
 			s.Settings = Settings;
 

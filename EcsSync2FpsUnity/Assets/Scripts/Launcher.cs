@@ -13,6 +13,32 @@ public class Launcher : MonoBehaviour, Simulator.IContext, InputManager.IContext
 	void Awake()
 	{
 		m_client = new FpsClient( this, ServerAddress, ServerPort, UserId );
+		m_client.OnLogin += OnLogin;
+	}
+
+	void OnLogin(Simulator simulator)
+	{
+		Debug.LogFormat( "OnLogin" );
+
+		simulator.SceneManager.OnSceneLoaded += SceneManager_OnSceneLoaded;
+	}
+
+	void SceneManager_OnSceneLoaded(Scene scene)
+	{
+		Debug.LogFormat( "SceneManager_OnSceneLoaded" );
+
+		scene.OnEntityCreated += Scene_OnEntityCreated;
+		scene.OnEntityRemoved += Scene_OnEntityRemoved;
+	}
+
+	void Scene_OnEntityCreated(Entity entity)
+	{
+		Debug.LogFormat( "Scene_OnEntityCreated {0}", entity );
+	}
+
+	void Scene_OnEntityRemoved(Entity entity)
+	{
+		Debug.LogFormat( "Scene_OnEntityRemoved {0}", entity );
 	}
 
 	void OnDestroy()
