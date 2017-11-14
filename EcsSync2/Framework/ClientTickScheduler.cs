@@ -20,6 +20,8 @@ namespace EcsSync2
 			ApplySyncFrames();
 			ReconcilePredictions();
 			Predict();
+
+			//Simulator.Context.Log( "Tick sync: {0}, predict: {1}", m_syncTickContext.Time, m_predictionTickContext.Time );
 		}
 
 		#region Synchronization

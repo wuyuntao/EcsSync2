@@ -16,19 +16,19 @@ namespace EcsSync2.Examples
 
 		void ILogger.Log(string msg, params object[] args)
 		{
-			Console.Write( "[DEBUG] " );
+			Console.Write( "[DEBUG] {0} ", DateTime.Now.ToString( "HH:mm:ss.fff" ) );
 			Console.WriteLine( msg, args );
 		}
 
 		void ILogger.LogError(string msg, params object[] args)
 		{
-			Console.Write( "[ERROR] " );
+			Console.Write( "[ERROR] {0} ", DateTime.Now.ToString( "HH:mm:ss.fff" ) );
 			Console.WriteLine( msg, args );
 		}
 
 		void ILogger.LogWarning(string msg, params object[] args)
 		{
-			Console.Write( "[WARNING] " );
+			Console.Write( "[WARNING] {0} ", DateTime.Now.ToString( "HH:mm:ss.fff" ) );
 			Console.WriteLine( msg, args );
 		}
 	}

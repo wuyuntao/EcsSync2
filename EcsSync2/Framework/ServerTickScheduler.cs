@@ -22,6 +22,8 @@ namespace EcsSync2
 			DispatchCommands( m_context );
 			FixedUpdate();
 			LeaveContext();
+
+			//Simulator.Context.Log( "Tick {0}", m_context.Time );
 		}
 
 		void DispatchCommands(TickContext context)

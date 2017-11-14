@@ -19,5 +19,7 @@ namespace EcsSync2.Fps
 			Transform = AddComponent<Transform>( new TransformSettings() );
 			MotionController = AddComponent<CharacterMotionController>();
 		}
+
+		public CharacterSettings TheSettings => (CharacterSettings)Settings;
 	}
 }

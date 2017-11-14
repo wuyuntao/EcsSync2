@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EcsSync2.Fps;
+using System;
 
 namespace EcsSync2
 {
@@ -37,6 +38,19 @@ namespace EcsSync2
 			var frame = Simulator.ReferencableAllocator.Allocate<CommandFrame>();
 			frame.Time = Simulator.FixedTime;
 
+			var scene = Simulator.SceneManager.Scene as BattleScene;
+			if( scene != null )
+			{
+				if( scene.LocalPlayer != null )
+				{
+					if( m_buttons[2] )
+						CreateCharacter( frame, scene.LocalPlayer );
+				}
+				else if( scene.LocalCharacter != null )
+				{
+
+				}
+			}
 			//var command = frame.AddCommand<MoveCharacterCommand>();
 			//{
 			//	command.Direction = new float[] { m_joystickDirection[0], m_joystickDirection[1] };
@@ -46,6 +60,15 @@ namespace EcsSync2
 			Simulator.CommandQueue.EnqueueCommands( Simulator.LocalUserId.Value, frame );
 
 			frame.Release();
+		}
+
+		static void CreateCharacter(CommandFrame frame, Player player)
+		{
+			var c = frame.AddCommand<CreateEntityCommand>();
+			c.Settings = new CharacterSettings()
+			{
+				UserId = player.TheSettings.UserId,
+			};
 		}
 
 		internal void ResetInput()

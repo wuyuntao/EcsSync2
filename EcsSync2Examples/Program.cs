@@ -119,7 +119,7 @@ namespace EcsSync2.Examples
 			{
 				m_ticks++;
 
-				var ms = m_ticks * Configuration.SynchronizationDeltaTime - (int)m_sw.ElapsedMilliseconds;
+				var ms = m_ticks * (int)Configuration.SimulationDeltaTime - (int)m_sw.ElapsedMilliseconds;
 				if( ms > 0 )
 					Thread.Sleep( ms );
 			}

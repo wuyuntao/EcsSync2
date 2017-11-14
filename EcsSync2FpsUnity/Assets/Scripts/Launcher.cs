@@ -1,5 +1,6 @@
 ﻿using EcsSync2;
 using EcsSync2.Fps;
+using System;
 using UnityEngine;
 
 public class Launcher : MonoBehaviour, Simulator.IContext, InputManager.IContext
@@ -53,19 +54,25 @@ public class Launcher : MonoBehaviour, Simulator.IContext, InputManager.IContext
 
 	#region Simulator.IContext
 
-	void EcsSync2.ILogger.Log(string msg, params object[] args)
+	public void Log(string msg, params object[] args)
 	{
-		Debug.LogFormat( msg, args );
+		msg = string.Format( msg, args );
+		msg = string.Format( "{0} {1}", DateTime.Now.ToString( "HH:mm:ss.fff" ), msg );
+		Debug.Log( msg, this );
 	}
 
-	void EcsSync2.ILogger.LogError(string msg, params object[] args)
+	public void LogError(string msg, params object[] args)
 	{
-		Debug.LogErrorFormat( msg, args );
+		msg = string.Format( msg, args );
+		msg = string.Format( "{0} {1}", DateTime.Now.ToString( "HH:mm:ss.fff" ), msg );
+		Debug.LogError( msg, this );
 	}
 
-	void EcsSync2.ILogger.LogWarning(string msg, params object[] args)
+	public void LogWarning(string msg, params object[] args)
 	{
-		Debug.LogWarningFormat( msg, args );
+		msg = string.Format( msg, args );
+		msg = string.Format( "{0} {1}", DateTime.Now.ToString( "HH:mm:ss.fff" ), msg );
+		Debug.LogWarning( msg, this );
 	}
 
 	#endregion

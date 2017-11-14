@@ -4,9 +4,9 @@
 	{
 		public const int StopExhaustCommandBufferSize = 6;
 
-		public const uint SimulationDeltaTime = 16;
+		public const uint SimulationDeltaTime = 100;
 
-		public const int SynchronizationDeltaTime = 16 * 3;
+		public const uint SynchronizationDeltaTime = SimulationDeltaTime * 3;
 
 		public const float SynchorizedClockDesyncThreshold = 1f;
 

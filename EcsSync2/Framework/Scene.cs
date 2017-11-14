@@ -44,7 +44,7 @@ namespace EcsSync2
 
 		protected internal abstract Entity CreateEntity(InstanceId id, IEntitySettings settings);
 
-		protected Entity CreateEntity<TEntity, TEntitySettings>(InstanceId id, IEntitySettings settings)
+		protected TEntity CreateEntity<TEntity, TEntitySettings>(InstanceId id, IEntitySettings settings)
 			where TEntity : Entity, new()
 			where TEntitySettings : IEntitySettings
 		{
