@@ -1,5 +1,4 @@
-﻿using EcsSync2.Fps;
-using MessagePack;
+﻿using MessagePack;
 using System;
 using System.Collections.Generic;
 
@@ -32,13 +31,13 @@ namespace EcsSync2
 
 	public class EntitySnapshot : Snapshot
 	{
-		[Key( 0 )]
+		[Key( 10 )]
 		public uint Id;
 
-		[Key( 1 )]
+		[Key( 11 )]
 		public IEntitySettings Settings;
 
-		[Key( 2 )]
+		[Key( 12 )]
 		public List<ComponentSnapshot> Components = new List<ComponentSnapshot>();
 
 		public override Snapshot Clone()
@@ -59,7 +58,7 @@ namespace EcsSync2
 
 	public abstract class ComponentSnapshot : Snapshot
 	{
-		[Key( 0 )]
-		public uint Id;
+		[Key( 10 )]
+		public uint ComponentId;
 	}
 }

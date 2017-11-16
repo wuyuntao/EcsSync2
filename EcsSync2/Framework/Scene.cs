@@ -20,7 +20,7 @@ namespace EcsSync2
 
 
 	[MessagePackObject]
-	public class EntityCreatedEvent : SceneEvent
+	public class EntityCreatedEvent : SceneEvent, IEvent
 	{
 		[Key( 10 )]
 		public uint Id;
@@ -30,7 +30,7 @@ namespace EcsSync2
 	}
 
 	[MessagePackObject]
-	public class EntityRemovedEvent : SceneEvent
+	public class EntityRemovedEvent : SceneEvent, IEvent
 	{
 		[Key( 10 )]
 		public uint Id;
@@ -105,14 +105,14 @@ namespace EcsSync2
 			}
 		}
 
-		internal void ApplyEvent(Event @event)
+		internal void ApplyEvent(SceneEvent @event)
 		{
 			OnEventApplied( @event );
-			SceneManager.Simulator.EventBus.EnqueueEvent( @event );
+			SceneManager.Simulator.EventBus.EnqueueEvent( SceneManager.Simulator.TickScheduler.CurrentContext.Value.Time, @event );
 			@event.Release();
 		}
 
-		protected virtual void OnEventApplied(Event @event)
+		protected virtual void OnEventApplied(SceneEvent @event)
 		{
 			switch( @event )
 			{

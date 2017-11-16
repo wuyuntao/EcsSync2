@@ -36,7 +36,7 @@ namespace EcsSync2.Fps
 	}
 
 	[MessagePackObject]
-	public class PlayerConnectedEvent : ComponentEvent, IEventUnion
+	public class PlayerConnectedEvent : ComponentEvent, IEvent
 	{
 	}
 
@@ -44,7 +44,7 @@ namespace EcsSync2.Fps
 	{
 		public Player Player => (Player)Entity;
 
-		protected override void OnCommandReceived(Command command)
+		protected override void OnCommandReceived(ComponentCommand command)
 		{
 			if( !Entity.SceneManager.Simulator.IsServer )
 				return;
@@ -56,7 +56,7 @@ namespace EcsSync2.Fps
 						switch( command )
 						{
 							case PlayerConnectCommand c:
-								var e = c.Allocate<PlayerConnectedEvent>();
+								var e = AllocateEvent<PlayerConnectedEvent>();
 								ApplyEvent( e );
 
 								Entity.SceneManager.Scene.ApplyEntityCreatedEvent( new CharacterSettings()
@@ -72,7 +72,7 @@ namespace EcsSync2.Fps
 			throw new NotSupportedException( command.ToString() );
 		}
 
-		protected override Snapshot OnEventApplied(Event @event)
+		protected override ComponentSnapshot OnEventApplied(ComponentEvent @event)
 		{
 			switch( State )
 			{
@@ -94,11 +94,11 @@ namespace EcsSync2.Fps
 		{
 		}
 
-		protected override void OnSnapshotRecovered(Snapshot state)
+		protected override void OnSnapshotRecovered(ComponentSnapshot state)
 		{
 		}
 
-		protected internal override Snapshot CreateSnapshot()
+		protected internal override ComponentSnapshot CreateSnapshot()
 		{
 			return Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<ConnectingSnapshot>();
 		}

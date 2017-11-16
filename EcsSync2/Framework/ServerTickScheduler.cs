@@ -5,7 +5,7 @@ namespace EcsSync2
 {
 	public class ServerTickScheduler : TickScheduler
 	{
-		TickContext m_context = new TickContext( TickContextType.Sync );
+		TickContext m_context;
 		SortedList<ulong, CommandFrame> m_dispatchedCommands = new SortedList<ulong, CommandFrame>();
 		uint? m_lastDeltaSyncTime;
 
@@ -16,7 +16,7 @@ namespace EcsSync2
 
 		internal override void Tick()
 		{
-			m_context.Time = Simulator.FixedTime;
+			m_context = new TickContext( TickContextType.Sync, Simulator.FixedTime );
 
 			EnterContext( m_context );
 			DispatchCommands( m_context );
@@ -52,9 +52,9 @@ namespace EcsSync2
 
 			// 尝试执行从上一次应用的命令帧开始，到当前帧之间的所有命令
 			var lastFrameChanged = false;
-			for( var time = lastFrame != null ? lastFrame.Time + context.DeltaTime : context.Time;
+			for( var time = lastFrame != null ? lastFrame.Time + Configuration.SimulationDeltaTime : context.Time;
 				time <= context.Time;
-				time += context.DeltaTime )
+				time += Configuration.SimulationDeltaTime )
 			{
 				var frame = Simulator.CommandQueue.FetchCommands( userId, time );
 				if( frame == null )

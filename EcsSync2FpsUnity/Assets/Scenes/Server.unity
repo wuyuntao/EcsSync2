@@ -450,6 +450,8 @@ MonoBehaviour:
   ServerAddress: 192.168.92.144
   ServerPort: 3687
   UserId: 1001
+  CharacterPawn: {fileID: 114852568064245770, guid: bb7160b7e3409f645a525c6b2dc33d06,
+    type: 2}
 --- !u!1 &1664309191
 GameObject:
   m_ObjectHideFlags: 0

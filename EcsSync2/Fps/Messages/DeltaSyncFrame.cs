@@ -1,5 +1,4 @@
-﻿using System;
-using MessagePack;
+﻿using MessagePack;
 using System.Collections.Generic;
 
 namespace EcsSync2.Fps
@@ -11,18 +10,18 @@ namespace EcsSync2.Fps
 		public uint Time;
 
 		[Key( 1 )]
-		public List<IEventUnion> Events;
+		public List<IEvent> Events;
 
 		public static DeltaSyncFrameMessage FromDeltaSyncFrame(DeltaSyncFrame frame)
 		{
 			var m = new DeltaSyncFrameMessage()
 			{
 				Time = frame.Time,
-				Events = new List<IEventUnion>(),
+				Events = new List<IEvent>(),
 			};
 
 			foreach( var c in frame.Events )
-				m.Events.Add( (IEventUnion)c );
+				m.Events.Add( (IEvent)c );
 
 			return m;
 		}
@@ -43,7 +42,7 @@ namespace EcsSync2.Fps
 	[Union( 3, typeof( PlayerConnectedEvent ) )]
 	[Union( 4, typeof( TransformMovedEvent ) )]
 	[Union( 5, typeof( TransformVelocityChangedEvent ) )]
-	public interface IEventUnion
+	public interface IEvent
 	{
 	}
 }

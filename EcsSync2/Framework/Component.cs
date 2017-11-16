@@ -13,8 +13,8 @@ namespace EcsSync2
 		public InstanceId Id { get; private set; }
 		public ComponentSettings Settings { get; private set; }
 
-		TickScheduler.TickContext m_context;
-		Snapshot m_state;
+		TickScheduler m_tickScheduler;
+		ComponentSnapshot m_state;
 		bool m_stateChanged;
 
 		Timeline m_syncTimeline;
@@ -30,7 +30,8 @@ namespace EcsSync2
 			Id = id;
 			Settings = settings;
 
-			entity.SceneManager.Simulator.TickScheduler.AddComponent( this );
+			m_tickScheduler = entity.SceneManager.Simulator.TickScheduler;
+			m_tickScheduler.AddComponent( this );
 
 			OnInitialize();
 		}
@@ -63,32 +64,32 @@ namespace EcsSync2
 			OnFixedUpdate();
 		}
 
-		internal void RecoverSnapshot(Snapshot state)
+		internal void RecoverSnapshot(ComponentSnapshot state)
 		{
 			ValidateTickContext();
 
 			if( state != null )
 			{
-				var timeline = EnsureTimeline( m_context );
-				timeline.AddPoint( m_context.Time, state );
+				var timeline = EnsureTimeline( m_tickScheduler.CurrentContext.Value );
+				timeline.AddPoint( m_tickScheduler.CurrentContext.Value.Time, state );
 			}
 
 			OnSnapshotRecovered( state );
 		}
 
-		internal void ReceiveCommand(Command command)
+		internal void ReceiveCommand(ComponentCommand command)
 		{
 			ValidateTickContext();
 
 			OnCommandReceived( command );
 		}
 
-		protected internal void ApplyEvent(Event @event)
+		protected internal void ApplyEvent(ComponentEvent @event)
 		{
 			ValidateTickContext();
 
 			State = OnEventApplied( @event );
-			Entity.SceneManager.Simulator.EventBus.EnqueueEvent( @event );
+			Entity.SceneManager.Simulator.EventBus.EnqueueEvent( m_tickScheduler.CurrentContext.Value.Time, @event );
 
 			@event.Release();
 		}
@@ -99,34 +100,30 @@ namespace EcsSync2
 
 		internal void EnterContext(TickScheduler.TickContext context)
 		{
-			Debug.Assert( m_context == null );
 			Debug.Assert( m_state == null );
 
-			m_context = context;
-			m_state = GetState( m_context );
+			m_state = GetState( m_tickScheduler.CurrentContext.Value );
 			m_stateChanged = false;
 		}
 
 		internal void LeaveContext()
 		{
-			if( m_context == null )
-				throw new InvalidOperationException( "Has not enter any context" );
+			ValidateTickContext();
 
 			if( m_stateChanged )
-				SetState( m_context, m_state );
+				SetState( m_tickScheduler.CurrentContext.Value, m_state );
 
-			m_context = null;
 			m_state = null;
 			m_stateChanged = false;
 		}
 
-		internal Snapshot GetState(TickScheduler.TickContext context)
+		internal ComponentSnapshot GetState(TickScheduler.TickContext context)
 		{
 			var timeline = EnsureTimeline( context );
-			return timeline.GetPoint( context.Time );
+			return (ComponentSnapshot)timeline.GetPoint( context.Time );
 		}
 
-		internal void SetState(TickScheduler.TickContext context, Snapshot state)
+		internal void SetState(TickScheduler.TickContext context, ComponentSnapshot state)
 		{
 			var timeline = EnsureTimeline( context );
 			timeline.AddPoint( context.Time, state );
@@ -142,18 +139,18 @@ namespace EcsSync2
 
 		protected abstract void OnDestroy();
 
-		protected internal abstract Snapshot CreateSnapshot();
+		protected internal abstract ComponentSnapshot CreateSnapshot();
 
-		protected abstract void OnSnapshotRecovered(Snapshot state);
+		protected abstract void OnSnapshotRecovered(ComponentSnapshot state);
 
 		protected abstract void OnFixedUpdate();
 
-		protected abstract void OnCommandReceived(Command command);
+		protected abstract void OnCommandReceived(ComponentCommand command);
 
 		// 完全确定性的修改，不依赖于其他 Scene 或 Component 的状态
-		protected abstract Snapshot OnEventApplied(Event @event);
+		protected abstract ComponentSnapshot OnEventApplied(ComponentEvent @event);
 
-		protected internal Snapshot State
+		protected internal ComponentSnapshot State
 		{
 			get
 			{
@@ -175,13 +172,33 @@ namespace EcsSync2
 			}
 		}
 
+		protected TSnapshot AllocateSnapshot<TSnapshot>()
+			where TSnapshot : ComponentSnapshot, new()
+		{
+			ValidateTickContext();
+
+			var s = Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<TSnapshot>();
+			s.ComponentId = Id;
+			return s;
+		}
+
+		protected TEvent AllocateEvent<TEvent>()
+			where TEvent : ComponentEvent, new()
+		{
+			ValidateTickContext();
+
+			var e = Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<TEvent>();
+			e.ComponentId = Id;
+			return e;
+		}
+
 		#endregion
 
 		#region Internal Helpers
 
 		void ValidateTickContext()
 		{
-			if( m_context == null )
+			if( m_tickScheduler.CurrentContext == null )
 				throw new InvalidOperationException( "Tick context not exist" );
 		}
 
@@ -211,7 +228,7 @@ namespace EcsSync2
 					break;
 
 				default:
-					throw new NotSupportedException( m_context.Type.ToString() );
+					throw new NotSupportedException( context.Type.ToString() );
 			}
 
 			return timeline;
@@ -222,19 +239,6 @@ namespace EcsSync2
 			timeline = timeline ?? new Timeline( null, Configuration.TimelineDefaultCapacity );
 			return timeline;
 		}
-
-		//Snapshot GetState()
-		//{
-		//	switch( m_context.Type )
-		//	{
-		//		case TickScheduler.TickContextType.Sync:
-		//			var timeline = EnsureTimeline( m_context );
-		//			return timeline.InterpolatePoint( m_context.Time );
-
-		//		default:
-		//			throw new NotSupportedException( m_context.Type.ToString() );
-		//	}
-		//}
 
 		#endregion
 	}

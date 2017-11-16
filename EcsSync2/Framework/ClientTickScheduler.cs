@@ -5,9 +5,9 @@ namespace EcsSync2
 {
 	public class ClientTickScheduler : TickScheduler
 	{
-		TickContext m_syncTickContext = new TickContext( TickContextType.Sync );
-		TickContext m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation );
-		TickContext m_predictionTickContext = new TickContext( TickContextType.Prediction );
+		TickContext m_syncTickContext = new TickContext( TickContextType.Sync, 0 );
+		TickContext m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, 0 );
+		TickContext m_predictionTickContext = new TickContext( TickContextType.Prediction, 0 );
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
 
 		public ClientTickScheduler(Simulator simulator)
@@ -37,7 +37,7 @@ namespace EcsSync2
 			{
 				var frame = m_syncFrames.Dequeue();
 
-				m_syncTickContext.Time = frame.Time;
+				m_syncTickContext = new TickContext( TickContextType.Sync, frame.Time );
 				EnterContext( m_syncTickContext );
 
 				if( frame is FullSyncFrame fsf )
@@ -59,7 +59,9 @@ namespace EcsSync2
 
 				foreach( var cs in es.Components )
 				{
-					var component = Simulator.SceneManager.FindComponent( cs.Id );
+					Simulator.ReferencableAllocator.Allocate( cs.GetType(), cs );
+
+					var component = Simulator.SceneManager.FindComponent( cs.ComponentId );
 					component.RecoverSnapshot( cs );
 				}
 			}
@@ -69,6 +71,8 @@ namespace EcsSync2
 		{
 			foreach( var e in frame.Events )
 			{
+				Simulator.ReferencableAllocator.Allocate( e.GetType(), e );
+
 				if( e is SceneEvent se )
 				{
 					Simulator.SceneManager.Scene.ApplyEvent( se );
@@ -95,7 +99,7 @@ namespace EcsSync2
 				return;
 
 			// 更新和解时间
-			m_reconcilationTickContext.Time = m_syncTickContext.Time;
+			m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_syncTickContext.Time );
 
 			var components = GetPredictedComponents();
 
@@ -113,7 +117,7 @@ namespace EcsSync2
 			// 以和解模式更新到最新预测的状态
 			while( m_reconcilationTickContext.Time < m_predictionTickContext.Time )
 			{
-				m_reconcilationTickContext.Time += Configuration.SimulationDeltaTime;
+				m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_reconcilationTickContext.Time + Configuration.SimulationDeltaTime );
 
 				EnterContext( m_reconcilationTickContext );
 				DispatchCommands( m_reconcilationTickContext );
@@ -128,13 +132,13 @@ namespace EcsSync2
 				if( Configuration.ComponentReconcilationRatio < 1 )
 				{
 					var predictionState = component.GetState( m_predictionTickContext );
-					reconcilationState = predictionState.Interpolate( reconcilationState, Configuration.ComponentReconcilationRatio );
+					reconcilationState = (ComponentSnapshot)predictionState.Interpolate( reconcilationState, Configuration.ComponentReconcilationRatio );
 				}
 				component.SetState( m_predictionTickContext, reconcilationState );
 			}
 
 			// 重置和解时间
-			m_reconcilationTickContext.Time = m_syncTickContext.Time;
+			m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_syncTickContext.Time );
 
 			// 清理已确认命令
 			Simulator.CommandQueue.DequeueBefore( Simulator.LocalUserId.Value, m_syncTickContext.Time );
@@ -167,7 +171,7 @@ namespace EcsSync2
 
 		void Predict()
 		{
-			m_predictionTickContext.Time = Simulator.FixedTime;
+			m_predictionTickContext = new TickContext( TickContextType.Prediction, Simulator.FixedTime );
 
 			EnterContext( m_predictionTickContext );
 			Simulator.InputManager?.SetInput();

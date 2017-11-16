@@ -27,13 +27,13 @@ namespace EcsSync2
 		{
 		}
 
-		internal void EnqueueEvent(Event @event)
+		internal void EnqueueEvent(uint time, Event @event)
 		{
-			Simulator.Context.Log( "EnqueueEvent {0}", @event );
+			Simulator.Context.Log( "EnqueueEvent {0}ms {1}", time, @event );
 
 			m_events.Enqueue( @event );
 
-			var frame = EnsureFrame( @event.Time );
+			var frame = EnsureFrame( time );
 			frame.Events.Add( @event );
 
 			@event.Retain();

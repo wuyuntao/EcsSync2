@@ -6,13 +6,13 @@ namespace EcsSync2.Fps
 	[MessagePackObject]
 	class CharacterMotionControllerSnapshot : ComponentSnapshot, IComponentSnapshotUnion
 	{
-		[Key( 10 )]
+		[Key( 20 )]
 		public Vector2D InputDirection;
 
-		[Key( 11 )]
+		[Key( 21 )]
 		public float InputMagnitude;
 
-		[Key( 12 )]
+		[Key( 22 )]
 		public float MaxSpeed;
 
 		public override Snapshot Clone()
@@ -36,7 +36,7 @@ namespace EcsSync2.Fps
 	}
 
 	[MessagePackObject]
-	public class InputChangedEvent : Event, IEventUnion
+	public class InputChangedEvent : ComponentEvent, IEvent
 	{
 		[Key( 20 )]
 		public Vector2D InputDirection;
@@ -47,12 +47,12 @@ namespace EcsSync2.Fps
 
 	public class CharacterMotionController : Component
 	{
-		protected override void OnCommandReceived(Command command)
+		protected override void OnCommandReceived(ComponentCommand command)
 		{
 			switch( command )
 			{
 				case MoveCharacterCommand c:
-					var e = c.Allocate<InputChangedEvent>();
+					var e = AllocateEvent<InputChangedEvent>();
 					var s = (CharacterMotionControllerSnapshot)State;
 					e.InputDirection = c.InputMagnitude > 0 ? c.InputDirection : s.InputDirection;
 					e.InputMagnitude = c.InputMagnitude;
@@ -64,7 +64,7 @@ namespace EcsSync2.Fps
 			}
 		}
 
-		protected override Snapshot OnEventApplied(Event @event)
+		protected override ComponentSnapshot OnEventApplied(ComponentEvent @event)
 		{
 			switch( @event )
 			{
@@ -91,11 +91,11 @@ namespace EcsSync2.Fps
 				Character.Transform.ApplyTransformMovedEvent( offset );
 		}
 
-		protected override void OnSnapshotRecovered(Snapshot state)
+		protected override void OnSnapshotRecovered(ComponentSnapshot state)
 		{
 		}
 
-		protected internal override Snapshot CreateSnapshot()
+		protected internal override ComponentSnapshot CreateSnapshot()
 		{
 			var s = Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<CharacterMotionControllerSnapshot>();
 			s.InputDirection = new Vector2D( 0, 1 );

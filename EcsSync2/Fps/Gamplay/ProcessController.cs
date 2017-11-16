@@ -26,11 +26,11 @@ namespace EcsSync2.Fps
 		{
 		}
 
-		protected override void OnSnapshotRecovered(Snapshot state)
+		protected override void OnSnapshotRecovered(ComponentSnapshot state)
 		{
 		}
 
-		protected internal override Snapshot CreateSnapshot()
+		protected internal override ComponentSnapshot CreateSnapshot()
 		{
 			return Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<ProcessControllerSnapshot>();
 		}
@@ -39,14 +39,14 @@ namespace EcsSync2.Fps
 		{
 		}
 
-		protected override void OnCommandReceived(Command command)
+		protected override void OnCommandReceived(ComponentCommand command)
 		{
 			throw new NotSupportedException( command.ToString() );
 		}
 
-		protected override Snapshot OnEventApplied(Event @event)
+		protected override ComponentSnapshot OnEventApplied(ComponentEvent @event)
 		{
-			throw new NotImplementedException();
+			throw new NotSupportedException( @event.ToString() );
 		}
 	}
 }

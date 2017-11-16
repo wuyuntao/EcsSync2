@@ -9,6 +9,7 @@ public class Launcher : MonoBehaviour, Simulator.IContext, InputManager.IContext
 	public int ServerPort = 5000;
 	public ulong UserId = 1000;
 
+	public CharacterPawn CharacterPawn;
 	FpsClient m_client;
 
 	void Awake()
@@ -35,6 +36,14 @@ public class Launcher : MonoBehaviour, Simulator.IContext, InputManager.IContext
 	void Scene_OnEntityCreated(Entity entity)
 	{
 		Debug.LogFormat( "Scene_OnEntityCreated {0}", entity );
+
+		if( entity is Character )
+		{
+			var c = (Character)entity;
+			var go = Instantiate( CharacterPawn.gameObject, c.Transform.Position.AsUnity3(), Quaternion.identity );
+			var pawn = go.GetComponent<CharacterPawn>();
+			pawn.Initialize( c );
+		}
 	}
 
 	void Scene_OnEntityRemoved(Entity entity)

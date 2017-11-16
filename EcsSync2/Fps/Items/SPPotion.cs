@@ -4,12 +4,12 @@ namespace EcsSync2.Fps
 {
 	public class SPPotion : Component
 	{
-		protected override void OnCommandReceived(Command command)
+		protected override void OnCommandReceived(ComponentCommand command)
 		{
 			throw new NotImplementedException();
 		}
 
-		protected override Snapshot OnEventApplied(Event @event)
+		protected override ComponentSnapshot OnEventApplied(ComponentEvent @event)
 		{
 			throw new NotImplementedException();
 		}
@@ -19,12 +19,12 @@ namespace EcsSync2.Fps
 			throw new NotImplementedException();
 		}
 
-		protected override void OnSnapshotRecovered(Snapshot state)
+		protected override void OnSnapshotRecovered(ComponentSnapshot state)
 		{
 			throw new NotImplementedException();
 		}
 
-		protected internal override Snapshot CreateSnapshot()
+		protected internal override ComponentSnapshot CreateSnapshot()
 		{
 			throw new NotImplementedException();
 		}

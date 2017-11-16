@@ -13,22 +13,21 @@ namespace EcsSync2
 			Interpolation,
 		}
 
-		public class TickContext
+		internal struct TickContext
 		{
-			public TickContextType Type { get; private set; }
+			public readonly TickContextType Type;
 
-			public uint Time { get; set; }
+			public readonly uint Time;
 
-			public uint DeltaTime { get => Configuration.SimulationDeltaTime; }
-
-			public TickContext(TickContextType type)
+			public TickContext(TickContextType type, uint time)
 			{
 				Type = type;
+				Time = time;
 			}
 		}
 
-		public TickContext CurrentContext { get; private set; }
-		public List<Component> Components { get; } = new List<Component>();
+		internal TickContext? CurrentContext { get; private set; }
+		internal List<Component> Components { get; } = new List<Component>();
 
 		protected TickScheduler(Simulator simulator)
 			: base( simulator )
@@ -40,7 +39,7 @@ namespace EcsSync2
 			Components.Add( component );
 
 			if( CurrentContext != null )
-				component.EnterContext( CurrentContext );
+				component.EnterContext( CurrentContext.Value );
 		}
 
 		internal void EnterContext(TickContext context)
@@ -67,7 +66,7 @@ namespace EcsSync2
 
 						case ComponentCommand c:
 							var component = Simulator.SceneManager.FindComponent( c.Receiver );
-							component.ReceiveCommand( command );
+							component.ReceiveCommand( c );
 							break;
 
 						default:
