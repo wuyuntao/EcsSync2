@@ -1,29 +1,39 @@
 ﻿using EcsSync2.Fps;
+using MessagePack;
 using System;
 
 namespace EcsSync2
 {
+	[MessagePackObject]
 	public class CreateEntityCommand : SceneCommand, ICommandUnion
 	{
+		[Key( 10 )]
 		public IEntitySettings Settings;
 	}
 
+	[MessagePackObject]
 	public class RemoveEntityCommand : SceneCommand, ICommandUnion
 	{
+		[Key( 10 )]
 		public uint Id;
 	}
 
 
+	[MessagePackObject]
 	public class EntityCreatedEvent : SceneEvent
 	{
-		public InstanceId Id;
+		[Key( 10 )]
+		public uint Id;
 
+		[Key( 11 )]
 		public IEntitySettings Settings;
 	}
 
+	[MessagePackObject]
 	public class EntityRemovedEvent : SceneEvent
 	{
-		public InstanceId Id;
+		[Key( 10 )]
+		public uint Id;
 	}
 
 	public abstract class Scene

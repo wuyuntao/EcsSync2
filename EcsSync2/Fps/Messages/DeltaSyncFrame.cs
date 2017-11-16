@@ -37,25 +37,8 @@ namespace EcsSync2.Fps
 		}
 	}
 
-	[MessagePackObject]
-	public class EntityCreatedEventMessage : IEventUnion
-	{
-		[Key( 0 )]
-		public uint Id;
-
-		[Key( 1 )]
-		public IEntitySettings Settings;
-	}
-
-	[MessagePackObject]
-	public class EntityRemovedEventMessage : IEventUnion
-	{
-		[Key( 0 )]
-		public uint Id;
-	}
-
-	[Union( 0, typeof( EntityCreatedEventMessage ) )]
-	[Union( 1, typeof( EntityRemovedEventMessage ) )]
+	[Union( 0, typeof( EntityCreatedEvent ) )]
+	[Union( 1, typeof( EntityRemovedEvent ) )]
 	[Union( 2, typeof( InputChangedEvent ) )]
 	[Union( 3, typeof( PlayerConnectedEvent ) )]
 	[Union( 4, typeof( TransformMovedEvent ) )]

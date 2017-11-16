@@ -29,6 +29,8 @@ namespace EcsSync2
 
 		internal void EnqueueEvent(Event @event)
 		{
+			Simulator.Context.Log( "EnqueueEvent {0}", @event );
+
 			m_events.Enqueue( @event );
 
 			var frame = EnsureFrame( @event.Time );
