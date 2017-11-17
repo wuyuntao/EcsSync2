@@ -11,7 +11,7 @@
     <PackageReference Include="MessagePackAnalyzer" Version="1.6.0" />
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+  <Target Condition="'$(TargetFramework)' == 'net46'" Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="cp $(TargetDir)\*.dll $(SolutionDir)\EcsSync2FpsUnity\Assets\Scripts\Assemblies&#xD;&#xA;cp $(TargetDir)\*.pdb $(SolutionDir)\EcsSync2FpsUnity\Assets\Scripts\Assemblies" />
   </Target>
 

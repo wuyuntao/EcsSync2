@@ -20,7 +20,7 @@ public class CharacterPawn : MonoBehaviour
 
 	void OnMoved()
 	{
-		transform.position = Character.Transform.Position.AsUnity3();
+		transform.position = Character.Transform.Position.ToUnityPos();
 	}
 
 	void Update()

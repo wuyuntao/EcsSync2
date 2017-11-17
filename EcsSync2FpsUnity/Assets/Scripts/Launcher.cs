@@ -40,7 +40,7 @@ public class Launcher : MonoBehaviour, Simulator.IContext, InputManager.IContext
 		if( entity is Character )
 		{
 			var c = (Character)entity;
-			var go = Instantiate( CharacterPawn.gameObject, c.Transform.Position.AsUnity3(), Quaternion.identity );
+			var go = Instantiate( CharacterPawn.gameObject, c.Transform.Position.ToUnityPos(), Quaternion.identity );
 			var pawn = go.GetComponent<CharacterPawn>();
 			pawn.Initialize( c );
 		}
