@@ -8,6 +8,8 @@ namespace EcsSync2
 		TickContext m_syncTickContext = new TickContext( TickContextType.Sync, 0 );
 		TickContext m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, 0 );
 		TickContext m_predictionTickContext = new TickContext( TickContextType.Prediction, 0 );
+		TickContext m_interpolationTickContext = new TickContext( TickContextType.Interpolation, 0 );
+
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
 
 		public ClientTickScheduler(Simulator simulator)
@@ -187,6 +189,14 @@ namespace EcsSync2
 			var frame = Simulator.CommandQueue.FetchCommands( Simulator.LocalUserId.Value, ctx.Time );
 
 			DispatchCommands( frame );
+		}
+
+		#endregion
+
+		#region Interpolation
+
+		internal void Interpolate()
+		{
 		}
 
 		#endregion
