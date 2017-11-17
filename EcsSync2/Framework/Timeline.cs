@@ -3,35 +3,40 @@ using System.Diagnostics;
 
 namespace EcsSync2
 {
-	class Timepoint
+	class Timepoint : Referencable
 	{
 		public uint Time;
-		public Snapshot Snapshot;
+
+		public ComponentSnapshot Snapshot;
+
+		protected override void Reset()
+		{
+			Time = 0;
+			Snapshot?.Release();
+
+			base.Reset();
+		}
 	}
 
 	class Timeline
 	{
-		Simulator m_simulator;
-
+		ReferencableAllocator m_allocator;
 		Timepoint[] m_points;
 		int m_head;
-		int m_tail;
 		int m_count;
 
-		public Timeline(Simulator simulator, int capacity)
+		public Timeline(ReferencableAllocator allocator, int capacity)
 		{
-			m_simulator = simulator;
-
+			m_allocator = allocator;
 			m_points = new Timepoint[capacity];
-			FillPoints( m_points, 0, capacity );
 		}
 
-		public Timeline(Simulator simulator)
-			: this( simulator, Configuration.TimelineDefaultCapacity )
+		public Timeline(ReferencableAllocator allocator)
+			: this( allocator, Configuration.TimelineDefaultCapacity )
 		{
 		}
 
-		public void AddPoint(uint time, Snapshot snapshot)
+		public bool Add(uint time, ComponentSnapshot snapshot)
 		{
 			Debug.Assert( ( time % Configuration.SimulationDeltaTime ) == 0 );
 
@@ -40,24 +45,56 @@ namespace EcsSync2
 				throw new InvalidOperationException( $"Cannot add point before last: {time} < {lastPoint.Time}" );
 
 			Timepoint point;
+			bool isNewPoint;
 			if( lastPoint != null && lastPoint.Time == time )
+			{
 				point = lastPoint;
+				isNewPoint = false;
+			}
 			else
-				point = EnqueuePoint( time );
+			{
+				point = AllocatePoint();
+				point.Time = time;
+				isNewPoint = true;
+			}
 
 			point.Snapshot?.Release();
 			point.Snapshot = snapshot;
 			point.Snapshot.Retain();
+
+			return isNewPoint;
 		}
 
-		public Snapshot GetPoint(uint time)
+		public int RemoveBefore(uint time)
 		{
-			Debug.Assert( ( time % Configuration.SimulationDeltaTime ) == 0 );
+			var count = -1;
+			for( int i = m_head; i < m_head + m_count; i++ )
+			{
+				var point = m_points[i % m_points.Length];
+				if( point.Time > time )
+					break;
 
+				count++;
+			}
+
+			if( count > 0 )
+			{
+				ReleasePoints( m_head, count );
+
+				m_count -= count;
+				m_head = ( m_head + count ) % m_points.Length;
+				return count;
+			}
+			else
+				return 0;
+		}
+
+		public ComponentSnapshot Find(uint time)
+		{
 			if( m_count == 0 )
 				return null;
 
-			for( int i = m_tail - 1; i >= m_head; i-- )
+			for( int i = m_head + m_count - 1; i >= m_head; i-- )
 			{
 				var point = m_points[i % m_points.Length];
 				if( time >= point.Time )
@@ -67,12 +104,12 @@ namespace EcsSync2
 			return null;
 		}
 
-		public Snapshot InterpolatePoint(uint time)
+		public ComponentSnapshot Interpolate(uint time)
 		{
 			if( m_count == 0 )
 				return null;
 
-			for( int i = m_tail - 1; i >= m_head; i-- )
+			for( int i = m_head + m_count - 1; i >= m_head; i-- )
 			{
 				var prevPoint = m_points[i % m_points.Length];
 				if( time < prevPoint.Time )
@@ -80,15 +117,15 @@ namespace EcsSync2
 
 				// Equals
 				if( time == prevPoint.Time )
-					return prevPoint.Snapshot.Clone();
+					return (ComponentSnapshot)prevPoint.Snapshot.Clone();
 
 				// Extrapolation
-				if( i == m_tail - 1 )
-					return prevPoint.Snapshot.Extrapolate( prevPoint.Time, time );
+				if( i == m_head + m_count - 1 )
+					return (ComponentSnapshot)prevPoint.Snapshot.Extrapolate( prevPoint.Time, time );
 
 				// Interpolation
 				var nextPoint = m_points[( i + 1 ) % m_points.Length];
-				return prevPoint.Snapshot.Interpolate( prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time );
+				return (ComponentSnapshot)prevPoint.Snapshot.Interpolate( prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time );
 			}
 
 			return null;
@@ -96,60 +133,65 @@ namespace EcsSync2
 
 		public void Clear()
 		{
-			m_head = m_tail = m_count = 0;
+			ReleasePoints( m_head, m_count );
+			m_head = m_count = 0;
 		}
 
-		void FillPoints(Timepoint[] points, int offset, int size)
-		{
-			for( int i = offset; i < size; i++ )
-				points[i] = new Timepoint();
-		}
-
-		Timepoint EnqueuePoint(uint time)
+		Timepoint AllocatePoint()
 		{
 			EnsureCapacity();
 
-			var point = m_points[m_tail % m_points.Length];
-			point.Time = time;
-			m_tail++;
+			var index = ( m_head + m_count ) % m_points.Length;
+			Debug.Assert( m_points[index] == null );
+			var point = m_allocator.Allocate<Timepoint>();
+			m_points[index] = point;
 			m_count++;
 			return point;
 		}
 
+		void ReleasePoints(int offset, int size)
+		{
+			for( int i = offset; i < offset + size; i++ )
+			{
+				var index = i % m_points.Length;
+				m_points[index].Release();
+				m_points[index] = null;
+			}
+		}
+
 		void EnsureCapacity()
 		{
+			if( m_count < m_points.Length )
+				return;
+
 			var points = new Timepoint[m_points.Length * 2];
-			var tail = m_tail % m_points.Length;
+			var tail = ( m_head + m_count ) % m_points.Length;
 			var head = m_head % m_points.Length;
 
 			if( tail > head )
 			{
-				FillPoints( points, 0, head );                              // [0, head)
-				Array.Copy( m_points, head, points, head, tail - head );    // [head, tail)
-				FillPoints( points, tail, points.Length - tail );           // [tail, capacity * 2)
+				Array.Copy( m_points, head, points, head, tail - head );                // [head, tail)
 			}
 			else if( tail < head )
 			{
-				FillPoints( points, 0, head );                                          // [0, head)
 				Array.Copy( m_points, head, points, head, m_points.Length - head );     // [head, capacity)
 				Array.Copy( m_points, 0, points, m_points.Length, tail );               // [capacity, capacity + tail)
-				FillPoints( points, m_points.Length + tail, m_points.Length - tail );   // [capacity + tail, capacity * 2)
 			}
 			else
 			{
-				Array.Copy( m_points, points, m_points.Length );            // [0, capacity)
-				FillPoints( points, m_points.Length, m_points.Length );     // [capacity, capacity * 2)
+				Array.Copy( m_points, points, m_points.Length );                        // [0, capacity)
 			}
 
 			m_points = points;
 			m_head = m_head % m_points.Length;
-			m_tail = m_tail % m_points.Length;
 		}
 
 		public Timepoint FirstPoint => m_count > 0 ? m_points[m_head % m_points.Length] : null;
 
-		public Timepoint LastPoint => m_count > 0 ? m_points[( m_tail - 1 ) % m_points.Length] : null;
+		public Timepoint LastPoint => m_count > 0 ? m_points[( m_head + m_count - 1 ) % m_points.Length] : null;
 
 		public int Count => m_count;
+
+		public int Capacity => m_points.Length;
 	}
 }

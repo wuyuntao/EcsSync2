@@ -10,6 +10,26 @@ namespace EcsSync2
 		IReferenceCounter ReferenceCounter { get; set; }
 	}
 
+	public abstract class Referencable : IReferencable
+	{
+		protected virtual void Reset()
+		{
+		}
+
+		#region IReferencable
+
+		IReferenceCounter IReferencable.ReferenceCounter { get; set; }
+
+		protected IReferenceCounter ReferenceCounter => ( (IReferencable)this ).ReferenceCounter;
+
+		void IReferencable.Reset()
+		{
+			Reset();
+		}
+
+		#endregion
+	}
+
 	public static class ReferencableExtensions
 	{
 		public static T Allocate<T>(this object obj)
@@ -41,13 +61,13 @@ namespace EcsSync2
 		public static void Retain(this object obj)
 		{
 			if( obj is IReferencable referencable )
-				referencable.ReferenceCounter.Retain();
+				referencable?.ReferenceCounter?.Retain();
 		}
 
 		public static void Release(this object obj)
 		{
 			if( obj is IReferencable referencable )
-				referencable.ReferenceCounter.Release();
+				referencable?.ReferenceCounter.Release();
 		}
 	}
 

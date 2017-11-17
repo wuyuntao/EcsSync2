@@ -46,7 +46,7 @@ namespace EcsSync2.Fps
 
 	public class Transform : Component
 	{
-		public Action<Transform> OnMoved;
+		public Action OnMoved;
 
 		protected override void OnCommandReceived(ComponentCommand command)
 		{
@@ -60,7 +60,7 @@ namespace EcsSync2.Fps
 				case TransformMovedEvent e:
 					var s1 = (TransformSnapshot)State.Clone();
 					s1.Position = e.Position;
-					OnMoved?.Invoke( this );
+					OnMoved?.Invoke();
 					return s1;
 
 				case TransformVelocityChangedEvent e:

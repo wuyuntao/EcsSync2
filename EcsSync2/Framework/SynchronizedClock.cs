@@ -38,14 +38,10 @@ namespace EcsSync2
 			m_time += m_deltaTime;
 		}
 
-		public float Time
-		{
-			get { return m_time; }
-		}
+		public float Time => m_time;
 
-		public float DeltaTime
-		{
-			get { return m_deltaTime; }
-		}
+		public float DeltaTime => m_deltaTime;
+
+		public float Rtt => m_rtt;
 	}
 }

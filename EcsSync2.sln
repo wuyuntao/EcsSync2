@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcsSync2", "EcsSync2\EcsSync2.csproj", "{3B9A4548-EF11-47F0-8DD2-D9733616E7E8}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EcsSync2Examples", "EcsSync2Examples\EcsSync2Examples.csproj", "{92E02D9B-DA3E-4EE9-87E4-7523DAE8858A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EcsSync2Tests", "EcsSync2Tests\EcsSync2Tests.csproj", "{14DA7180-65B2-49BC-A9A8-6D464A4F410E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{92E02D9B-DA3E-4EE9-87E4-7523DAE8858A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{92E02D9B-DA3E-4EE9-87E4-7523DAE8858A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{92E02D9B-DA3E-4EE9-87E4-7523DAE8858A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14DA7180-65B2-49BC-A9A8-6D464A4F410E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14DA7180-65B2-49BC-A9A8-6D464A4F410E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14DA7180-65B2-49BC-A9A8-6D464A4F410E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14DA7180-65B2-49BC-A9A8-6D464A4F410E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

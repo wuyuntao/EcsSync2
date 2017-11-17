@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	public abstract class Snapshot : Message
+	public abstract class Snapshot : Referencable
 	{
 		protected internal virtual bool IsApproximate(Snapshot other)
 		{

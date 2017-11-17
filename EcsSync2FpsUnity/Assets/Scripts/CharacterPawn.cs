@@ -1,5 +1,6 @@
 ﻿using EcsSync2.Fps;
 using UnityEngine;
+using URandom = UnityEngine.Random;
 
 public class CharacterPawn : MonoBehaviour
 {
@@ -10,10 +11,16 @@ public class CharacterPawn : MonoBehaviour
 	public void Initialize(Character character)
 	{
 		Character = character;
+		Character.Transform.OnMoved += OnMoved;
 
-		Random.InitState( (int)(uint)character.Id );
-		Head.material.color = Random.ColorHSV();
-		Body.material.color = Random.ColorHSV();
+		URandom.InitState( (int)(uint)character.Id );
+		Head.material.color = URandom.ColorHSV();
+		Body.material.color = URandom.ColorHSV();
+	}
+
+	void OnMoved()
+	{
+		transform.position = Character.Transform.Position.AsUnity3();
 	}
 
 	void Update()

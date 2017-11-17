@@ -51,13 +51,13 @@ namespace EcsSync2.Examples
 				}
 				else if( i == 2 )
 				{
-					EnqueueCommand<PlayerConnectCommand>( simulator, c => c.Receiver = 65 );
+					EnqueueCommand<PlayerConnectCommand>( simulator, c => c.ComponentId = 65 );
 				}
 				else if( i >= 3 && i <= 10 )
 				{
 					EnqueueCommand<MoveCharacterCommand>( simulator, c =>
 					{
-						c.Receiver = 98;
+						c.ComponentId = 98;
 						c.InputDirection = new Vector2D( 0, 1 );
 						c.InputMagnitude = 1;
 					} );

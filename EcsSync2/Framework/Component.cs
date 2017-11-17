@@ -71,7 +71,7 @@ namespace EcsSync2
 			if( state != null )
 			{
 				var timeline = EnsureTimeline( m_tickScheduler.CurrentContext.Value );
-				timeline.AddPoint( m_tickScheduler.CurrentContext.Value.Time, state );
+				timeline.Add( m_tickScheduler.CurrentContext.Value.Time, state );
 			}
 
 			OnSnapshotRecovered( state );
@@ -120,13 +120,13 @@ namespace EcsSync2
 		internal ComponentSnapshot GetState(TickScheduler.TickContext context)
 		{
 			var timeline = EnsureTimeline( context );
-			return (ComponentSnapshot)timeline.GetPoint( context.Time );
+			return (ComponentSnapshot)timeline.Find( context.Time );
 		}
 
 		internal void SetState(TickScheduler.TickContext context, ComponentSnapshot state)
 		{
 			var timeline = EnsureTimeline( context );
-			timeline.AddPoint( context.Time, state );
+			timeline.Add( context.Time, state );
 		}
 
 		#endregion
@@ -236,7 +236,7 @@ namespace EcsSync2
 
 		Timeline EnsureTimeline(ref Timeline timeline)
 		{
-			timeline = timeline ?? new Timeline( null, Configuration.TimelineDefaultCapacity );
+			timeline = timeline ?? new Timeline( Entity.SceneManager.Simulator.ReferencableAllocator, Configuration.TimelineDefaultCapacity );
 			return timeline;
 		}
 

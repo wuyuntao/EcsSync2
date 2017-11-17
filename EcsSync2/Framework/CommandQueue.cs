@@ -13,8 +13,12 @@ namespace EcsSync2
 
 		public void EnqueueCommands(ulong userId, CommandFrame frame)
 		{
-			if( userId == 0 )
-				Simulator.Context.Log( "EnqueueCommands for user {0}, time {1}, {2} commands", userId, frame.Time, frame.Commands.Count );
+			if( frame.Commands.Count > 0 )
+			{
+				Simulator.Context.Log( "Simulator {0} / {1}", Simulator.FixedTime, Simulator.SynchronizedClock.Time );
+				Simulator.Context.Log( "EqueueCommands for user {0}, time {1}, {2} commands", userId, frame.Time, frame.Commands.Count );
+			}
+
 			frame.Retain();
 
 			EnsureQueue( userId ).Enqueue( frame );

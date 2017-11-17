@@ -2,7 +2,7 @@
 
 namespace EcsSync2
 {
-	public class CommandFrame : Message
+	public class CommandFrame : Referencable
 	{
 		public uint Time;
 

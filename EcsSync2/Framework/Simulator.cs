@@ -27,7 +27,6 @@ namespace EcsSync2
 		public InterpolationManager InterpolationManager { get; }
 
 		public uint FixedTime { get; private set; }
-		public uint FixedDeltaTime => Configuration.SimulationDeltaTime;
 
 		public Simulator(IContext context, bool isServer, bool isClient, int? randomSeed, ulong? localUserId)
 		{
@@ -60,9 +59,13 @@ namespace EcsSync2
 		{
 			SynchronizedClock.Tick( deltaTime );
 
-			while( FixedTime + FixedDeltaTime <= SynchronizedClock.Time * 1000 )
+			var targetFixedTime = SynchronizedClock.Time * 1000;
+			if( ClientTickScheduler != null )
+				targetFixedTime += SynchronizedClock.Rtt / 2 * 1000 + Configuration.SimulationDeltaTime;
+
+			while( FixedTime + Configuration.SimulationDeltaTime <= targetFixedTime )
 			{
-				FixedTime += FixedDeltaTime;
+				FixedTime += Configuration.SimulationDeltaTime;
 
 				TickScheduler.Tick();
 				EventBus.DispatchEvents();

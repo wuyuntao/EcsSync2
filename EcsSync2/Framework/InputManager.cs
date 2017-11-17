@@ -33,36 +33,41 @@ namespace EcsSync2
 			m_buttons[2] = c.GetButton( "Jump" );
 		}
 
-		internal void EnqueueCommands()
+		internal void ResetInput()
+		{
+			m_joystickMagnitude = 0;
+			m_buttons[0] = false;
+			m_buttons[1] = false;
+			m_buttons[2] = false;
+		}
+
+		internal CommandFrame EnqueueCommands()
 		{
 			var frame = Simulator.ReferencableAllocator.Allocate<CommandFrame>();
 			frame.Time = Simulator.FixedTime;
+			frame.Retain();
 
 			var scene = Simulator.SceneManager.Scene as BattleScene;
 			if( scene != null )
 			{
-				if( scene.LocalPlayer != null )
+				if( scene.LocalCharacter != null )
+				{
+					MoveCharacter( frame, scene.LocalCharacter.MotionController );
+				}
+				else if( scene.LocalPlayer != null )
 				{
 					if( m_buttons[2] )
 						CreateCharacter( frame, scene.LocalPlayer );
 				}
-				else if( scene.LocalCharacter != null )
-				{
-
-				}
 			}
-			//var command = frame.AddCommand<MoveCharacterCommand>();
-			//{
-			//	command.Direction = new float[] { m_joystickDirection[0], m_joystickDirection[1] };
-			//	command.Magnitude = m_joystickMagnitude;
-			//}
 
 			Simulator.CommandQueue.EnqueueCommands( Simulator.LocalUserId.Value, frame );
 
 			frame.Release();
+			return frame;
 		}
 
-		static void CreateCharacter(CommandFrame frame, Player player)
+		void CreateCharacter(CommandFrame frame, Player player)
 		{
 			var c = frame.AddCommand<CreateEntityCommand>();
 			c.Settings = new CharacterSettings()
@@ -71,12 +76,12 @@ namespace EcsSync2
 			};
 		}
 
-		internal void ResetInput()
+		void MoveCharacter(CommandFrame frame, CharacterMotionController motion)
 		{
-			m_joystickMagnitude = 0;
-			m_buttons[0] = false;
-			m_buttons[1] = false;
-			m_buttons[2] = false;
+			var c = frame.AddCommand<MoveCharacterCommand>();
+			c.ComponentId = motion.Id;
+			c.InputDirection = new Vector2D( m_joystickDirection[0], m_joystickDirection[1] );
+			c.InputMagnitude = m_joystickMagnitude;
 		}
 	}
 }

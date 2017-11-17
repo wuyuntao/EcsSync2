@@ -59,7 +59,7 @@ namespace EcsSync2.Fps
 
 			if( m_commandFrame != null )
 			{
-				m_commandFrame.Time = Simulator.FixedTime + Simulator.FixedDeltaTime;
+				m_commandFrame.Time = Simulator.FixedTime + Configuration.SimulationDeltaTime;
 
 				Simulator.CommandQueue.EnqueueCommands( 0, m_commandFrame );
 

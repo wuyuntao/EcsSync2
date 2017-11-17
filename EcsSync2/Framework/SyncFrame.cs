@@ -2,7 +2,7 @@
 
 namespace EcsSync2
 {
-	public class SyncFrame : Message
+	public class SyncFrame : Referencable
 	{
 		public uint Time;
 	}

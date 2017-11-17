@@ -2,7 +2,7 @@
 
 namespace EcsSync2
 {
-	public abstract class Command : Message
+	public abstract class Command : Referencable
 	{
 	}
 
@@ -13,6 +13,6 @@ namespace EcsSync2
 	public abstract class ComponentCommand : Command
 	{
 		[Key( 0 )]
-		public uint Receiver;
+		public uint ComponentId;
 	}
 }

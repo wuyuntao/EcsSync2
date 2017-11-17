@@ -65,7 +65,7 @@ namespace EcsSync2.Fps
 				Simulator.Simulate( deltaMs / 1000f );
 
 				var commandFrame = Simulator.ClientTickScheduler.FetchCommandFrame();
-				if( commandFrame != null )
+				while( commandFrame != null )
 				{
 					var msg = CommandFrameMessage.FromCommandFrame( UserId, commandFrame );
 					var env = new MessageEnvelop() { Message = msg };

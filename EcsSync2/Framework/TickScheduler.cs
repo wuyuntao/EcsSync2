@@ -54,8 +54,10 @@ namespace EcsSync2
 
 		protected void DispatchCommands(CommandFrame frame)
 		{
-			if( frame.Commands != null )
+			if( frame.Commands.Count > 0 )
 			{
+				Simulator.Context.Log( "DispatchCommands time {0}, {1} commands", frame.Time, frame.Commands.Count );
+
 				foreach( var command in frame.Commands )
 				{
 					switch( command )
@@ -65,7 +67,7 @@ namespace EcsSync2
 							break;
 
 						case ComponentCommand c:
-							var component = Simulator.SceneManager.FindComponent( c.Receiver );
+							var component = Simulator.SceneManager.FindComponent( c.ComponentId );
 							component.ReceiveCommand( c );
 							break;
 

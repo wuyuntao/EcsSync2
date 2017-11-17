@@ -3,7 +3,7 @@
 namespace EcsSync2
 {
 	[MessagePackObject]
-	public abstract class Event : Message
+	public abstract class Event : Referencable
 	{
 	}
 

@@ -11,6 +11,7 @@ namespace EcsSync2
 		TickContext m_interpolationTickContext = new TickContext( TickContextType.Interpolation, 0 );
 
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
+		Queue<CommandFrame> m_commandFrames = new Queue<CommandFrame>();
 
 		public ClientTickScheduler(Simulator simulator)
 			: base( simulator )
@@ -176,11 +177,18 @@ namespace EcsSync2
 			m_predictionTickContext = new TickContext( TickContextType.Prediction, Simulator.FixedTime );
 
 			EnterContext( m_predictionTickContext );
-			Simulator.InputManager?.SetInput();
-			Simulator.InputManager?.EnqueueCommands();
-			DispatchCommands( m_predictionTickContext );
-			FixedUpdate();
+
+			Simulator.InputManager.SetInput();
+
+			var f = Simulator.InputManager.EnqueueCommands();
+			m_commandFrames.Enqueue( f );
+			f.Retain();
+
+			//DispatchCommands( m_predictionTickContext );
+			//FixedUpdate();
+
 			Simulator.InputManager.ResetInput();
+
 			LeaveContext();
 		}
 
@@ -203,9 +211,14 @@ namespace EcsSync2
 
 		public CommandFrame FetchCommandFrame()
 		{
-			var f = Simulator.CommandQueue.FetchCommands( Simulator.LocalUserId.Value, m_predictionTickContext.Time );
-			f.Retain();
-			return f;
+			if( m_commandFrames.Count > 0 )
+			{
+				var f = m_commandFrames.Dequeue();
+				f.Release();
+				return f;
+			}
+			else
+				return null;
 		}
 	}
 }
