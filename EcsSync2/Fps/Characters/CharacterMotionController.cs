@@ -56,6 +56,7 @@ namespace EcsSync2.Fps
 					var s = (CharacterMotionControllerSnapshot)State;
 					e.InputDirection = c.InputMagnitude > 0 ? c.InputDirection : s.InputDirection;
 					e.InputMagnitude = c.InputMagnitude;
+                    //Entity.SceneManager.Simulator.Context.Log($"received {nameof(MoveCharacterCommand)} {e.InputDirection} {e.InputMagnitude}");
 					ApplyEvent( e );
 					break;
 
