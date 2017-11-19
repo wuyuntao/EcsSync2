@@ -184,10 +184,10 @@ namespace EcsSync2
 			m_commandFrames.Enqueue( f );
 			f.Retain();
 
-			//DispatchCommands( m_predictionTickContext );
-			//FixedUpdate();
+            DispatchCommands(m_predictionTickContext);
+            FixedUpdate();
 
-			Simulator.InputManager.ResetInput();
+            Simulator.InputManager.ResetInput();
 
 			LeaveContext();
 		}
