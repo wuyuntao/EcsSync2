@@ -152,9 +152,9 @@ namespace EcsSync2.Fps
 					//Logger?.Log( "Heartbeat {0}", peer );
 					break;
 
-				case CommandFrameMessage m:
-					var f = m.ToCommandFrame( Simulator );
-					Simulator.CommandQueue.EnqueueCommands( m.UserId, f );
+				case CommandFrame m:
+					m = Simulator.ReferencableAllocator.Allocate( m );
+					Simulator.CommandQueue.EnqueueCommands( m.UserId, m );
 					//Logger?.Log( "CommandFrame {0}", peer );
 					break;
 

@@ -69,7 +69,7 @@ namespace EcsSync2.Examples
 		}
 
 		static void EnqueueCommand<T>(Simulator simulator, Action<T> handler)
-			where T : Command, new()
+			where T : class, ICommand, new()
 		{
 			var frame = simulator.ReferencableAllocator.Allocate<CommandFrame>();
 			frame.Time = simulator.FixedTime + Configuration.SimulationDeltaTime;

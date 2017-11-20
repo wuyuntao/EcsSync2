@@ -6,7 +6,7 @@ namespace EcsSync2.Fps
 	[Union( 1, typeof( LoginResponseMessage ) )]
 	[Union( 2, typeof( HeartbeatRequestMessage ) )]
 	[Union( 3, typeof( HeartbeatResponseMessage ) )]
-	[Union( 4, typeof( CommandFrameMessage ) )]
+	[Union( 4, typeof( CommandFrame ) )]
 	[Union( 5, typeof( FullSyncFrameMessage ) )]
 	[Union( 6, typeof( DeltaSyncFrameMessage ) )]
 	public interface IMessage

@@ -67,8 +67,8 @@ namespace EcsSync2.Fps
 				var commandFrame = Simulator.ClientTickScheduler.FetchCommandFrame();
 				while( commandFrame != null )
 				{
-					var msg = CommandFrameMessage.FromCommandFrame( UserId, commandFrame );
-					var env = new MessageEnvelop() { Message = msg };
+					commandFrame.UserId = UserId;
+					var env = new MessageEnvelop() { Message = commandFrame };
 					var bytes = MessagePackSerializer.Serialize( env );
 
 					commandFrame.Release();

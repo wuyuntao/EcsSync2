@@ -5,14 +5,14 @@ using System;
 namespace EcsSync2
 {
 	[MessagePackObject]
-	public class CreateEntityCommand : SceneCommand, ICommandUnion
+	public class CreateEntityCommand : SceneCommand
 	{
 		[Key( 10 )]
 		public IEntitySettings Settings;
 	}
 
 	[MessagePackObject]
-	public class RemoveEntityCommand : SceneCommand, ICommandUnion
+	public class RemoveEntityCommand : SceneCommand
 	{
 		[Key( 10 )]
 		public uint Id;
@@ -80,12 +80,12 @@ namespace EcsSync2
 			SceneManager.Simulator.Context.Log( "ApplyEntityRemovedEvent {0}", e.Id );
 		}
 
-		internal void ReceiveCommand(Command command)
+		internal void ReceiveCommand(SceneCommand command)
 		{
 			OnCommandReceived( command );
 		}
 
-		protected virtual void OnCommandReceived(Command command)
+		protected virtual void OnCommandReceived(SceneCommand command)
 		{
 			if( !SceneManager.Simulator.IsServer )
 				return;

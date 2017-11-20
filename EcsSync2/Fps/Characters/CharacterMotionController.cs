@@ -26,7 +26,7 @@ namespace EcsSync2.Fps
 	}
 
 	[MessagePackObject]
-	public class MoveCharacterCommand : ComponentCommand, ICommandUnion
+	public class MoveCharacterCommand : ComponentCommand
 	{
 		[Key( 20 )]
 		public Vector2D InputDirection;

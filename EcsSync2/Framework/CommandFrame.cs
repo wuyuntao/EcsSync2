@@ -1,15 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using EcsSync2.Fps;
+using MessagePack;
+using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	public class CommandFrame : Referencable
+	[MessagePackObject]
+	public class CommandFrame : Referencable, IMessage
 	{
+		[Key( 0 )]
+		public ulong UserId;
+
+		[Key( 1 )]
 		public uint Time;
 
-		public List<Command> Commands = new List<Command>();
+		[Key( 2 )]
+		public List<ICommand> Commands = new List<ICommand>();
 
 		public T AddCommand<T>()
-			where T : Command, new()
+			where T : class, ICommand, new()
 		{
 			var command = ReferenceCounter.Allocate<T>();
 			Commands.Add( command );

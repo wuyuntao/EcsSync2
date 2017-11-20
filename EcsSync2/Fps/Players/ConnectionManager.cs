@@ -31,7 +31,7 @@ namespace EcsSync2.Fps
 	}
 
 	[MessagePackObject]
-	public class PlayerConnectCommand : ComponentCommand, ICommandUnion
+	public class PlayerConnectCommand : ComponentCommand
 	{
 	}
 
