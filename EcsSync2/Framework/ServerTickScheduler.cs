@@ -40,7 +40,7 @@ namespace EcsSync2
 
 		void DispathSimulatorCommands(TickContext context)
 		{
-			var frame = Simulator.CommandQueue.FetchCommands( 0, context.Time );
+			var frame = Simulator.CommandQueue.Find( 0, context.Time );
 			if( frame != null )
 				DispatchCommands( frame );
 		}
@@ -56,7 +56,7 @@ namespace EcsSync2
 				time <= context.Time;
 				time += Configuration.SimulationDeltaTime )
 			{
-				var frame = Simulator.CommandQueue.FetchCommands( userId, time );
+				var frame = Simulator.CommandQueue.Find( userId, time );
 				if( frame == null )
 					break;
 
@@ -84,7 +84,7 @@ namespace EcsSync2
 				}
 
 				// 清理已应用命令
-				Simulator.CommandQueue.DequeueBefore( userId, lastFrame.Time );
+				Simulator.CommandQueue.RemoveBefore( userId, lastFrame.Time );
 			}
 		}
 

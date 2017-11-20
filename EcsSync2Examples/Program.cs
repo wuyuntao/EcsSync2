@@ -75,7 +75,7 @@ namespace EcsSync2.Examples
 			frame.Time = simulator.FixedTime + Configuration.SimulationDeltaTime;
 			var command = frame.AddCommand<T>();
 			handler( command );
-			simulator.CommandQueue.EnqueueCommands( 0, frame );
+			simulator.CommandQueue.Add( 0, frame );
 			frame.Release();
 		}
 

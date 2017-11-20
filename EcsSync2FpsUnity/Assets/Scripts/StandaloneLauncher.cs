@@ -30,7 +30,7 @@ namespace EcsSync2.FpsUnity
             var c = f.AddCommand<CreateEntityCommand>();
             c.Settings = new PlayerSettings() { UserId = UserId };
 
-            m_simulator.CommandQueue.EnqueueCommands(0, f);
+            m_simulator.CommandQueue.Add(0, f);
 
             Debug.LogFormat("CreatePlayer {0}", Time.time);
         }

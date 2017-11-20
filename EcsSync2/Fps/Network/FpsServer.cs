@@ -61,7 +61,7 @@ namespace EcsSync2.Fps
 			{
 				m_commandFrame.Time = Simulator.FixedTime + Configuration.SimulationDeltaTime;
 
-				Simulator.CommandQueue.EnqueueCommands( 0, m_commandFrame );
+				Simulator.CommandQueue.Add( 0, m_commandFrame );
 
 				m_commandFrame.Release();
 				m_commandFrame = null;
@@ -154,7 +154,7 @@ namespace EcsSync2.Fps
 
 				case CommandFrame m:
 					m = Simulator.ReferencableAllocator.Allocate( m );
-					Simulator.CommandQueue.EnqueueCommands( m.UserId, m );
+					Simulator.CommandQueue.Add( m.UserId, m );
 					//Logger?.Log( "CommandFrame {0}", peer );
 					break;
 

@@ -1,37 +1,34 @@
 ﻿namespace EcsSync2
 {
-    public class StandaloneTickScheduler : TickScheduler
-    {
-        TickContext m_context;
+	public class StandaloneTickScheduler : TickScheduler
+	{
+		TickContext m_context;
 
-        public StandaloneTickScheduler(Simulator simulator)
-            : base(simulator)
-        {
-        }
+		public StandaloneTickScheduler(Simulator simulator)
+			: base( simulator )
+		{
+		}
 
-        internal override void Tick()
-        {
-            m_context = new TickContext(TickContextType.Sync, Simulator.FixedTime);
+		internal override void Tick()
+		{
+			m_context = new TickContext( TickContextType.Sync, Simulator.FixedTime );
 
-            EnterContext(m_context);
+			EnterContext( m_context );
 
-            Simulator.InputManager.SetInput();
+			Simulator.InputManager.SetInput();
+			Simulator.InputManager.CreateCommands();
 
-            var f1 = Simulator.CommandQueue.FetchCommands(0, m_context.Time);
-            if (f1 != null)
-                DispatchCommands(f1);
+			foreach( var commands in Simulator.CommandQueue.Find( m_context.Time ) )
+				DispatchCommands( commands );
 
-            var f2 = Simulator.InputManager.EnqueueCommands();
-            if (f2 != null)
-                DispatchCommands(f2);
+			FixedUpdate();
 
-            FixedUpdate();
+			Simulator.CommandQueue.RemoveBefore( m_context.Time );
+			Simulator.InputManager.ResetInput();
 
-            Simulator.InputManager.ResetInput();
+			LeaveContext();
 
-            LeaveContext();
-
-            //Simulator.Context.Log( "Tick {0}", m_context.Time );
-        }
-    }
+			//Simulator.Context.Log( "Tick {0}", m_context.Time );
+		}
+	}
 }

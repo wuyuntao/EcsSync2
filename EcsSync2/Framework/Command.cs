@@ -11,11 +11,11 @@ namespace EcsSync2
 	{
 	}
 
-	public abstract class SceneCommand : Referencable, ICommand
+	public abstract class SceneCommand : MessagePackReferencable, ICommand
 	{
 	}
 
-	public abstract class ComponentCommand : Referencable, ICommand
+	public abstract class ComponentCommand : MessagePackReferencable, ICommand
 	{
 		[Key( 0 )]
 		public uint ComponentId;

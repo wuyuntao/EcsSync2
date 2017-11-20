@@ -1,9 +1,8 @@
-using EcsSync2;
 using EcsSync2.Fps;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 
-namespace EcsSync2Tests
+namespace EcsSync2.Tests
 {
 	[TestClass]
 	public class TimelineTest

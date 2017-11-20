@@ -217,7 +217,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 720e16bf36b29574d8d8bd92bcad0c1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ServerAddress: 192.168.2.2
+  ServerAddress: 192.168.92.144
   ServerPort: 3687
   UserId: 1001
   ScenePawn: {fileID: 114280436440034866, guid: ba6d2d5c52ca1ea4faa9140f709a30e1,

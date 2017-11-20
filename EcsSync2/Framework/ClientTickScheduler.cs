@@ -144,7 +144,7 @@ namespace EcsSync2
 			m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_syncTickContext.Time );
 
 			// 清理已确认命令
-			Simulator.CommandQueue.DequeueBefore( Simulator.LocalUserId.Value, m_syncTickContext.Time );
+			Simulator.CommandQueue.RemoveBefore( Simulator.LocalUserId.Value, m_syncTickContext.Time );
 		}
 
 		List<Component> GetPredictedComponents()
@@ -180,7 +180,7 @@ namespace EcsSync2
 
 			Simulator.InputManager.SetInput();
 
-			var f = Simulator.InputManager.EnqueueCommands();
+			var f = Simulator.InputManager.CreateCommands();
 			m_commandFrames.Enqueue( f );
 			f.Retain();
 
@@ -194,7 +194,7 @@ namespace EcsSync2
 
 		void DispatchCommands(TickContext ctx)
 		{
-			var frame = Simulator.CommandQueue.FetchCommands( Simulator.LocalUserId.Value, ctx.Time );
+			var frame = Simulator.CommandQueue.Find( Simulator.LocalUserId.Value, ctx.Time );
 
 			DispatchCommands( frame );
 		}

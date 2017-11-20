@@ -1,5 +1,7 @@
-﻿using System;
+﻿using MessagePack;
+using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace EcsSync2
 {
@@ -30,44 +32,52 @@ namespace EcsSync2
 		#endregion
 	}
 
+	public abstract class MessagePackReferencable : Referencable
+	{
+		protected override void Reset()
+		{
+			base.Reset();
+
+			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
+			foreach( var f in fields )
+			{
+				var attr = f.GetCustomAttribute( typeof( KeyAttribute ) );
+				if( attr == null )
+					continue;
+
+				var defaultValue = f.FieldType.IsValueType ? Activator.CreateInstance( f.FieldType ) : null;
+				f.SetValue( this, defaultValue );
+			}
+		}
+	}
+
 	public static class ReferencableExtensions
 	{
-		public static T Allocate<T>(this object obj)
+		public static T Allocate<T>(this IReferencable referencable)
 			 where T : class, IReferencable, new()
 		{
-			if( obj is IReferencable referencable )
-				return referencable.ReferenceCounter.Allocate<T>();
-			else
-				return null;
+			return referencable.ReferenceCounter.Allocate<T>();
 		}
 
-		public static T Allocate<T>(this object obj, T value)
+		public static T Allocate<T>(this IReferencable referencable, T value)
 			 where T : class, IReferencable, new()
 		{
-			if( obj is IReferencable referencable )
-				return referencable.ReferenceCounter.Allocate<T>( value );
-			else
-				return null;
+			return referencable.ReferenceCounter.Allocate( value );
 		}
 
-		public static object Allocate(this object obj, Type type)
+		public static IReferencable Allocate(this IReferencable referencable, Type type)
 		{
-			if( obj is IReferencable referencable )
-				return referencable.ReferenceCounter.Allocate( type );
-			else
-				return null;
+			return referencable.ReferenceCounter.Allocate( type );
 		}
 
-		public static void Retain(this object obj)
+		public static void Retain(this IReferencable referencable)
 		{
-			if( obj is IReferencable referencable )
-				referencable?.ReferenceCounter?.Retain();
+			referencable.ReferenceCounter.Retain();
 		}
 
-		public static void Release(this object obj)
+		public static void Release(this IReferencable referencable)
 		{
-			if( obj is IReferencable referencable )
-				referencable?.ReferenceCounter.Release();
+			referencable.ReferenceCounter.Release();
 		}
 	}
 
@@ -168,7 +178,9 @@ namespace EcsSync2
 				if( m_unreferenced.Count > 0 )
 				{
 					var index = m_unreferenced.Dequeue();
-					return m_counters[index];
+					var counter = m_counters[index];
+					counter.Retain();
+					return counter;
 				}
 				else if( m_counters.Count < Allocator.m_maxCapacity )
 				{
