@@ -76,8 +76,7 @@ namespace EcsSync2.Fps
 				{
 					//Logger?.Log( "Send deltaSyncFrame {0}", deltaSyncFrame.Time );
 
-					var msg = DeltaSyncFrameMessage.FromDeltaSyncFrame( deltaSyncFrame );
-					var env = new MessageEnvelop() { Message = msg };
+					var env = new MessageEnvelop() { Message = deltaSyncFrame };
 					var bytes = MessagePackSerializer.Serialize( env );
 					deltaSyncFrame.Release();
 
@@ -94,8 +93,7 @@ namespace EcsSync2.Fps
 
 				Logger?.Log( "Send fullSyncFrame {0}", fullSyncFrame.Time );
 
-				var msg = FullSyncFrameMessage.FromFullSyncFrame( fullSyncFrame );
-				var env = new MessageEnvelop() { Message = msg };
+				var env = new MessageEnvelop() { Message = fullSyncFrame };
 				var bytes = MessagePackSerializer.Serialize( env );
 				fullSyncFrame.Release();
 
@@ -156,6 +154,7 @@ namespace EcsSync2.Fps
 					m = Simulator.ReferencableAllocator.Allocate( m );
 					Simulator.CommandQueue.Add( m.UserId, m );
 					//Logger?.Log( "CommandFrame {0}", peer );
+					m.Release();
 					break;
 
 				default:

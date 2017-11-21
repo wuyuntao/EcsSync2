@@ -37,7 +37,7 @@ namespace EcsSync2
 
 		internal void Start()
 		{
-			EnsureTickContext();
+			EnsureTickContext( false );
 
 			var state = CreateSnapshot();
 			if( state != null )
@@ -144,7 +144,7 @@ namespace EcsSync2
 			}
 		}
 
-		protected TSnapshot AllocateSnapshot<TSnapshot>()
+		protected TSnapshot CreateSnapshot<TSnapshot>()
 			where TSnapshot : ComponentSnapshot, new()
 		{
 			EnsureTickContext();
@@ -154,7 +154,7 @@ namespace EcsSync2
 			return s;
 		}
 
-		protected TEvent AllocateEvent<TEvent>()
+		protected TEvent CreateEvent<TEvent>()
 			where TEvent : ComponentEvent, new()
 		{
 			EnsureTickContext();
@@ -168,7 +168,7 @@ namespace EcsSync2
 
 		#region Private Helpers
 
-		void EnsureTickContext()
+		void EnsureTickContext(bool getState = true)
 		{
 			if( TickScheduler.CurrentContext == null )
 				throw new InvalidOperationException( "Tick context not exist" );
@@ -177,7 +177,9 @@ namespace EcsSync2
 				return;
 
 			m_context = TickScheduler.CurrentContext.Value;
-			m_state = GetState( m_context.Value );
+
+			if( getState )
+				m_state = GetState( m_context.Value );
 		}
 
 		internal ComponentSnapshot GetState(TickScheduler.TickContext context)
@@ -191,7 +193,7 @@ namespace EcsSync2
 						if( m_syncTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
 							return snapshot;
 
-						throw new InvalidOperationException( $"Cannot find snapshot for {context}" );
+						throw new InvalidOperationException( $"Cannot find snapshot of {this} for {context}" );
 					}
 
 				case TickScheduler.TickContextType.Reconcilation:
@@ -204,7 +206,7 @@ namespace EcsSync2
 						if( m_syncTimeline.TryFind( context.Time, out snapshot ) )
 							return snapshot;
 
-						throw new InvalidOperationException( $"Cannot find snapshot for {context}" );
+						throw new InvalidOperationException( $"Cannot find snapshot of {this} for {context}" );
 					}
 
 				case TickScheduler.TickContextType.Prediction:
@@ -218,7 +220,7 @@ namespace EcsSync2
 						if( m_syncTimeline.TryFind( context.Time, out snapshot ) )
 							return snapshot;
 
-						throw new InvalidOperationException( $"Cannot find snapshot for {context}" );
+						throw new InvalidOperationException( $"Cannot find snapshot of {this} for {context}" );
 					}
 
 				default:

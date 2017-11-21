@@ -14,7 +14,7 @@ namespace EcsSync2.Fps
     }
 
     [MessagePackObject]
-    public class TransformSnapshot : ComponentSnapshot, IComponentSnapshotUnion
+    public class TransformSnapshot : ComponentSnapshot, IComponentSnapshot
     {
         [Key(20)]
         public Vector2D Position;
@@ -32,14 +32,14 @@ namespace EcsSync2.Fps
     }
 
     [MessagePackObject]
-    public class TransformMovedEvent : ComponentEvent, IEvent
+    public class TransformMovedEvent : ComponentEvent
     {
         [Key(20)]
         public Vector2D Position;
     }
 
     [MessagePackObject]
-    public class TransformVelocityChangedEvent : ComponentEvent, IEvent
+    public class TransformVelocityChangedEvent : ComponentEvent
     {
         [Key(20)]
         public Vector2D Velocity;
@@ -86,7 +86,7 @@ namespace EcsSync2.Fps
 
         protected internal override ComponentSnapshot CreateSnapshot()
         {
-            return Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<TransformSnapshot>();
+            return CreateSnapshot<TransformSnapshot>();
         }
 
         internal void ApplyTransformMovedEvent(Vector2D offset)
@@ -94,7 +94,7 @@ namespace EcsSync2.Fps
             Debug.Assert(offset.IsValid());
 
             var s = (TransformSnapshot)State;
-            var e = AllocateEvent<TransformMovedEvent>();
+            var e = CreateEvent<TransformMovedEvent>();
             e.Position = s.Position + offset;
             ApplyEvent(e);
         }
@@ -107,7 +107,7 @@ namespace EcsSync2.Fps
             if (s.Velocity == velocity)
                 return;
 
-            var e = AllocateEvent<TransformVelocityChangedEvent>();
+            var e = CreateEvent<TransformVelocityChangedEvent>();
             e.Velocity = velocity;
             ApplyEvent(e);
         }

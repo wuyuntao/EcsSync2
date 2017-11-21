@@ -1,9 +1,20 @@
-﻿using MessagePack;
+﻿using EcsSync2.Fps;
+using MessagePack;
 
 namespace EcsSync2
 {
+	[Union( 0, typeof( EntityCreatedEvent ) )]
+	[Union( 1, typeof( EntityRemovedEvent ) )]
+	[Union( 2, typeof( InputChangedEvent ) )]
+	[Union( 3, typeof( PlayerConnectedEvent ) )]
+	[Union( 4, typeof( TransformMovedEvent ) )]
+	[Union( 5, typeof( TransformVelocityChangedEvent ) )]
+	public interface IEvent
+	{
+	}
+
 	[MessagePackObject]
-	public abstract class Event : Referencable
+	public abstract class Event : Referencable, IEvent
 	{
 	}
 

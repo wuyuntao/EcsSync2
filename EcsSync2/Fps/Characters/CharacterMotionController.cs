@@ -4,7 +4,7 @@ using System;
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	class CharacterMotionControllerSnapshot : ComponentSnapshot, IComponentSnapshotUnion
+	class CharacterMotionControllerSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
 		[Key( 20 )]
 		public Vector2D InputDirection;
@@ -36,7 +36,7 @@ namespace EcsSync2.Fps
 	}
 
 	[MessagePackObject]
-	public class InputChangedEvent : ComponentEvent, IEvent
+	public class InputChangedEvent : ComponentEvent
 	{
 		[Key( 20 )]
 		public Vector2D InputDirection;
@@ -52,7 +52,7 @@ namespace EcsSync2.Fps
 			switch( command )
 			{
 				case MoveCharacterCommand c:
-					var e = AllocateEvent<InputChangedEvent>();
+					var e = CreateEvent<InputChangedEvent>();
 					var s = (CharacterMotionControllerSnapshot)State;
 					e.InputDirection = c.InputMagnitude > 0 ? c.InputDirection : s.InputDirection;
 					e.InputMagnitude = c.InputMagnitude;
@@ -98,7 +98,7 @@ namespace EcsSync2.Fps
 
 		protected internal override ComponentSnapshot CreateSnapshot()
 		{
-			var s = Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<CharacterMotionControllerSnapshot>();
+			var s = CreateSnapshot<CharacterMotionControllerSnapshot>();
 			s.InputDirection = new Vector2D( 0, 1 );
 			s.InputMagnitude = 0;
 			s.MaxSpeed = 3;

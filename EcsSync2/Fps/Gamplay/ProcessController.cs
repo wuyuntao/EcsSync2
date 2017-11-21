@@ -4,7 +4,7 @@ using System;
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class ProcessControllerSnapshot : ComponentSnapshot, IComponentSnapshotUnion
+	public class ProcessControllerSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
 		public override Snapshot Clone()
 		{
@@ -32,7 +32,7 @@ namespace EcsSync2.Fps
 
 		protected internal override ComponentSnapshot CreateSnapshot()
 		{
-			return Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<ProcessControllerSnapshot>();
+			return CreateSnapshot<ProcessControllerSnapshot>();
 		}
 
 		protected override void OnFixedUpdate()

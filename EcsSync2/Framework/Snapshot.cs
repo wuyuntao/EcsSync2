@@ -1,4 +1,5 @@
-﻿using MessagePack;
+﻿using EcsSync2.Fps;
+using MessagePack;
 using System;
 using System.Collections.Generic;
 
@@ -29,6 +30,7 @@ namespace EcsSync2
 		}
 	}
 
+	[MessagePackObject]
 	public class EntitySnapshot : Snapshot
 	{
 		[Key( 10 )]
@@ -38,7 +40,7 @@ namespace EcsSync2
 		public IEntitySettings Settings;
 
 		[Key( 12 )]
-		public List<ComponentSnapshot> Components = new List<ComponentSnapshot>();
+		public List<IComponentSnapshot> Components = new List<IComponentSnapshot>();
 
 		public override Snapshot Clone()
 		{
@@ -47,7 +49,7 @@ namespace EcsSync2
 
 		protected override void Reset()
 		{
-			foreach( var c in Components )
+			foreach( ComponentSnapshot c in Components )
 				c.Release();
 
 			Components.Clear();
@@ -56,7 +58,17 @@ namespace EcsSync2
 		}
 	}
 
-	public abstract class ComponentSnapshot : Snapshot
+	[Union( 0, typeof( CharacterMotionControllerSnapshot ) )]
+	[Union( 1, typeof( TransformSnapshot ) )]
+	[Union( 2, typeof( ProcessControllerSnapshot ) )]
+	[Union( 3, typeof( ConnectingSnapshot ) )]
+	[Union( 4, typeof( ConnectedSnapshot ) )]
+	[Union( 5, typeof( DisconnectedSnapshot ) )]
+	public interface IComponentSnapshot
+	{
+	}
+
+	public abstract class ComponentSnapshot : Snapshot, IComponentSnapshot
 	{
 		[Key( 10 )]
 		public uint ComponentId;

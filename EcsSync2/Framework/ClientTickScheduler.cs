@@ -31,6 +31,9 @@ namespace EcsSync2
 
 		public void ReceiveSyncFrame(SyncFrame frame)
 		{
+			// TODO 有必要加入引用计数么？
+			frame.Retain();
+
 			m_syncFrames.Enqueue( frame );
 		}
 
@@ -48,9 +51,11 @@ namespace EcsSync2
 				else if( frame is DeltaSyncFrame dsf )
 					ApplyDeltaSyncFrame( dsf );
 				else
-					throw new NotSupportedException();
+					throw new NotSupportedException( frame.ToString() );
 
 				LeaveContext();
+
+				frame.Release();
 			}
 		}
 
@@ -60,19 +65,24 @@ namespace EcsSync2
 			{
 				Simulator.SceneManager.Scene.CreateEntity( es.Id, es.Settings );
 
-				foreach( var cs in es.Components )
+				foreach( ComponentSnapshot cs in es.Components )
 				{
 					Simulator.ReferencableAllocator.Allocate( cs.GetType(), cs );
 
 					var component = Simulator.SceneManager.FindComponent( cs.ComponentId );
-					component.RecoverSnapshot( cs );
+					if( component == null )
+						Simulator.Context.LogError( "Failed to find component '{0}'", cs.ComponentId );
+					else
+						component.RecoverSnapshot( cs );
+
+					cs.Release();
 				}
 			}
 		}
 
 		void ApplyDeltaSyncFrame(DeltaSyncFrame frame)
 		{
-			foreach( var e in frame.Events )
+			foreach( Event e in frame.Events )
 			{
 				Simulator.ReferencableAllocator.Allocate( e.GetType(), e );
 
@@ -130,16 +140,21 @@ namespace EcsSync2
 				LeaveContext();
 			}
 
-			// 以和解后的状态和最新预测的状态的中间值，来纠正最新的预测
+			// 和解最新预测的状态
 			EnterContext( m_predictionTickContext );
 			foreach( var component in components )
 			{
 				var reconcilationState = component.GetState( m_reconcilationTickContext );
+				var predictionState = component.GetState( m_predictionTickContext );
+
+				// 判断是需要修正为和解后的状态
+				if( reconcilationState.IsApproximate( predictionState ) )
+					continue;
+
+				// 以和解后的状态和最新预测的状态的中间值，来纠正最新的预测
 				if( Configuration.ComponentReconcilationRatio < 1 )
-				{
-					var predictionState = component.GetState( m_predictionTickContext );
 					reconcilationState = (ComponentSnapshot)predictionState.Interpolate( reconcilationState, Configuration.ComponentReconcilationRatio );
-				}
+
 				component.RecoverSnapshot( reconcilationState );
 			}
 			LeaveContext();
@@ -158,9 +173,11 @@ namespace EcsSync2
 
 		bool RequireReconcilation(List<Component> components)
 		{
+			var predictionContext = new TickContext( TickContextType.Prediction, m_reconcilationTickContext.Time );
+
 			foreach( var component in components )
 			{
-				var predictionState = component.GetState( m_reconcilationTickContext );
+				var predictionState = component.GetState( predictionContext );
 				if( predictionState == null )
 					return false;
 

@@ -1,14 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using EcsSync2.Fps;
+using MessagePack;
+using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	public class SyncFrame : Referencable
+	public abstract class SyncFrame : Referencable, IMessage
 	{
+		[Key( 0 )]
 		public uint Time;
 	}
 
+	[MessagePackObject]
 	public class FullSyncFrame : SyncFrame
 	{
+		[Key( 10 )]
 		public List<EntitySnapshot> Entities = new List<EntitySnapshot>();
 
 		protected override void Reset()
@@ -22,13 +27,15 @@ namespace EcsSync2
 		}
 	}
 
+	[MessagePackObject]
 	public class DeltaSyncFrame : SyncFrame
 	{
-		public List<Event> Events = new List<Event>();
+		[Key( 10 )]
+		public List<IEvent> Events = new List<IEvent>();
 
 		protected override void Reset()
 		{
-			foreach( var e in Events )
+			foreach( Event e in Events )
 				e.Release();
 
 			Events.Clear();

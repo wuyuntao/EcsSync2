@@ -131,16 +131,18 @@ namespace EcsSync2.Fps
 					//Logger?.Log( "Heartbeat {0}", peer );
 					break;
 
-				case FullSyncFrameMessage m:
-					var f1 = m.ToFullSyncFrame( Simulator );
-					Simulator.ClientTickScheduler.ReceiveSyncFrame( f1 );
+				case FullSyncFrame m:
+					Simulator.ReferencableAllocator.Allocate( m );
+					Simulator.ClientTickScheduler.ReceiveSyncFrame( m );
 					Logger?.Log( "FullSyncFrame {0}", peer );
+					m.Release();
 					break;
 
-				case DeltaSyncFrameMessage m:
-					var f2 = m.ToDeltaSyncFrame( Simulator );
-					Simulator.ClientTickScheduler.ReceiveSyncFrame( f2 );
+				case DeltaSyncFrame m:
+					Simulator.ReferencableAllocator.Allocate( m );
+					Simulator.ClientTickScheduler.ReceiveSyncFrame( m );
 					//Logger?.Log( "DeltaSyncFrame {0}", peer );
+					m.Release();
 					break;
 
 				default:

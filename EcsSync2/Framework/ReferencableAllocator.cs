@@ -140,7 +140,7 @@ namespace EcsSync2
 		{
 			if( !m_pools.TryGetValue( type, out ReferencableCounterPool pool ) )
 			{
-				pool = new ReferencableCounterPool( this );
+				pool = new ReferencableCounterPool( this, type );
 				m_pools.Add( type, pool );
 			}
 
@@ -151,12 +151,14 @@ namespace EcsSync2
 
 		class ReferencableCounterPool
 		{
+			readonly Type m_referencableType;
 			readonly List<IReferenceCounter> m_counters;
 			readonly Queue<int> m_unreferenced;
 
-			public ReferencableCounterPool(ReferencableAllocator allocator, int initialCapacity = 16)
+			public ReferencableCounterPool(ReferencableAllocator allocator, Type type, int initialCapacity = 16)
 			{
 				Allocator = allocator;
+				m_referencableType = type;
 				m_counters = new List<IReferenceCounter>( initialCapacity );
 				m_unreferenced = new Queue<int>( initialCapacity );
 			}
@@ -175,6 +177,9 @@ namespace EcsSync2
 
 			public IReferenceCounter Allocate(Type type)
 			{
+				if( type != m_referencableType )
+					throw new ArgumentException( nameof( type ) );
+
 				if( m_unreferenced.Count > 0 )
 				{
 					var index = m_unreferenced.Dequeue();
@@ -196,6 +201,9 @@ namespace EcsSync2
 
 			public IReferenceCounter Allocate(IReferencable value)
 			{
+				if( value.GetType() != m_referencableType )
+					throw new ArgumentException( nameof( value ) );
+
 				if( m_counters.Count < Allocator.m_maxCapacity )
 				{
 					var counter = new ReferencableCounter( this, m_counters.Count, value );
@@ -261,18 +269,18 @@ namespace EcsSync2
 			public T1 Allocate<T1>()
 				where T1 : class, IReferencable, new()
 			{
-				return (T1)m_pool.Allocate<T1>().Value;
+				return m_pool.Allocator.Allocate<T1>();
 			}
 
 			public T1 Allocate<T1>(T1 value)
 				where T1 : class, IReferencable, new()
 			{
-				return (T1)m_pool.Allocate<T1>( value ).Value;
+				return m_pool.Allocator.Allocate( value );
 			}
 
 			public IReferencable Allocate(Type type)
 			{
-				return m_pool.Allocate( type ).Value;
+				return m_pool.Allocator.Allocate( type );
 			}
 
 			public IReferencable Value => m_value;

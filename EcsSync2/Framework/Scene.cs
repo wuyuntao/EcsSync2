@@ -20,7 +20,7 @@ namespace EcsSync2
 
 
 	[MessagePackObject]
-	public class EntityCreatedEvent : SceneEvent, IEvent
+	public class EntityCreatedEvent : SceneEvent
 	{
 		[Key( 10 )]
 		public uint Id;
@@ -30,7 +30,7 @@ namespace EcsSync2
 	}
 
 	[MessagePackObject]
-	public class EntityRemovedEvent : SceneEvent, IEvent
+	public class EntityRemovedEvent : SceneEvent
 	{
 		[Key( 10 )]
 		public uint Id;

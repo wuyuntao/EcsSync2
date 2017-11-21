@@ -4,7 +4,7 @@ using System;
 namespace EcsSync2.Fps
 {
 	[MessagePackObject]
-	public class ConnectingSnapshot : ComponentSnapshot, IComponentSnapshotUnion
+	public class ConnectingSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
 		public override Snapshot Clone()
 		{
@@ -13,7 +13,7 @@ namespace EcsSync2.Fps
 	}
 
 	[MessagePackObject]
-	public class ConnectedSnapshot : ComponentSnapshot, IComponentSnapshotUnion
+	public class ConnectedSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
 		public override Snapshot Clone()
 		{
@@ -22,7 +22,7 @@ namespace EcsSync2.Fps
 	}
 
 	[MessagePackObject]
-	public class DisconnectedSnapshot : ComponentSnapshot, IComponentSnapshotUnion
+	public class DisconnectedSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
 		public override Snapshot Clone()
 		{
@@ -36,7 +36,7 @@ namespace EcsSync2.Fps
 	}
 
 	[MessagePackObject]
-	public class PlayerConnectedEvent : ComponentEvent, IEvent
+	public class PlayerConnectedEvent : ComponentEvent
 	{
 	}
 
@@ -56,7 +56,7 @@ namespace EcsSync2.Fps
 						switch( command )
 						{
 							case PlayerConnectCommand c:
-								var e = AllocateEvent<PlayerConnectedEvent>();
+								var e = CreateEvent<PlayerConnectedEvent>();
 								ApplyEvent( e );
 
 								Entity.SceneManager.Scene.ApplyEntityCreatedEvent( new CharacterSettings()
@@ -100,7 +100,7 @@ namespace EcsSync2.Fps
 
 		protected internal override ComponentSnapshot CreateSnapshot()
 		{
-			return Entity.SceneManager.Simulator.ReferencableAllocator.Allocate<ConnectingSnapshot>();
+			return CreateSnapshot<ConnectingSnapshot>();
 		}
 
 		protected override void OnInitialize()

@@ -28,7 +28,6 @@ namespace EcsSync2
 
 		void DispatchCommands(TickContext context)
 		{
-			// TODO 合并 CommandQueue
 			foreach( var userId in Simulator.CommandQueue.UserIds )
 			{
 				if( userId == 0 )
@@ -107,6 +106,7 @@ namespace EcsSync2
 			var f = Simulator.ReferencableAllocator.Allocate<FullSyncFrame>();
 			f.Time = m_context.Time;
 
+			EnterContext( m_context );
 			foreach( var e in Simulator.SceneManager.Entities )
 			{
 				var s = e.CreateSnapshot();
@@ -114,11 +114,11 @@ namespace EcsSync2
 
 				s.Retain();
 			}
+			LeaveContext();
 
 			if( m_lastDeltaSyncTime == null )
 				m_lastDeltaSyncTime = m_context.Time;
 
-			f.Retain();
 			return f;
 		}
 	}
