@@ -111,11 +111,13 @@ namespace EcsSync2
 				return;
 
 			// 回滚到同步状态
+			EnterContext( m_reconcilationTickContext );
 			foreach( var component in components )
 			{
 				var syncState = component.GetState( m_syncTickContext );
-				component.SetState( m_reconcilationTickContext, syncState );
+				component.RecoverSnapshot( syncState );
 			}
+			LeaveContext();
 
 			// 以和解模式更新到最新预测的状态
 			while( m_reconcilationTickContext.Time < m_predictionTickContext.Time )
@@ -129,6 +131,7 @@ namespace EcsSync2
 			}
 
 			// 以和解后的状态和最新预测的状态的中间值，来纠正最新的预测
+			EnterContext( m_predictionTickContext );
 			foreach( var component in components )
 			{
 				var reconcilationState = component.GetState( m_reconcilationTickContext );
@@ -137,8 +140,9 @@ namespace EcsSync2
 					var predictionState = component.GetState( m_predictionTickContext );
 					reconcilationState = (ComponentSnapshot)predictionState.Interpolate( reconcilationState, Configuration.ComponentReconcilationRatio );
 				}
-				component.SetState( m_predictionTickContext, reconcilationState );
+				component.RecoverSnapshot( reconcilationState );
 			}
+			LeaveContext();
 
 			// 重置和解时间
 			m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_syncTickContext.Time );
@@ -184,10 +188,10 @@ namespace EcsSync2
 			m_commandFrames.Enqueue( f );
 			f.Retain();
 
-            DispatchCommands(m_predictionTickContext);
-            FixedUpdate();
+			DispatchCommands( m_predictionTickContext );
+			FixedUpdate();
 
-            Simulator.InputManager.ResetInput();
+			Simulator.InputManager.ResetInput();
 
 			LeaveContext();
 		}

@@ -29,24 +29,29 @@ namespace EcsSync2.Fps
 			}
 		}
 
-		protected internal override Entity CreateEntity(InstanceId id, IEntitySettings settings)
+		protected internal override void CreateEntity(InstanceId id, IEntitySettings settings)
 		{
 			switch( settings )
 			{
 				case GameManagerSettings s:
-					return CreateEntity<GameManager, GameManagerSettings>( id, s );
+					CreateEntity<GameManager, GameManagerSettings>( id, s );
+					break;
 
 				case PlayerSettings s:
-					return CreateEntity<Player, PlayerSettings>( id, s );
+					CreateEntity<Player, PlayerSettings>( id, s );
+					break;
 
 				case CharacterSettings s:
-					return CreateEntity<Character, CharacterSettings>( id, s );
+					CreateEntity<Character, CharacterSettings>( id, s );
+					break;
 
 				case SceneElementSettings s:
-					return CreateEntity<SceneElement, SceneElementSettings>( id, s );
+					CreateEntity<SceneElement, SceneElementSettings>( id, s );
+					break;
 
 				case ItemSettings s:
-					return CreateEntity<Item, ItemSettings>( id, s );
+					CreateEntity<Item, ItemSettings>( id, s );
+					break;
 
 				default:
 					throw new NotSupportedException( settings.ToString() );

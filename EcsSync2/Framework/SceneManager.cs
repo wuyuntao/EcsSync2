@@ -39,18 +39,18 @@ namespace EcsSync2
 			return entity;
 		}
 
-		internal Entity RemoveEntity(InstanceId id)
+		internal void RemoveEntity(InstanceId id)
 		{
 			var entity = FindEntity( id );
 			if( entity == null )
-				return null;
+				return;
 
 			entity.Destroy();
 			m_entities.Remove( id );
 			foreach( var component in entity.Components )
 				m_components.Remove( component.Id );
 			m_scene.OnEntityRemoved?.Invoke( entity );
-			return entity;
+			entity.Dispose();
 		}
 
 		internal Entity FindEntity(InstanceId id)

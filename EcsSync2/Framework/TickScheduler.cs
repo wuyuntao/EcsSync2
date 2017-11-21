@@ -13,7 +13,7 @@ namespace EcsSync2
 			Interpolation,
 		}
 
-		internal struct TickContext
+		internal struct TickContext : IEquatable<TickContext>
 		{
 			public readonly TickContextType Type;
 
@@ -24,10 +24,44 @@ namespace EcsSync2
 				Type = type;
 				Time = time;
 			}
+
+			public override string ToString()
+			{
+				return $"{nameof( TickContext )}({Type}-{Time})";
+			}
+
+			public override int GetHashCode()
+			{
+				return Type.GetHashCode() ^ Time.GetHashCode();
+			}
+
+			public override bool Equals(object obj)
+			{
+				if( obj is TickContext tc )
+					return Equals( tc );
+				else
+					return false;
+			}
+
+			public bool Equals(TickContext other)
+			{
+				return Type == other.Type && Time == other.Time;
+			}
+
+			public static bool operator ==(TickContext ctx1, TickContext ctx2)
+			{
+				return ctx1.Equals( ctx2 );
+			}
+
+			public static bool operator !=(TickContext ctx1, TickContext ctx2)
+			{
+				return !ctx1.Equals( ctx2 );
+			}
 		}
 
 		internal TickContext? CurrentContext { get; private set; }
-		internal List<Component> Components { get; } = new List<Component>();
+
+		protected List<Component> Components { get; } = new List<Component>();
 
 		protected TickScheduler(Simulator simulator)
 			: base( simulator )
@@ -37,17 +71,16 @@ namespace EcsSync2
 		internal void AddComponent(Component component)
 		{
 			Components.Add( component );
-
-			if( CurrentContext != null )
-				component.EnterContext( CurrentContext.Value );
 		}
 
 		internal void EnterContext(TickContext context)
 		{
 			CurrentContext = context;
+		}
 
-			foreach( var component in Components )
-				component.EnterContext( context );
+		internal void LeaveContext()
+		{
+			CurrentContext = null;
 		}
 
 		internal abstract void Tick();
@@ -80,16 +113,25 @@ namespace EcsSync2
 
 		internal void FixedUpdate()
 		{
-			foreach( var component in Components )
-				component.FixedUpdate();
-		}
+			var clean = false;
 
-		internal void LeaveContext()
-		{
-			foreach( var component in Components )
-				component.LeaveContext();
+			for( int i = 0; i < Components.Count; i++ )
+			{
+				var c = Components[i];
+				if( c == null )
+					continue;
 
-			CurrentContext = null;
+				if( c.Disposed )
+				{
+					clean = true;
+					Components[i] = null;
+				}
+
+				c.FixedUpdate();
+			}
+
+			if( clean )
+				Components.RemoveAll( c => c == null || c.Disposed );
 		}
 	}
 }

@@ -14,7 +14,7 @@ namespace EcsSync2
 	{
 	}
 
-	public abstract class Entity
+	public abstract class Entity : Disposable
 	{
 		public enum State
 		{
@@ -53,6 +53,13 @@ namespace EcsSync2
 				component.Destroy();
 		}
 
+		protected override void DisposeManaged()
+		{
+			SafeDispose( Components );
+
+			base.DisposeManaged();
+		}
+
 		protected T AddComponent<T>(ComponentSettings settings = null)
 			where T : Component, new()
 		{
@@ -76,7 +83,7 @@ namespace EcsSync2
 
 			foreach( var c in Components )
 			{
-				var cs = (ComponentSnapshot)c.CreateSnapshot();
+				var cs = c.CreateSnapshot();
 				s.Components.Add( cs );
 				cs.Retain();
 			}

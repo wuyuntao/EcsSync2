@@ -171,10 +171,7 @@ namespace EcsSync2.Fps
 		void EnsureCommandFrame()
 		{
 			if( m_commandFrame == null )
-			{
 				m_commandFrame = Simulator.ReferencableAllocator.Allocate<CommandFrame>();
-				m_commandFrame.Retain();
-			}
 		}
 	}
 }

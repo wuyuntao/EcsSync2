@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace EcsSync2
 {
@@ -31,13 +30,12 @@ namespace EcsSync2
 		{
 			Simulator.Context.Log( "EnqueueEvent {0}ms {1}", time, @event );
 
+			@event.Retain();
 			m_events.Enqueue( @event );
 
 			var frame = EnsureFrame( time );
+			@event.Retain();
 			frame.Events.Add( @event );
-
-			@event.Retain();
-			@event.Retain();
 		}
 
 		DeltaSyncFrame EnsureFrame(uint time)
@@ -46,8 +44,8 @@ namespace EcsSync2
 			{
 				frame = Simulator.ReferencableAllocator.Allocate<DeltaSyncFrame>();
 				frame.Time = time;
-				frame.Retain();
 
+				frame.Retain();
 				m_deltaSyncFrames.Add( time, frame );
 			}
 			return frame;

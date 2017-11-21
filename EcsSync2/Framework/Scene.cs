@@ -52,7 +52,7 @@ namespace EcsSync2
 
 		protected abstract void OnInitialize();
 
-		protected internal abstract Entity CreateEntity(InstanceId id, IEntitySettings settings);
+		protected internal abstract void CreateEntity(InstanceId id, IEntitySettings settings);
 
 		protected TEntity CreateEntity<TEntity, TEntitySettings>(InstanceId id, IEntitySettings settings)
 			where TEntity : Entity, new()

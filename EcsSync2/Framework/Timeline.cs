@@ -91,17 +91,28 @@ namespace EcsSync2
 
 		public ComponentSnapshot Find(uint time)
 		{
+			TryFind( time, out ComponentSnapshot snapshot );
+			return snapshot;
+		}
+
+		public bool TryFind(uint time, out ComponentSnapshot snapshot)
+		{
+			snapshot = null;
+
 			if( m_count == 0 )
-				return null;
+				return false;
 
 			for( int i = m_head + m_count - 1; i >= m_head; i-- )
 			{
 				var point = m_points[i % m_points.Length];
 				if( time >= point.Time )
-					return point.Snapshot;
+				{
+					snapshot = point.Snapshot;
+					return true;
+				}
 			}
 
-			return null;
+			return false;
 		}
 
 		public ComponentSnapshot Interpolate(uint time)
