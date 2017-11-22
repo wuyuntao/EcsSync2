@@ -47,14 +47,23 @@ namespace EcsSync2
 			throw new NotImplementedException();
 		}
 
-		protected override void Reset()
+		protected override void OnAllocate()
+		{
+			base.OnAllocate();
+
+			foreach( var c in Components )
+				this.Allocate( c );
+
+		}
+
+		protected override void OnReset()
 		{
 			foreach( ComponentSnapshot c in Components )
 				c.Release();
 
 			Components.Clear();
 
-			base.Reset();
+			base.OnReset();
 		}
 	}
 
@@ -64,7 +73,7 @@ namespace EcsSync2
 	[Union( 3, typeof( ConnectingSnapshot ) )]
 	[Union( 4, typeof( ConnectedSnapshot ) )]
 	[Union( 5, typeof( DisconnectedSnapshot ) )]
-	public interface IComponentSnapshot
+	public interface IComponentSnapshot : IReferencable
 	{
 	}
 

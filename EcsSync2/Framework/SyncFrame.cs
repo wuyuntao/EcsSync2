@@ -16,14 +16,22 @@ namespace EcsSync2
 		[Key( 10 )]
 		public List<EntitySnapshot> Entities = new List<EntitySnapshot>();
 
-		protected override void Reset()
+		protected override void OnAllocate()
+		{
+			base.OnAllocate();
+
+			foreach( var e in Entities )
+				this.Allocate( e );
+		}
+
+		protected override void OnReset()
 		{
 			foreach( var e in Entities )
 				e.Release();
 
 			Entities.Clear();
 
-			base.Reset();
+			base.OnReset();
 		}
 	}
 
@@ -33,14 +41,22 @@ namespace EcsSync2
 		[Key( 10 )]
 		public List<IEvent> Events = new List<IEvent>();
 
-		protected override void Reset()
+		protected override void OnAllocate()
+		{
+			base.OnAllocate();
+
+			foreach( var e in Events )
+				this.Allocate( e );
+		}
+
+		protected override void OnReset()
 		{
 			foreach( Event e in Events )
 				e.Release();
 
 			Events.Clear();
 
-			base.Reset();
+			base.OnReset();
 		}
 	}
 }

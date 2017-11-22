@@ -67,8 +67,6 @@ namespace EcsSync2
 
 				foreach( ComponentSnapshot cs in es.Components )
 				{
-					Simulator.ReferencableAllocator.Allocate( cs.GetType(), cs );
-
 					var component = Simulator.SceneManager.FindComponent( cs.ComponentId );
 					if( component == null )
 						Simulator.Context.LogError( "Failed to find component '{0}'", cs.ComponentId );
@@ -84,8 +82,6 @@ namespace EcsSync2
 		{
 			foreach( Event e in frame.Events )
 			{
-				Simulator.ReferencableAllocator.Allocate( e.GetType(), e );
-
 				if( e is SceneEvent se )
 				{
 					Simulator.SceneManager.Scene.ApplyEvent( se );
@@ -233,11 +229,7 @@ namespace EcsSync2
 		public CommandFrame FetchCommandFrame()
 		{
 			if( m_commandFrames.Count > 0 )
-			{
-				var f = m_commandFrames.Dequeue();
-				f.Release();
-				return f;
-			}
+				return m_commandFrames.Dequeue();
 			else
 				return null;
 		}

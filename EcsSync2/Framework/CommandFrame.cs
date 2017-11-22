@@ -24,14 +24,22 @@ namespace EcsSync2
 			return command;
 		}
 
-		protected override void Reset()
+		protected override void OnAllocate()
+		{
+			foreach( var c in Commands )
+				this.Allocate( c );
+
+			base.OnAllocate();
+		}
+
+		protected override void OnReset()
 		{
 			foreach( var c in Commands )
 				c.Release();
 
 			Commands.Clear();
 
-			base.Reset();
+			base.OnReset();
 		}
 	}
 }

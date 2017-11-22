@@ -9,12 +9,12 @@ namespace EcsSync2
 
 		public ComponentSnapshot Snapshot;
 
-		protected override void Reset()
+		protected override void OnReset()
 		{
 			Time = 0;
 			Snapshot?.Release();
 
-			base.Reset();
+			base.OnReset();
 		}
 	}
 

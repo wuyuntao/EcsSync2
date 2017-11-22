@@ -7,14 +7,20 @@ namespace EcsSync2
 {
 	public interface IReferencable
 	{
-		void Reset();
+		void OnAllocate();
+
+		void OnReset();
 
 		IReferenceCounter ReferenceCounter { get; set; }
 	}
 
 	public abstract class Referencable : IReferencable
 	{
-		protected virtual void Reset()
+		protected virtual void OnAllocate()
+		{
+		}
+
+		protected virtual void OnReset()
 		{
 		}
 
@@ -24,9 +30,14 @@ namespace EcsSync2
 
 		protected IReferenceCounter ReferenceCounter => ( (IReferencable)this ).ReferenceCounter;
 
-		void IReferencable.Reset()
+		void IReferencable.OnAllocate()
 		{
-			Reset();
+			OnAllocate();
+		}
+
+		void IReferencable.OnReset()
+		{
+			OnReset();
 		}
 
 		#endregion
@@ -34,9 +45,9 @@ namespace EcsSync2
 
 	public abstract class MessagePackReferencable : Referencable
 	{
-		protected override void Reset()
+		protected override void OnReset()
 		{
-			base.Reset();
+			base.OnReset();
 
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
@@ -59,8 +70,7 @@ namespace EcsSync2
 			return referencable.ReferenceCounter.Allocate<T>();
 		}
 
-		public static T Allocate<T>(this IReferencable referencable, T value)
-			 where T : class, IReferencable, new()
+		public static IReferencable Allocate(this IReferencable referencable, IReferencable value)
 		{
 			return referencable.ReferenceCounter.Allocate( value );
 		}
@@ -89,7 +99,7 @@ namespace EcsSync2
 
 		T Allocate<T>() where T : class, IReferencable, new();
 
-		T Allocate<T>(T value) where T : class, IReferencable, new();
+		IReferencable Allocate(IReferencable value);
 
 		IReferencable Allocate(Type type);
 
@@ -120,15 +130,9 @@ namespace EcsSync2
 			return EnsurePool( type ).Allocate( type ).Value;
 		}
 
-		public T Allocate<T>(T value)
-			where T : class, IReferencable, new()
+		public IReferencable Allocate(IReferencable value)
 		{
-			return (T)EnsurePool( typeof( T ) ).Allocate( value ).Value;
-		}
-
-		public IReferencable Allocate(Type type, IReferencable value)
-		{
-			return EnsurePool( type ).Allocate( value ).Value;
+			return EnsurePool( value.GetType() ).Allocate( value ).Value;
 		}
 
 		public void Clear()
@@ -234,37 +238,83 @@ namespace EcsSync2
 			readonly int m_index;
 			readonly IReferencable m_value;
 			int m_referencedCount;
+#if DEBUG
+			List<string> m_logs = new List<string>();
+#endif
 
 			public ReferencableCounter(ReferencableCounterPool pool, int index, IReferencable value)
 			{
 				if( value.ReferenceCounter != null )
+				{
+#if DEBUG
+					( (ReferencableCounter)value.ReferenceCounter ).DumpLogs();
+#endif
 					throw new InvalidOperationException( "Already allocated" );
+				}
 
 				m_pool = pool;
 				m_index = index;
 				m_value = value;
 				m_value.ReferenceCounter = this;
-				m_referencedCount = 1;
+				m_value.OnAllocate();
+
+				Retain();
 			}
 
 			public void Retain()
 			{
+#if DEBUG
+				AppendLog( nameof( Retain ) );
+#endif
 				m_referencedCount++;
 			}
 
 			public void Release()
 			{
+#if DEBUG
+				AppendLog( nameof( Release ) );
+#endif
+
 				if( m_referencedCount == 0 )
+				{
+#if DEBUG
+					DumpLogs();
+#endif
 					throw new InvalidOperationException( "Already released" );
+				}
 
 				if( --m_referencedCount == 0 )
 				{
-					m_value.Reset();
+					m_value.OnReset();
 
 					if( m_index >= 0 )
 						m_pool.Release( m_index );
+
+#if DEBUG
+					ClearLogs();
+#endif
 				}
 			}
+
+#if DEBUG
+			void AppendLog(string tag)
+			{
+				var log = string.Format( "{0}|{1}|{2}|{3}|{4}", m_pool.Allocator.Simulator.FixedTime, m_value, tag, m_referencedCount, Environment.StackTrace );
+
+				m_logs.Add( log );
+			}
+
+			void DumpLogs()
+			{
+				foreach( var log in m_logs )
+					m_pool.Allocator.Simulator.Context.LogError( log );
+			}
+
+			void ClearLogs()
+			{
+				m_logs.Clear();
+			}
+#endif
 
 			public T1 Allocate<T1>()
 				where T1 : class, IReferencable, new()
@@ -272,8 +322,7 @@ namespace EcsSync2
 				return m_pool.Allocator.Allocate<T1>();
 			}
 
-			public T1 Allocate<T1>(T1 value)
-				where T1 : class, IReferencable, new()
+			public IReferencable Allocate(IReferencable value)
 			{
 				return m_pool.Allocator.Allocate( value );
 			}

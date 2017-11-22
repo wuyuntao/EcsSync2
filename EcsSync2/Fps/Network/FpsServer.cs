@@ -151,7 +151,7 @@ namespace EcsSync2.Fps
 					break;
 
 				case CommandFrame m:
-					m = Simulator.ReferencableAllocator.Allocate( m );
+					Simulator.ReferencableAllocator.Allocate( m );
 					Simulator.CommandQueue.Add( m.UserId, m );
 					//Logger?.Log( "CommandFrame {0}", peer );
 					m.Release();

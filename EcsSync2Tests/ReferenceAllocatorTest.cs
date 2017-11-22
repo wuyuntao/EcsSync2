@@ -36,7 +36,7 @@ namespace EcsSync2.Tests
 				InputDirection = new Vector2D( 2, 2 ),
 				InputMagnitude = 3,
 			};
-			var o3 = allocator.Allocate( c1 );
+			var o3 = (MoveCharacterCommand)allocator.Allocate( c1 );
 			AssertReferencedCount( 1, o3 );
 			Assert.AreNotEqual( o1, o3 );
 
@@ -54,7 +54,7 @@ namespace EcsSync2.Tests
 				InputDirection = new Vector2D( 3, 3 ),
 				InputMagnitude = 4,
 			};
-			var o4 = (MoveCharacterCommand)allocator.Allocate( typeof( MoveCharacterCommand ), c2 );
+			var o4 = (MoveCharacterCommand)allocator.Allocate( c2 );
 			AssertReferencedCount( 1, o4 );
 			Assert.AreEqual( 4u, o4.ComponentId );
 		}

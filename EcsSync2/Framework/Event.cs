@@ -9,7 +9,7 @@ namespace EcsSync2
 	[Union( 3, typeof( PlayerConnectedEvent ) )]
 	[Union( 4, typeof( TransformMovedEvent ) )]
 	[Union( 5, typeof( TransformVelocityChangedEvent ) )]
-	public interface IEvent
+	public interface IEvent : IReferencable
 	{
 	}
 
