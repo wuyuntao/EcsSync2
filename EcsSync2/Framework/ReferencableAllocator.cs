@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 
 namespace EcsSync2
 {
@@ -45,6 +46,26 @@ namespace EcsSync2
 
 	public abstract class MessagePackReferencable : Referencable
 	{
+		public override string ToString()
+		{
+			var builder = new StringBuilder();
+			builder.AppendFormat( "{0} (", GetType().Name );
+
+			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
+			foreach( var f in fields )
+			{
+				var attr = f.GetCustomAttribute( typeof( KeyAttribute ) );
+				if( attr == null )
+					continue;
+
+				builder.AppendFormat( "{0}={1}, ", f.Name, f.GetValue( this ) );
+			}
+
+			builder.Append( ")" );
+
+			return builder.ToString();
+		}
+
 		protected override void OnReset()
 		{
 			base.OnReset();

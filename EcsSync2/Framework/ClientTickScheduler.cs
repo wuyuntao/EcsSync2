@@ -190,7 +190,11 @@ namespace EcsSync2
 
 				var syncState = component.GetState( m_syncTickContext );
 				if( !syncState.IsApproximate( predictionState ) )
+				{
+					Simulator.Context.LogWarning( "Found prediction error. Prediction: {0}, {1}, Sync: {2}, {3}",
+						predictionContext.Time, predictionState, m_syncTickContext.Time, syncState );
 					return true;
+				}
 			}
 
 			return false;

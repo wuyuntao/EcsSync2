@@ -2,36 +2,14 @@
 using MessagePack;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Text;
 
 namespace EcsSync2
 {
-	public abstract class Snapshot : Referencable
-	{
-		protected internal virtual bool IsApproximate(Snapshot other)
-		{
-			return this == other;
-		}
-
-		protected internal virtual Snapshot Interpolate(Snapshot other, float factor)
-		{
-			return Clone();
-		}
-
-		public abstract Snapshot Clone();
-
-		protected internal virtual Snapshot Extrapolate(uint time, uint extrapolateTime)
-		{
-			return Clone();
-		}
-
-		protected internal virtual Snapshot Interpolate(uint time, Snapshot targetSnapshot, uint targetTime, uint interpolateTime)
-		{
-			return Clone();
-		}
-	}
 
 	[MessagePackObject]
-	public class EntitySnapshot : Snapshot
+	public class EntitySnapshot : Referencable
 	{
 		[Key( 10 )]
 		public uint Id;
@@ -42,18 +20,12 @@ namespace EcsSync2
 		[Key( 12 )]
 		public List<IComponentSnapshot> Components = new List<IComponentSnapshot>();
 
-		public override Snapshot Clone()
-		{
-			throw new NotImplementedException();
-		}
-
 		protected override void OnAllocate()
 		{
 			base.OnAllocate();
 
 			foreach( var c in Components )
 				this.Allocate( c );
-
 		}
 
 		protected override void OnReset()
@@ -77,9 +49,81 @@ namespace EcsSync2
 	{
 	}
 
-	public abstract class ComponentSnapshot : Snapshot, IComponentSnapshot
+	public abstract class ComponentSnapshot : MessagePackReferencable, IComponentSnapshot
 	{
 		[Key( 10 )]
 		public uint ComponentId;
+
+		protected internal virtual bool IsApproximate(ComponentSnapshot other)
+		{
+			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
+			foreach( var f in fields )
+			{
+				var attr = f.GetCustomAttribute( typeof( KeyAttribute ) );
+				if( attr == null )
+					continue;
+
+				if( f == typeof( Vector2D ) )
+				{
+					var value1 = (Vector2D)f.GetValue( this );
+					var value2 = (Vector2D)f.GetValue( other );
+
+					if( !IsApproximate( value1.X, value2.X ) || !IsApproximate( value1.Y, value2.Y ) )
+						return false;
+				}
+				else if( f == typeof( float ) )
+				{
+					var value1 = (float)f.GetValue( this );
+					var value2 = (float)f.GetValue( other );
+
+					if( !IsApproximate( value1, value2 ) )
+						return false;
+				}
+				else
+				{
+					if( !Equals( other ) )
+						return false;
+				}
+			}
+
+			return true;
+		}
+
+		static bool IsApproximate(float value1, float value2)
+		{
+			return Math.Abs( value1 - value1 ) < 1e-6;
+		}
+
+		protected internal virtual ComponentSnapshot Interpolate(ComponentSnapshot other, float factor)
+		{
+			return Clone();
+		}
+
+		public virtual ComponentSnapshot Clone()
+		{
+			var s = this.Allocate( GetType() );
+
+			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
+			foreach( var f in fields )
+			{
+				var attr = f.GetCustomAttribute( typeof( KeyAttribute ) );
+				if( attr == null )
+					continue;
+
+				f.SetValue( s, f.GetValue( this ) );
+			}
+
+			return (ComponentSnapshot)s;
+		}
+
+		protected internal virtual ComponentSnapshot Extrapolate(uint time, uint extrapolateTime)
+		{
+			return Clone();
+		}
+
+		protected internal virtual ComponentSnapshot Interpolate(uint time, ComponentSnapshot targetSnapshot, uint targetTime, uint interpolateTime)
+		{
+			return Clone();
+		}
 	}
 }

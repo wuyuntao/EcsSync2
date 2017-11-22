@@ -6,28 +6,16 @@ namespace EcsSync2.Fps
 	[MessagePackObject]
 	public class ConnectingSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
-		public override Snapshot Clone()
-		{
-			return this.Allocate<ConnectingSnapshot>();
-		}
 	}
 
 	[MessagePackObject]
 	public class ConnectedSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
-		public override Snapshot Clone()
-		{
-			return this.Allocate<ConnectedSnapshot>();
-		}
 	}
 
 	[MessagePackObject]
 	public class DisconnectedSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
-		public override Snapshot Clone()
-		{
-			return this.Allocate<DisconnectedSnapshot>();
-		}
 	}
 
 	[MessagePackObject]

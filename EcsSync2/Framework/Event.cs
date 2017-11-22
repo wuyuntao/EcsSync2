@@ -14,7 +14,7 @@ namespace EcsSync2
 	}
 
 	[MessagePackObject]
-	public abstract class Event : Referencable, IEvent
+	public abstract class Event : MessagePackReferencable, IEvent
 	{
 	}
 

@@ -21,14 +21,6 @@ namespace EcsSync2.Fps
 
         [Key(21)]
         public Vector2D Velocity;
-
-        public override Snapshot Clone()
-        {
-            var s = this.Allocate<TransformSnapshot>();
-            s.Position = Position;
-            s.Velocity = Velocity;
-            return s;
-        }
     }
 
     [MessagePackObject]

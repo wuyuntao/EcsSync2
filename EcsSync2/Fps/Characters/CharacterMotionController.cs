@@ -14,15 +14,6 @@ namespace EcsSync2.Fps
 
 		[Key( 22 )]
 		public float MaxSpeed;
-
-		public override Snapshot Clone()
-		{
-			var s = this.Allocate<CharacterMotionControllerSnapshot>();
-			s.InputDirection = InputDirection;
-			s.InputMagnitude = InputMagnitude;
-			s.MaxSpeed = MaxSpeed;
-			return s;
-		}
 	}
 
 	[MessagePackObject]

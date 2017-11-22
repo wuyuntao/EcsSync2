@@ -6,10 +6,6 @@ namespace EcsSync2.Fps
 	[MessagePackObject]
 	public class ProcessControllerSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
-		public override Snapshot Clone()
-		{
-			return this.Allocate<ProcessControllerSnapshot>();
-		}
 	}
 
 	public class ProcessController : Component
