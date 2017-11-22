@@ -10,6 +10,7 @@ namespace EcsSync2
 		TickContext m_predictionTickContext = new TickContext( TickContextType.Prediction, 0 );
 		TickContext m_interpolationTickContext = new TickContext( TickContextType.Interpolation, 0 );
 
+		List<Component> m_predictiveComponents = new List<Component>();
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
 		Queue<CommandFrame> m_commandFrames = new Queue<CommandFrame>();
 
@@ -61,6 +62,8 @@ namespace EcsSync2
 
 		void ApplyFullSyncFrame(FullSyncFrame frame)
 		{
+			Simulator.Context.Log( "{0}|ApplyFullSyncFrame {1}", Simulator.FixedTime, frame.Time );
+
 			foreach( var es in frame.Entities )
 			{
 				Simulator.SceneManager.Scene.CreateEntity( es.Id, es.Settings );
@@ -80,6 +83,8 @@ namespace EcsSync2
 
 		void ApplyDeltaSyncFrame(DeltaSyncFrame frame)
 		{
+			Simulator.Context.Log( "{0}|ApplyDeltaSyncFrame {1}", Simulator.FixedTime, frame.Time );
+
 			foreach( Event e in frame.Events )
 			{
 				if( e is SceneEvent se )
@@ -105,18 +110,27 @@ namespace EcsSync2
 			// 没有新的同步帧，或没有新的预测帧需要和解
 			if( m_syncTickContext.Time <= m_reconcilationTickContext.Time ||
 				m_predictionTickContext.Time < m_syncTickContext.Time )
+			{
+				Simulator.Context.Log( "{0}|No need to reconcile #1 Sync: {1}, Reconcilation: {2}, Prediction: {3}",
+					Simulator.FixedTime, m_syncTickContext.Time, m_reconcilationTickContext.Time, m_predictionTickContext.Time );
+
 				return;
+			}
 
 			// 更新和解时间
 			m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_syncTickContext.Time );
 
-			var components = GetPredictedComponents();
+			var components = m_predictiveComponents;
 
 			// 判断是否需要和解
 			if( !RequireReconcilation( components ) )
+			{
+				Simulator.Context.Log( "{0}|All appromiate", Simulator.FixedTime );
 				return;
+			}
 
 			// 回滚到同步状态
+			Simulator.Context.LogWarning( "{0}|Rollback snapshot to reconcilation {1}", Simulator.FixedTime, m_reconcilationTickContext.Time );
 			EnterContext( m_reconcilationTickContext );
 			foreach( var component in components )
 			{
@@ -129,6 +143,7 @@ namespace EcsSync2
 			while( m_reconcilationTickContext.Time < m_predictionTickContext.Time )
 			{
 				m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_reconcilationTickContext.Time + Configuration.SimulationDeltaTime );
+				Simulator.Context.Log( "{0}|Simulate for reconcilation {1}", Simulator.FixedTime, m_reconcilationTickContext.Time );
 
 				EnterContext( m_reconcilationTickContext );
 				DispatchCommands( m_reconcilationTickContext );
@@ -137,6 +152,7 @@ namespace EcsSync2
 			}
 
 			// 和解最新预测的状态
+			Simulator.Context.LogWarning( "{0}|Recover prediction snapshot {1}", Simulator.FixedTime, m_predictionTickContext.Time );
 			EnterContext( m_predictionTickContext );
 			foreach( var component in components )
 			{
@@ -160,11 +176,6 @@ namespace EcsSync2
 
 			// 清理已确认命令
 			Simulator.CommandQueue.RemoveBefore( Simulator.LocalUserId.Value, m_syncTickContext.Time );
-		}
-
-		List<Component> GetPredictedComponents()
-		{
-			return Components;
 		}
 
 		bool RequireReconcilation(List<Component> components)
@@ -207,6 +218,17 @@ namespace EcsSync2
 			Simulator.InputManager.ResetInput();
 
 			LeaveContext();
+		}
+
+		internal void AddPredictiveComponents(Component component)
+		{
+			if( !m_predictiveComponents.Contains( component ) )
+				m_predictiveComponents.Add( component );
+		}
+
+		internal void RemovePredictiveComponents(Component component)
+		{
+			m_predictiveComponents.Remove( component );
 		}
 
 		void DispatchCommands(TickContext ctx)

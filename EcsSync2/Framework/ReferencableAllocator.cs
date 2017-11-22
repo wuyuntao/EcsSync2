@@ -291,7 +291,7 @@ namespace EcsSync2
 						m_pool.Release( m_index );
 
 #if DEBUG
-					ClearLogs();
+					//ClearLogs();
 #endif
 				}
 			}

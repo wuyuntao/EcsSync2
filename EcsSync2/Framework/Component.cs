@@ -79,6 +79,23 @@ namespace EcsSync2
 
 			EnsureTickContext();
 
+			switch( m_context.Value.Type )
+			{
+				case TickScheduler.TickContextType.Reconcilation:
+					{
+						var timeline = EnsureTimeline( TickScheduler.TickContextType.Reconcilation, ref m_reconcilationTimeline );
+						timeline.Clear();
+						break;
+					}
+
+				case TickScheduler.TickContextType.Prediction:
+					{
+						var timeline = EnsureTimeline( TickScheduler.TickContextType.Prediction, ref m_predictionTimeline );
+						timeline.Clear();
+						break;
+					}
+			}
+
 			SetState( m_context.Value, state );
 
 			OnSnapshotRecovered( state );
@@ -179,7 +196,10 @@ namespace EcsSync2
 			m_context = TickScheduler.CurrentContext.Value;
 
 			if( getState )
+			{
 				m_state = GetState( m_context.Value );
+				m_state.Retain();
+			}
 		}
 
 		internal ComponentSnapshot GetState(TickScheduler.TickContext context)
@@ -233,15 +253,18 @@ namespace EcsSync2
 			switch( context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
-					EnsureTimeline( ref m_syncTimeline ).Add( context.Time, state );
+					EnsureTimeline( context.Type, ref m_syncTimeline ).Add( context.Time, state );
 					break;
 
 				case TickScheduler.TickContextType.Reconcilation:
-					EnsureTimeline( ref m_reconcilationTimeline ).Add( context.Time, state );
+					EnsureTimeline( context.Type, ref m_reconcilationTimeline ).Add( context.Time, state );
 					break;
 
 				case TickScheduler.TickContextType.Prediction:
-					EnsureTimeline( ref m_predictionTimeline ).Add( context.Time, state );
+					EnsureTimeline( context.Type, ref m_predictionTimeline ).Add( context.Time, state );
+
+					if( TickScheduler is ClientTickScheduler cts )
+						cts.AddPredictiveComponents( this );
 					break;
 
 				case TickScheduler.TickContextType.Interpolation:
@@ -253,9 +276,9 @@ namespace EcsSync2
 			}
 		}
 
-		Timeline EnsureTimeline(ref Timeline timeline)
+		Timeline EnsureTimeline(TickScheduler.TickContextType type, ref Timeline timeline)
 		{
-			timeline = timeline ?? new Timeline( Entity.SceneManager.Simulator.ReferencableAllocator );
+			timeline = timeline ?? new Timeline( Entity.SceneManager.Simulator.ReferencableAllocator, type );
 			return timeline;
 		}
 

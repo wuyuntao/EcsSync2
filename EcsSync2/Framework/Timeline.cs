@@ -20,20 +20,30 @@ namespace EcsSync2
 
 	class Timeline
 	{
+		TickScheduler.TickContextType m_type;
 		ReferencableAllocator m_allocator;
 		Timepoint[] m_points;
 		int m_head;
 		int m_count;
 
-		public Timeline(ReferencableAllocator allocator, int capacity)
+		public Timeline(ReferencableAllocator allocator, TickScheduler.TickContextType type, int capacity)
 		{
 			m_allocator = allocator;
+			m_type = type;
 			m_points = new Timepoint[capacity];
 		}
 
-		public Timeline(ReferencableAllocator allocator)
-			: this( allocator, Configuration.TimelineDefaultCapacity )
+		public Timeline(ReferencableAllocator allocator, TickScheduler.TickContextType type)
+			: this( allocator, type, Configuration.TimelineDefaultCapacity )
 		{
+		}
+
+		public override string ToString()
+		{
+			if( m_count > 0 )
+				return $"{m_type} ({FirstPoint.Time} -> {LastPoint.Time})";
+			else
+				return $"{m_type} (Empty)";
 		}
 
 		public bool Add(uint time, ComponentSnapshot snapshot)
@@ -42,7 +52,7 @@ namespace EcsSync2
 
 			var lastPoint = LastPoint;
 			if( lastPoint != null && time < lastPoint.Time )
-				throw new InvalidOperationException( $"Cannot add point before last: {time} < {lastPoint.Time}" );
+				throw new InvalidOperationException( $"{this}Cannot add point before last: {time} < {lastPoint.Time}" );
 
 			Timepoint point;
 			bool isNewPoint;

@@ -13,7 +13,7 @@ namespace EcsSync2.Tests
 			var deltaTime = Configuration.SimulationDeltaTime;
 
 			var allocator = new ReferencableAllocator( null );
-			var timeline = new Timeline( allocator, 2 );
+			var timeline = new Timeline( allocator, TickScheduler.TickContextType.Sync, 2 );
 			Assert.AreEqual( 2, timeline.Capacity );
 			Assert.AreEqual( 0, timeline.Count );
 
