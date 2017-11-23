@@ -57,7 +57,7 @@ namespace EcsSync2.Fps
 					break;
 			}
 
-			throw new NotSupportedException( command.ToString() );
+			Entity.SceneManager.Simulator.Context.LogWarning( "Not supported command {0}", command );
 		}
 
 		protected override ComponentSnapshot OnEventApplied(ComponentEvent @event)
@@ -69,7 +69,7 @@ namespace EcsSync2.Fps
 						switch( @event )
 						{
 							case PlayerConnectedEvent e:
-								return e.Allocate<ConnectedSnapshot>();
+								return CreateSnapshot<ConnectedSnapshot>();
 						}
 					}
 					break;

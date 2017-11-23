@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityStandardAssets.CrossPlatformInput;
 
 namespace EcsSync2.FpsUnity
 {
@@ -34,12 +35,12 @@ namespace EcsSync2.FpsUnity
 
         float InputManager.IContext.GetAxis(string name)
         {
-            return Input.GetAxis(name);
+            return CrossPlatformInputManager.GetAxis(name);
         }
 
         bool InputManager.IContext.GetButton(string name)
         {
-            return Input.GetButton(name);
+            return CrossPlatformInputManager.GetButton(name);
         }
 
         #endregion

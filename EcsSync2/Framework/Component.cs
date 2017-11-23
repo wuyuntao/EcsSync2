@@ -21,6 +21,8 @@ namespace EcsSync2
 		Timeline m_reconcilationTimeline;
 		Timeline m_predictionTimeline;
 
+		public TickScheduler.TickContextType? TickType => m_context != null ? (TickScheduler.TickContextType?)m_context.Value.Type : null;
+
 		#region Life-cycle
 
 		internal void Initialize(Entity entity, InstanceId id, ComponentSettings settings)
@@ -208,7 +210,8 @@ namespace EcsSync2
 			{
 				case TickScheduler.TickContextType.Sync:
 					{
-						Debug.Assert( m_syncTimeline != null );
+						if( m_syncTimeline == null )
+							throw new InvalidOperationException( $"Missing sync timeline of {this}" );
 
 						if( m_syncTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
 							return snapshot;
@@ -218,7 +221,8 @@ namespace EcsSync2
 
 				case TickScheduler.TickContextType.Reconcilation:
 					{
-						Debug.Assert( m_syncTimeline != null );
+						if( m_syncTimeline == null )
+							throw new InvalidOperationException( $"Missing sync timeline of {this}" );
 
 						if( m_reconcilationTimeline != null && m_reconcilationTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
 							return snapshot;
@@ -232,7 +236,8 @@ namespace EcsSync2
 				case TickScheduler.TickContextType.Prediction:
 				case TickScheduler.TickContextType.Interpolation:
 					{
-						Debug.Assert( m_syncTimeline != null );
+						if( m_syncTimeline == null )
+							throw new InvalidOperationException( $"Missing sync timeline of {this}" );
 
 						if( m_predictionTimeline != null && m_predictionTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
 							return snapshot;

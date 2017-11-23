@@ -63,26 +63,38 @@ namespace EcsSync2
 				if( attr == null )
 					continue;
 
-				if( f == typeof( Vector2D ) )
+				if( f.FieldType == typeof( Vector2D ) )
 				{
 					var value1 = (Vector2D)f.GetValue( this );
 					var value2 = (Vector2D)f.GetValue( other );
 
 					if( !IsApproximate( value1.X, value2.X ) || !IsApproximate( value1.Y, value2.Y ) )
+					{
+						ReferenceCounter.Allocator.Simulator.Context.Log( "IsApproximate {0}.{1}", GetType(), f );
 						return false;
+					}
 				}
-				else if( f == typeof( float ) )
+				else if( f.FieldType == typeof( float ) )
 				{
 					var value1 = (float)f.GetValue( this );
 					var value2 = (float)f.GetValue( other );
 
 					if( !IsApproximate( value1, value2 ) )
+					{
+						ReferenceCounter.Allocator.Simulator.Context.Log( "IsApproximate {0}.{1}", GetType(), f );
 						return false;
+					}
 				}
 				else
 				{
-					if( !Equals( other ) )
+					var value1 = f.GetValue( this );
+					var value2 = f.GetValue( other );
+
+					if( !value1.Equals( value2 ) )
+					{
+						ReferenceCounter.Allocator.Simulator.Context.Log( "IsApproximate {0}.{1}", GetType(), f );
 						return false;
+					}
 				}
 			}
 

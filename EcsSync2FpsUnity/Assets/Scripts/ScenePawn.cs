@@ -5,9 +5,9 @@ namespace EcsSync2.FpsUnity
 {
     public class ScenePawn : MonoBehaviour
     {
+		public Camera Camera;
         public CharacterPawn CharacterPawn;
-
-        Simulator m_simulator;
+		Simulator m_simulator;
 
         public void Initialize(Simulator simulator)
         {
@@ -31,10 +31,14 @@ namespace EcsSync2.FpsUnity
             if (entity is Character)
             {
                 var c = (Character)entity;
-                var go = Instantiate(CharacterPawn.gameObject, c.Transform.Position.ToUnityPos(), Quaternion.identity);
+                var go = Instantiate(CharacterPawn.gameObject, c.Transform.Position.ToUnityPos(), Quaternion.identity, transform);
                 var pawn = go.GetComponent<CharacterPawn>();
                 pawn.Initialize(c);
-            }
+
+				Camera.transform.parent = pawn.CameraPod;
+				Camera.transform.localPosition = Vector3.zero;
+				Camera.transform.localRotation = Quaternion.identity;
+			}
         }
 
         void Scene_OnEntityRemoved(Entity entity)

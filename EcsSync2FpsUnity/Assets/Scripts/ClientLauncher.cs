@@ -10,6 +10,7 @@ namespace EcsSync2.FpsUnity
         public ulong UserId = 1000;
 
         public ScenePawn ScenePawn;
+		public Camera Camera;
 
         FpsClient m_client;
 
@@ -26,6 +27,7 @@ namespace EcsSync2.FpsUnity
 
             var go = Instantiate(ScenePawn.gameObject);
             var pawn = go.GetComponent<ScenePawn>();
+			pawn.Camera = Camera;
             pawn.Initialize(simulator);
         }
 

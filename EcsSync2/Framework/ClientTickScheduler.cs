@@ -14,6 +14,8 @@ namespace EcsSync2
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
 		Queue<CommandFrame> m_commandFrames = new Queue<CommandFrame>();
 
+		public uint? StartFixedTime { get; private set; }
+
 		public ClientTickScheduler(Simulator simulator)
 			: base( simulator )
 		{
@@ -32,6 +34,9 @@ namespace EcsSync2
 
 		public void ReceiveSyncFrame(SyncFrame frame)
 		{
+			if( StartFixedTime == null )
+				StartFixedTime = frame.Time;
+
 			// TODO 有必要加入引用计数么？
 			frame.Retain();
 

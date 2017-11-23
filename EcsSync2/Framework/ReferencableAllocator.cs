@@ -127,6 +127,8 @@ namespace EcsSync2
 		int ReferencedCount { get; }
 
 		IReferencable Value { get; }
+
+		ReferencableAllocator Allocator { get; }
 	}
 
 	public class ReferencableAllocator : SimulatorComponent
@@ -259,7 +261,7 @@ namespace EcsSync2
 			readonly int m_index;
 			readonly IReferencable m_value;
 			int m_referencedCount;
-#if DEBUG
+#if ENABLE_ALLOCATOR_LOG
 			List<string> m_logs = new List<string>();
 #endif
 
@@ -267,7 +269,7 @@ namespace EcsSync2
 			{
 				if( value.ReferenceCounter != null )
 				{
-#if DEBUG
+#if ENABLE_ALLOCATOR_LOG
 					( (ReferencableCounter)value.ReferenceCounter ).DumpLogs();
 #endif
 					throw new InvalidOperationException( "Already allocated" );
@@ -284,7 +286,7 @@ namespace EcsSync2
 
 			public void Retain()
 			{
-#if DEBUG
+#if ENABLE_ALLOCATOR_LOG
 				AppendLog( nameof( Retain ) );
 #endif
 				m_referencedCount++;
@@ -292,13 +294,13 @@ namespace EcsSync2
 
 			public void Release()
 			{
-#if DEBUG
+#if ENABLE_ALLOCATOR_LOG
 				AppendLog( nameof( Release ) );
 #endif
 
 				if( m_referencedCount == 0 )
 				{
-#if DEBUG
+#if ENABLE_ALLOCATOR_LOG
 					DumpLogs();
 #endif
 					throw new InvalidOperationException( "Already released" );
@@ -311,13 +313,13 @@ namespace EcsSync2
 					if( m_index >= 0 )
 						m_pool.Release( m_index );
 
-#if DEBUG
+#if ENABLE_ALLOCATOR_LOG
 					//ClearLogs();
 #endif
 				}
 			}
 
-#if DEBUG
+#if ENABLE_ALLOCATOR_LOG
 			void AppendLog(string tag)
 			{
 				var log = string.Format( "{0}|{1}|{2}|{3}|{4}", m_pool.Allocator.Simulator.FixedTime, m_value, tag, m_referencedCount, Environment.StackTrace );
@@ -356,6 +358,8 @@ namespace EcsSync2
 			public IReferencable Value => m_value;
 
 			public int ReferencedCount => m_referencedCount;
+
+			public ReferencableAllocator Allocator => m_pool.Allocator;
 		}
 
 		#endregion

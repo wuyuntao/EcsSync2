@@ -64,7 +64,7 @@ namespace EcsSync2
 				else if( scene.LocalPlayer != null )
 				{
 					if( m_buttons[2] )
-						CreateCharacterCommand( frame, scene.LocalPlayer );
+						PlayerConnectCommand( frame, scene.LocalPlayer );
 				}
 			}
 
@@ -74,13 +74,10 @@ namespace EcsSync2
 			return frame;
 		}
 
-		void CreateCharacterCommand(CommandFrame frame, Player player)
+		void PlayerConnectCommand(CommandFrame frame, Player player)
 		{
-			var c = frame.AddCommand<CreateEntityCommand>();
-			c.Settings = new CharacterSettings()
-			{
-				UserId = player.TheSettings.UserId,
-			};
+			var c = frame.AddCommand<PlayerConnectCommand>();
+			c.ComponentId = player.ConnectionManager.Id;
 		}
 
 		void MoveCharacterCommand(CommandFrame frame, CharacterMotionController motion)
