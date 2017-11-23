@@ -89,7 +89,7 @@ namespace EcsSync2
 		{
 			if( frame.Commands.Count > 0 )
 			{
-				Simulator.Context.Log( "DispatchCommands time {0}, {1} commands", frame.Time, frame.Commands.Count );
+				//Simulator.Context.Log( "DispatchCommands time {0}, {1} commands", frame.Time, frame.Commands.Count );
 
 				foreach( var command in frame.Commands )
 				{

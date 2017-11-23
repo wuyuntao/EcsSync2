@@ -70,7 +70,7 @@ namespace EcsSync2
 
 					if( !IsApproximate( value1.X, value2.X ) || !IsApproximate( value1.Y, value2.Y ) )
 					{
-						ReferenceCounter.Allocator.Simulator.Context.Log( "IsApproximate {0}.{1}", GetType(), f );
+						//ReferenceCounter.Allocator.Simulator.Context.Log( "IsApproximate {0}.{1}", GetType(), f );
 						return false;
 					}
 				}
@@ -81,7 +81,7 @@ namespace EcsSync2
 
 					if( !IsApproximate( value1, value2 ) )
 					{
-						ReferenceCounter.Allocator.Simulator.Context.Log( "IsApproximate {0}.{1}", GetType(), f );
+						//ReferenceCounter.Allocator.Simulator.Context.Log( "IsApproximate {0}.{1}", GetType(), f );
 						return false;
 					}
 				}
@@ -92,7 +92,7 @@ namespace EcsSync2
 
 					if( !value1.Equals( value2 ) )
 					{
-						ReferenceCounter.Allocator.Simulator.Context.Log( "IsApproximate {0}.{1}", GetType(), f );
+						//ReferenceCounter.Allocator.Simulator.Context.Log( "IsApproximate {0}.{1}", GetType(), f );
 						return false;
 					}
 				}

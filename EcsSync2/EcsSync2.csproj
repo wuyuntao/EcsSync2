@@ -9,7 +9,6 @@
     <ProjectReference Include="..\LiteNetLib\LiteNetLib.csproj" />
     <ProjectReference Include="..\MessagePack\MessagePack.csproj" />
   </ItemGroup>
-
   
   <Target Condition="'$(TargetFramework)' == 'net46'" Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="copy /b /y $(TargetDir)*.pdb $(SolutionDir)EcsSync2FpsUnity\Assets\Scripts\Assemblies\&#xD;&#xA;copy /b /y $(TargetDir)*.dll $(SolutionDir)EcsSync2FpsUnity\Assets\Scripts\Assemblies\" />

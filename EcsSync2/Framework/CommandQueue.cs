@@ -14,8 +14,8 @@ namespace EcsSync2
 
 		public void Add(ulong userId, CommandFrame frame)
 		{
-			if( frame.Commands.Count > 0 )
-				Simulator.Context.Log( "EqueueCommands for user {0}, time {1}, {2} commands", userId, frame.Time, frame.Commands.Count );
+			//if( frame.Commands.Count > 0 )
+			//	Simulator.Context.Log( "EqueueCommands for user {0}, time {1}, {2} commands", userId, frame.Time, frame.Commands.Count );
 
 			frame.Retain();
 

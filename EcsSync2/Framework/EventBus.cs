@@ -28,7 +28,7 @@ namespace EcsSync2
 
 		internal void EnqueueEvent(uint time, Event @event)
 		{
-			Simulator.Context.Log( "EnqueueEvent {0}ms {1}", time, @event );
+			//Simulator.Context.Log( "EnqueueEvent {0}ms {1}", time, @event );
 
 			@event.Retain();
 			m_events.Enqueue( @event );
