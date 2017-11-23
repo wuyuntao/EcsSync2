@@ -92,7 +92,7 @@ namespace EcsSync2.Fps
 			var s = CreateSnapshot<CharacterMotionControllerSnapshot>();
 			s.InputDirection = new Vector2D( 0, 1 );
 			s.InputMagnitude = 0;
-			s.MaxSpeed = 3;
+			s.MaxSpeed = 4f;
 			return s;
 		}
 

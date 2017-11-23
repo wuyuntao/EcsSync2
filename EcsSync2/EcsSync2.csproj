@@ -6,13 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LiteNetLib" Version="0.7.6.1" />
-    <PackageReference Include="MessagePack" Version="1.7.2" />
-    <PackageReference Include="MessagePackAnalyzer" Version="1.6.0" />
+    <ProjectReference Include="..\LiteNetLib\LiteNetLib.csproj" />
+    <ProjectReference Include="..\MessagePack\MessagePack.csproj" />
   </ItemGroup>
 
+  
   <Target Condition="'$(TargetFramework)' == 'net46'" Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy $(TargetDir)\*.dll $(SolutionDir)\EcsSync2FpsUnity\Assets\Scripts\Assemblies&#xD;&#xA;copy $(TargetDir)\*.pdb $(SolutionDir)\EcsSync2FpsUnity\Assets\Scripts\Assemblies" />
+    <Exec Command="copy /b /y $(TargetDir)*.pdb $(SolutionDir)EcsSync2FpsUnity\Assets\Scripts\Assemblies\&#xD;&#xA;copy /b /y $(TargetDir)*.dll $(SolutionDir)EcsSync2FpsUnity\Assets\Scripts\Assemblies\" />
   </Target>
 
 </Project>

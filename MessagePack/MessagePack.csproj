@@ -1,0 +1,116 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
+    <DebugType>Full</DebugType>
+    <DefineConstants>UNITY_WSA</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\CollectionFormatter.cs" Link="Formatters\CollectionFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\DictionaryFormatter.cs" Link="Formatters\DictionaryFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\DynamicObjectTypeFallbackFormatter.cs" Link="Formatters\DynamicObjectTypeFallbackFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\EnumAsStringFormatter.cs" Link="Formatters\EnumAsStringFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\ForceSizePrimitiveFormatter.cs" Link="Formatters\ForceSizePrimitiveFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\IgnoreFormatter.cs" Link="Formatters\IgnoreFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\IMessagePackFormatter.cs" Link="Formatters\IMessagePackFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\MultiDimentionalArrayFormatter.cs" Link="Formatters\MultiDimentionalArrayFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\NullableFormatter.cs" Link="Formatters\NullableFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\OldSpecFormatter.cs" Link="Formatters\OldSpecFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\PrimitiveFormatter.cs" Link="Formatters\PrimitiveFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\PrimitiveObjectFormatter.cs" Link="Formatters\PrimitiveObjectFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\StandardClassLibraryFormatter.cs" Link="Formatters\StandardClassLibraryFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\TupleFormatter.cs" Link="Formatters\TupleFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\TypelessFormatter.cs" Link="Formatters\TypelessFormatter.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\UnsafeBinaryFormatters.cs" Link="Formatters\UnsafeBinaryFormatters.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Formatters\ValueTupleFormatter.cs" Link="Formatters\ValueTupleFormatter.cs" />
+
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\AsymmetricKeyHashTable.cs" Link="Internal\AsymmetricKeyHashTable.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\AutomataDictionary.cs" Link="Internal\AutomataDictionary.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\ByteArrayComparer.cs" Link="Internal\ByteArrayComparer.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\ByteArrayStringHashTable.cs" Link="Internal\ByteArrayStringHashTable.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\DynamicAssembly.cs" Link="Internal\DynamicAssembly.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\ExpressionUtility.cs" Link="Internal\ExpressionUtility.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\FarmHash.cs" Link="Internal\FarmHash.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\GuidBits.cs" Link="Internal\GuidBits.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\ILGeneratorExtensions.cs" Link="Internal\ILGeneratorExtensions.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\ReflectionExtensions.cs" Link="Internal\ReflectionExtensions.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\ThreadsafeTypeKeyHashTable.cs" Link="Internal\ThreadsafeTypeKeyHashTable.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\TinyJsonReader.cs" Link="Internal\TinyJsonReader.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\UnsafeMemory.cs" Link="Internal\UnsafeMemory.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Internal\UnsafeMemory.Low.cs" Link="Internal\UnsafeMemory.Low.cs" />
+
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\Codec\LZ4Codec.cs" Link="LZ4\Codec\LZ4Codec.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\Codec\LZ4Codec.Helper.cs" Link="LZ4\Codec\LZ4Codec.Helper.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\Codec\LZ4Codec.Safe.cs" Link="LZ4\Codec\LZ4Codec.Safe.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\Codec\LZ4Codec.Safe32.Dirty.cs" Link="LZ4\Codec\LZ4Codec.Safe32.Dirty.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\Codec\LZ4Codec.Safe64.Dirty.cs" Link="LZ4\Codec\LZ4Codec.Safe64.Dirty.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\Codec\LZ4Codec.Unsafe.cs" Link="LZ4\Codec\LZ4Codec.Unsafe.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\Codec\LZ4Codec.Unsafe32.Dirty.cs" Link="LZ4\Codec\LZ4Codec.Unsafe32.Dirty.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\Codec\LZ4Codec.Unsafe64.Dirty.cs" Link="LZ4\Codec\LZ4Codec.Unsafe64.Dirty.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\LZ4MessagePackSerializer.cs" Link="LZ4\LZ4MessagePackSerializer.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\LZ4MessagePackSerializer.JSON.cs" Link="LZ4\LZ4MessagePackSerializer.JSON.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\LZ4\LZ4MessagePackSerializer.NonGeneric.cs" Link="LZ4\LZ4MessagePackSerializer.NonGeneric.cs" />
+
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\AttributeFormatterResolver.cs" Link="Resolvers\AttributeFormatterResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\BuiltinResolver.cs" Link="Resolvers\BuiltinResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\CompositeResolver.cs" Link="Resolvers\CompositeResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\DynamicEnumAsStringResolver.cs" Link="Resolvers\DynamicEnumAsStringResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\DynamicEnumResolver.cs" Link="Resolvers\DynamicEnumResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\DynamicGenericResolver.cs" Link="Resolvers\DynamicGenericResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\DynamicObjectResolver.cs" Link="Resolvers\DynamicObjectResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\DynamicUnionResolver.cs" Link="Resolvers\DynamicUnionResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\NativeDateTimeResolver.cs" Link="Resolvers\NativeDateTimeResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\OldSpecResolver.cs" Link="Resolvers\OldSpecResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\PrimitiveObjectResolver.cs" Link="Resolvers\PrimitiveObjectResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\StandardResolver.cs" Link="Resolvers\StandardResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\TypelessContractlessStandardResolver.cs" Link="Resolvers\TypelessContractlessStandardResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\TypelessObjectResolver.cs" Link="Resolvers\TypelessObjectResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Resolvers\UnsafeBinaryResolver.cs" Link="Resolvers\UnsafeBinaryResolver.cs" />
+
+    <!--
+    <Compile Include="..\Lib\MessagePack\src\MessagePack.UnityClient\Assets\Scripts\MessagePack\Shims\Reflection.cs" Link="Shims\Reflection.cs" />
+
+    <Compile Include="..\Lib\MessagePack\src\MessagePack.UnityShims\Formatters.cs" Link="Unity\Formatters.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack.UnityShims\UnityResolver.cs" Link="Unity\UnityResolver.cs" />
+    -->
+
+    <Compile Include="..\Lib\MessagePack\src\MessagePack.UnityShims\Extension\UnityBlitResolver.cs" Link="UnsafeExtensions\UnityBlitResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack.UnityShims\Extension\UnsafeBlitFormatter.cs" Link="UnsafeExtensions\UnsafeBlitFormatter.cs" />
+
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Attributes.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\FloatBits.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\IFormatterResolver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\IMessagePackSerializationCallbackReceiver.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\MessagePackBinary.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\MessagePackCode.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\MessagePackSerializer.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\MessagePackSerializer.Json.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\MessagePackSerializer.NonGeneric.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\Nil.cs" />
+    <Compile Include="..\Lib\MessagePack\src\MessagePack\StringEncoding.cs" />
+
+    <!--
+    <Compile Include="Assets\RuntimeUnitTestToolkit\Assert.cs" />
+    <Compile Include="Assets\RuntimeUnitTestToolkit\ChainingAssertion.Unity.cs" />
+    <Compile Include="Assets\RuntimeUnitTestToolkit\UnitTestRunner.cs" />
+    <Compile Include="Assets\Scripts\Tests\_Loader.cs" />
+    <Compile Include="Assets\Scripts\Tests\Class1.cs" />
+    <Compile Include="Assets\Scripts\Tests\CollectionFormatterTest.cs" />
+    <Compile Include="Assets\Scripts\Tests\ContractlessTest.cs" />
+    <Compile Include="Assets\Scripts\Tests\FormatterTest.cs" />
+    <Compile Include="Assets\Scripts\Tests\LZ4Test.cs" />
+    <Compile Include="Assets\Scripts\Tests\MsgPack\PersonSerializer.cs" />
+    <Compile Include="Assets\Scripts\Tests\MsgPack\SexSerializer.cs" />
+    <Compile Include="Assets\Scripts\Tests\MsgPack\System_Nullable_1_Sex_Serializer.cs" />
+    <Compile Include="Assets\Scripts\Tests\MsgPack\System_Nullable_1_System_Int32_Serializer.cs" />
+    <Compile Include="Assets\Scripts\Tests\MultiDimentionalArrayTest.cs" />
+    <Compile Include="Assets\Scripts\Tests\ObjectResolverTest.cs" />
+    <Compile Include="Assets\Scripts\Tests\PerformanceTest.cs" />
+    <Compile Include="Assets\Scripts\Tests\SimpleTest.cs" />
+    <Compile Include="Assets\Scripts\Tests\UnionTest.cs" />
+    <Compile Include="Assets\Scripts\Tests\UnityBlitTest.cs" />
+    -->
+  </ItemGroup>
+
+</Project>

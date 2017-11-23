@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
+    <DebugType>Full</DebugType>
+    <DefineConstants>UNITY</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\INetEventListener.cs" Link="INetEventListener.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NatPunchModule.cs" Link="NatPunchModule.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetConstants.cs" Link="NetConstants.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetDebug.cs" Link="NetDebug.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetEndPoint.cs" Link="NetEndPoint.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetManager.cs" Link="NetManager.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetPacket.cs" Link="NetPacket.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetPacketPool.cs" Link="NetPacketPool.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetPeer.cs" Link="NetPeer.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetPeerCollection.cs" Link="NetPeerCollection.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetSocket.cs" Link="NetSocket.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetThread.cs" Link="NetThread.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\NetUtils.cs" Link="NetUtils.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\ReliableChannel.cs" Link="ReliableChannel.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\SequencedChannel.cs" Link="SequencedChannel.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\SimpleChannel.cs" Link="SimpleChannel.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\Utils\FastBitConverter.cs" Link="Utils\FastBitConverter.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\Utils\NetDataReader.cs" Link="Utils\NetDataReader.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\Utils\NetDataWriter.cs" Link="Utils\NetDataWriter.cs" />
+    <Compile Include="..\Lib\LiteNetLib\LiteNetLib\Utils\NetSerializer.cs" Link="Utils\NetSerializer.cs" />
+  </ItemGroup>
+</Project>
