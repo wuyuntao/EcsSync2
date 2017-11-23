@@ -53,7 +53,9 @@ namespace EcsSync2
 
 		internal DeltaSyncFrame FetchEvents(uint time)
 		{
-			return EnsureFrame( time );
+			var f = EnsureFrame( time );
+			m_deltaSyncFrames.Remove( time );
+			return f;
 		}
 	}
 }

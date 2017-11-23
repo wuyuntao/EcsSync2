@@ -14,6 +14,28 @@ namespace EcsSync2.Fps
 
 		[Key( 22 )]
 		public float MaxSpeed;
+
+		public override ComponentSnapshot Clone()
+		{
+			var s = this.Allocate<CharacterMotionControllerSnapshot>();
+			s.ComponentId = ComponentId;
+			s.InputDirection = InputDirection;
+			s.InputMagnitude = InputMagnitude;
+			s.MaxSpeed = MaxSpeed;
+			return s;
+		}
+
+		protected internal override bool IsApproximate(ComponentSnapshot other)
+		{
+			if( !( other is CharacterMotionControllerSnapshot s ) )
+				return false;
+
+			return
+				IsApproximate( ComponentId, s.ComponentId ) &&
+				IsApproximate( InputDirection, s.InputDirection ) &&
+				IsApproximate( InputMagnitude, s.InputMagnitude ) &&
+				IsApproximate( MaxSpeed, s.MaxSpeed );
+		}
 	}
 
 	[MessagePackObject]
@@ -24,6 +46,13 @@ namespace EcsSync2.Fps
 
 		[Key( 21 )]
 		public float InputMagnitude;
+
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+			InputDirection = Vector2D.Zero;
+			InputMagnitude = 0;
+		}
 	}
 
 	[MessagePackObject]
@@ -34,6 +63,13 @@ namespace EcsSync2.Fps
 
 		[Key( 21 )]
 		public float InputMagnitude;
+
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+			InputDirection = Vector2D.Zero;
+			InputMagnitude = 0;
+		}
 	}
 
 	public class CharacterMotionController : Component
@@ -47,7 +83,7 @@ namespace EcsSync2.Fps
 					var s = (CharacterMotionControllerSnapshot)State;
 					e.InputDirection = c.InputMagnitude > 0 ? c.InputDirection : s.InputDirection;
 					e.InputMagnitude = c.InputMagnitude;
-                    //Entity.SceneManager.Simulator.Context.Log($"received {nameof(MoveCharacterCommand)} {e.InputDirection} {e.InputMagnitude}");
+					//Entity.SceneManager.Simulator.Context.Log($"received {nameof(MoveCharacterCommand)} {e.InputDirection} {e.InputMagnitude}");
 					ApplyEvent( e );
 					break;
 

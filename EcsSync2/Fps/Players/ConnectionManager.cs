@@ -6,26 +6,67 @@ namespace EcsSync2.Fps
 	[MessagePackObject]
 	public class ConnectingSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+		}
+
+		public override ComponentSnapshot Clone()
+		{
+			var s = this.Allocate<ConnectingSnapshot>();
+			s.ComponentId = ComponentId;
+			return s;
+		}
 	}
 
 	[MessagePackObject]
 	public class ConnectedSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+		}
+
+		public override ComponentSnapshot Clone()
+		{
+			var s = this.Allocate<ConnectedSnapshot>();
+			s.ComponentId = ComponentId;
+			return s;
+		}
 	}
 
 	[MessagePackObject]
 	public class DisconnectedSnapshot : ComponentSnapshot, IComponentSnapshot
 	{
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+		}
+
+		public override ComponentSnapshot Clone()
+		{
+			var s = this.Allocate<DisconnectedSnapshot>();
+			s.ComponentId = ComponentId;
+			return s;
+		}
 	}
 
 	[MessagePackObject]
 	public class PlayerConnectCommand : ComponentCommand
 	{
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+		}
 	}
 
 	[MessagePackObject]
 	public class PlayerConnectedEvent : ComponentEvent
 	{
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+		}
 	}
 
 	public class ConnectionManager : Component

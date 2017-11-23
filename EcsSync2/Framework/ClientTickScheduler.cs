@@ -92,6 +92,8 @@ namespace EcsSync2
 
 			foreach( Event e in frame.Events )
 			{
+				e.Retain();
+
 				if( e is SceneEvent se )
 				{
 					Simulator.SceneManager.Scene.ApplyEvent( se );
@@ -112,6 +114,8 @@ namespace EcsSync2
 
 		void ReconcilePredictions()
 		{
+			// TODO 如果无需和解清理**预测**和**同步**时间轴
+
 			// 没有新的同步帧，或没有新的预测帧需要和解
 			if( m_syncTickContext.Time <= m_reconcilationTickContext.Time ||
 				m_predictionTickContext.Time < m_syncTickContext.Time )
@@ -135,7 +139,7 @@ namespace EcsSync2
 			}
 
 			// 回滚到同步状态
-			//Simulator.Context.LogWarning( "{0}|Rollback snapshot to reconcilation {1}", Simulator.FixedTime, m_reconcilationTickContext.Time );
+			Simulator.Context.LogWarning( "{0}|Rollback snapshot to reconcilation {1} -> {2}", Simulator.FixedTime, m_predictionTickContext.Time, m_reconcilationTickContext.Time );
 
 			EnterContext( m_reconcilationTickContext );
 			foreach( var component in components )

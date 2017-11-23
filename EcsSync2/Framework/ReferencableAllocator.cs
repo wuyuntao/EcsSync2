@@ -70,6 +70,7 @@ namespace EcsSync2
 		{
 			base.OnReset();
 
+			ReferenceCounter.Allocator.Simulator.Context.LogWarning( "Reflection OnReset {0}", this );
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
@@ -178,14 +179,13 @@ namespace EcsSync2
 
 		class ReferencableCounterPool
 		{
-			readonly Type m_referencableType;
 			readonly List<IReferenceCounter> m_counters;
 			readonly Queue<int> m_unreferenced;
 
 			public ReferencableCounterPool(ReferencableAllocator allocator, Type type, int initialCapacity = 16)
 			{
 				Allocator = allocator;
-				m_referencableType = type;
+				ReferencableType = type;
 				m_counters = new List<IReferenceCounter>( initialCapacity );
 				m_unreferenced = new Queue<int>( initialCapacity );
 			}
@@ -204,7 +204,7 @@ namespace EcsSync2
 
 			public IReferenceCounter Allocate(Type type)
 			{
-				if( type != m_referencableType )
+				if( type != ReferencableType )
 					throw new ArgumentException( nameof( type ) );
 
 				if( m_unreferenced.Count > 0 )
@@ -228,7 +228,7 @@ namespace EcsSync2
 
 			public IReferenceCounter Allocate(IReferencable value)
 			{
-				if( value.GetType() != m_referencableType )
+				if( value.GetType() != ReferencableType )
 					throw new ArgumentException( nameof( value ) );
 
 				if( m_counters.Count < Allocator.m_maxCapacity )
@@ -249,6 +249,8 @@ namespace EcsSync2
 			}
 
 			public ReferencableAllocator Allocator { get; private set; }
+
+			public Type ReferencableType { get; private set; }
 		}
 
 		#endregion
@@ -262,7 +264,7 @@ namespace EcsSync2
 			readonly IReferencable m_value;
 			int m_referencedCount;
 #if ENABLE_ALLOCATOR_LOG
-			List<string> m_logs = new List<string>();
+			List<string> m_logs;
 #endif
 
 			public ReferencableCounter(ReferencableCounterPool pool, int index, IReferencable value)
@@ -272,8 +274,13 @@ namespace EcsSync2
 #if ENABLE_ALLOCATOR_LOG
 					( (ReferencableCounter)value.ReferenceCounter ).DumpLogs();
 #endif
-					throw new InvalidOperationException( "Already allocated" );
+					throw new InvalidOperationException( $"{this} is already allocated" );
 				}
+
+#if ENABLE_ALLOCATOR_LOG
+				if( pool.ReferencableType == typeof( Fps.PlayerConnectedEvent ) )
+					m_logs = new List<string>();
+#endif
 
 				m_pool = pool;
 				m_index = index;
@@ -282,6 +289,11 @@ namespace EcsSync2
 				m_value.OnAllocate();
 
 				Retain();
+			}
+
+			public override string ToString()
+			{
+				return $"{m_pool.ReferencableType.Name}-{m_index}";
 			}
 
 			public void Retain()
@@ -303,7 +315,7 @@ namespace EcsSync2
 #if ENABLE_ALLOCATOR_LOG
 					DumpLogs();
 #endif
-					throw new InvalidOperationException( "Already released" );
+					throw new InvalidOperationException( $"{this} is already released" );
 				}
 
 				if( --m_referencedCount == 0 )
@@ -322,20 +334,27 @@ namespace EcsSync2
 #if ENABLE_ALLOCATOR_LOG
 			void AppendLog(string tag)
 			{
-				var log = string.Format( "{0}|{1}|{2}|{3}|{4}", m_pool.Allocator.Simulator.FixedTime, m_value, tag, m_referencedCount, Environment.StackTrace );
+				if( m_logs != null )
+				{
+					var log = string.Format( "{0}|{1}|{2}|{3}|{4}", m_pool.Allocator.Simulator.FixedTime, m_value, tag, m_referencedCount, Environment.StackTrace );
 
-				m_logs.Add( log );
+					m_logs.Add( log );
+				}
 			}
 
 			void DumpLogs()
 			{
-				foreach( var log in m_logs )
-					m_pool.Allocator.Simulator.Context.LogError( log );
+				if( m_logs != null )
+				{
+					foreach( var log in m_logs )
+						m_pool.Allocator.Simulator.Context.LogError( log );
+				}
 			}
 
 			void ClearLogs()
 			{
-				m_logs.Clear();
+				if( m_logs != null )
+					m_logs.Clear();
 			}
 #endif
 

@@ -96,8 +96,6 @@ namespace EcsSync2
 
 			var f = Simulator.EventBus.FetchEvents( m_lastDeltaSyncTime.Value + Configuration.SimulationDeltaTime );
 			m_lastDeltaSyncTime += Configuration.SimulationDeltaTime;
-
-			f.Retain();
 			return f;
 		}
 

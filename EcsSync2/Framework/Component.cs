@@ -115,7 +115,9 @@ namespace EcsSync2
 			EnsureTickContext();
 
 			State = OnEventApplied( @event );
-			Entity.SceneManager.Simulator.EventBus.EnqueueEvent( TickScheduler.CurrentContext.Value.Time, @event );
+
+			if( Entity.SceneManager.Simulator.ServerTickScheduler != null )
+				Entity.SceneManager.Simulator.EventBus.EnqueueEvent( TickScheduler.CurrentContext.Value.Time, @event );
 
 			@event.Release();
 		}

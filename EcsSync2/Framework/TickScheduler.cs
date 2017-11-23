@@ -61,7 +61,7 @@ namespace EcsSync2
 
 		internal TickContext? CurrentContext { get; private set; }
 
-		protected List<Component> Components { get; } = new List<Component>();
+		List<Component> Components { get; } = new List<Component>();
 
 		protected TickScheduler(Simulator simulator)
 			: base( simulator )

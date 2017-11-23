@@ -1,5 +1,4 @@
-﻿using EcsSync2.Fps;
-using MessagePack;
+﻿using MessagePack;
 using System;
 
 namespace EcsSync2
@@ -9,31 +8,51 @@ namespace EcsSync2
 	{
 		[Key( 10 )]
 		public IEntitySettings Settings;
+
+		protected override void OnReset()
+		{
+			Settings = null;
+		}
 	}
 
 	[MessagePackObject]
 	public class RemoveEntityCommand : SceneCommand
 	{
 		[Key( 10 )]
-		public uint Id;
-	}
+		public uint EntityId;
 
+		protected override void OnReset()
+		{
+			EntityId = 0;
+		}
+	}
 
 	[MessagePackObject]
 	public class EntityCreatedEvent : SceneEvent
 	{
 		[Key( 10 )]
-		public uint Id;
+		public uint EntityId;
 
 		[Key( 11 )]
 		public IEntitySettings Settings;
+
+		protected override void OnReset()
+		{
+			EntityId = 0;
+			Settings = null;
+		}
 	}
 
 	[MessagePackObject]
 	public class EntityRemovedEvent : SceneEvent
 	{
 		[Key( 10 )]
-		public uint Id;
+		public uint EntityId;
+
+		protected override void OnReset()
+		{
+			EntityId = 0;
+		}
 	}
 
 	public abstract class Scene
@@ -64,20 +83,20 @@ namespace EcsSync2
 		public void ApplyEntityCreatedEvent(IEntitySettings settings)
 		{
 			var e = SceneManager.Simulator.ReferencableAllocator.Allocate<EntityCreatedEvent>();
-			e.Id = SceneManager.Simulator.InstanceIdAllocator.Allocate();
+			e.EntityId = SceneManager.Simulator.InstanceIdAllocator.Allocate();
 			e.Settings = settings;
 			ApplyEvent( e );
 
-			SceneManager.Simulator.Context.Log( "ApplyEntityCreatedEvent {0} {1}", e.Id, e.Settings );
+			SceneManager.Simulator.Context.Log( "ApplyEntityCreatedEvent {0} {1}", e.EntityId, e.Settings );
 		}
 
 		public void ApplyEntityRemovedEvent(InstanceId id)
 		{
 			var e = SceneManager.Simulator.ReferencableAllocator.Allocate<EntityRemovedEvent>();
-			e.Id = SceneManager.Simulator.InstanceIdAllocator.Allocate();
+			e.EntityId = SceneManager.Simulator.InstanceIdAllocator.Allocate();
 			ApplyEvent( e );
 
-			SceneManager.Simulator.Context.Log( "ApplyEntityRemovedEvent {0}", e.Id );
+			SceneManager.Simulator.Context.Log( "ApplyEntityRemovedEvent {0}", e.EntityId );
 		}
 
 		internal void ReceiveCommand(SceneCommand command)
@@ -97,7 +116,7 @@ namespace EcsSync2
 					break;
 
 				case RemoveEntityCommand c:
-					ApplyEntityRemovedEvent( c.Id );
+					ApplyEntityRemovedEvent( c.EntityId );
 					break;
 
 				default:
@@ -108,7 +127,10 @@ namespace EcsSync2
 		internal void ApplyEvent(SceneEvent @event)
 		{
 			OnEventApplied( @event );
-			SceneManager.Simulator.EventBus.EnqueueEvent( SceneManager.Simulator.TickScheduler.CurrentContext.Value.Time, @event );
+
+			if( SceneManager.Simulator.ServerTickScheduler != null )
+				SceneManager.Simulator.EventBus.EnqueueEvent( SceneManager.Simulator.TickScheduler.CurrentContext.Value.Time, @event );
+
 			@event.Release();
 		}
 
@@ -117,11 +139,11 @@ namespace EcsSync2
 			switch( @event )
 			{
 				case EntityCreatedEvent e:
-					CreateEntity( e.Id, e.Settings );
+					CreateEntity( e.EntityId, e.Settings );
 					break;
 
 				case EntityRemovedEvent e:
-					SceneManager.RemoveEntity( e.Id );
+					SceneManager.RemoveEntity( e.EntityId );
 					break;
 
 				default:

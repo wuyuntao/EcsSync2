@@ -3,7 +3,6 @@ using MessagePack;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace EcsSync2
 {
@@ -56,6 +55,8 @@ namespace EcsSync2
 
 		protected internal virtual bool IsApproximate(ComponentSnapshot other)
 		{
+			ReferenceCounter.Allocator.Simulator.Context.LogWarning( "Reflection IsApproximate {0}", this );
+
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
@@ -101,9 +102,19 @@ namespace EcsSync2
 			return true;
 		}
 
-		static bool IsApproximate(float value1, float value2)
+		protected static bool IsApproximate(Vector2D value1, Vector2D value2, float error = 1e-6f)
 		{
-			return Math.Abs( value1 - value1 ) < 1e-6;
+			return IsApproximate( value1.X, value2.X, error ) && IsApproximate( value1.Y, value2.Y, error );
+		}
+
+		protected static bool IsApproximate(float value1, float value2, float error = 1e-6f)
+		{
+			return Math.Abs( value1 - value2 ) <= error;
+		}
+
+		protected static bool IsApproximate(uint value1, uint value2, uint error = 0)
+		{
+			return ( value1 > value2 ? value1 - value2 : value2 - value1 ) <= error;
 		}
 
 		protected internal virtual ComponentSnapshot Interpolate(ComponentSnapshot other, float factor)
@@ -113,6 +124,8 @@ namespace EcsSync2
 
 		public virtual ComponentSnapshot Clone()
 		{
+			ReferenceCounter.Allocator.Simulator.Context.LogWarning( "Reflection Clone {0}", this );
+
 			var s = this.Allocate( GetType() );
 
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
