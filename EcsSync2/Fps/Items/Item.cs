@@ -1,12 +1,12 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 using System;
 
 namespace EcsSync2.Fps
 {
-	[MessagePackObject]
-	public class ItemSettings : IEntitySettings
+	[ProtoContract]
+	public class ItemSettings : EntitySettings
 	{
-		[Key( 0 )]
+		[ProtoMember( 1 )]
 		public string Type = "SPPotion";
 	}
 

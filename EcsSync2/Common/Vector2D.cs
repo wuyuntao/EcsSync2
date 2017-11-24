@@ -1,23 +1,22 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 using System;
 using System.Runtime.InteropServices;
 
 namespace EcsSync2
 {
     [StructLayout(LayoutKind.Sequential)]
-    [MessagePackObject]
+    [ProtoContract]
     public struct Vector2D : IEquatable<Vector2D>, IFormattable
     {
         public static readonly Vector2D Zero = new Vector2D();
 
         public static readonly Vector2D One = new Vector2D(1);
 
-        [Key(0)]
+        [ProtoMember(1)]
         public float X;
-        [Key(1)]
+        [ProtoMember(2)]
         public float Y;
 
-        [IgnoreMember]
         public float this[int i]
         {
             get

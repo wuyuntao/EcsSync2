@@ -1,16 +1,17 @@
 ﻿using EcsSync2.Fps;
-using MessagePack;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	[Union( 0, typeof( CharacterSettings ) )]
-	[Union( 1, typeof( GameManagerSettings ) )]
-	[Union( 2, typeof( ItemSettings ) )]
-	[Union( 3, typeof( PlayerSettings ) )]
-	[Union( 4, typeof( SceneElementSettings ) )]
-	public interface IEntitySettings
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( CharacterSettings ) )]
+	[ProtoInclude( 2, typeof( GameManagerSettings ) )]
+	[ProtoInclude( 3, typeof( ItemSettings ) )]
+	[ProtoInclude( 4, typeof( PlayerSettings ) )]
+	[ProtoInclude( 5, typeof( SceneElementSettings ) )]
+	public abstract class EntitySettings
 	{
 	}
 
@@ -25,12 +26,12 @@ namespace EcsSync2
 
 		public SceneManager SceneManager { get; private set; }
 		public InstanceId Id { get; private set; }
-		public IEntitySettings Settings { get; private set; }
+		public EntitySettings Settings { get; private set; }
 		public List<Component> Components { get; } = new List<Component>();
 
 		State m_state = State.Initial;
 
-		internal void Initialize(SceneManager sceneManager, InstanceId id, IEntitySettings settings)
+		internal void Initialize(SceneManager sceneManager, InstanceId id, EntitySettings settings)
 		{
 			SceneManager = sceneManager;
 			Id = id;

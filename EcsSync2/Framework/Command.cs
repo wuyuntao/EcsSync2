@@ -1,23 +1,28 @@
 ﻿using EcsSync2.Fps;
-using MessagePack;
+using ProtoBuf;
 
 namespace EcsSync2
 {
-	[Union( 0, typeof( CreateEntityCommand ) )]
-	[Union( 1, typeof( RemoveEntityCommand ) )]
-	[Union( 2, typeof( PlayerConnectCommand ) )]
-	[Union( 3, typeof( MoveCharacterCommand ) )]
-	public interface ICommand : IReferencable
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( SceneCommand ) )]
+	[ProtoInclude( 2, typeof( ComponentCommand ) )]
+	public class Command : SerializableReferencable
 	{
 	}
 
-	public abstract class SceneCommand : MessagePackReferencable, ICommand
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( CreateEntityCommand ) )]
+	[ProtoInclude( 2, typeof( RemoveEntityCommand ) )]
+	public abstract class SceneCommand : Command
 	{
 	}
 
-	public abstract class ComponentCommand : MessagePackReferencable, ICommand
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( PlayerConnectCommand ) )]
+	[ProtoInclude( 2, typeof( MoveCharacterCommand ) )]
+	public abstract class ComponentCommand : Command
 	{
-		[Key( 0 )]
+		[ProtoMember( 11 )]
 		public uint ComponentId;
 	}
 }

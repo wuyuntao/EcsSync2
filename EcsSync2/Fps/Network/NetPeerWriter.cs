@@ -1,5 +1,5 @@
 ﻿using LiteNetLib;
-using MessagePack;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,7 +16,7 @@ namespace EcsSync2.Fps
 		int m_writeCount;
 		int m_maxBufferSize;
 
-		public NetPeerWriter(ILogger logger, int capacity = 1024)
+		public NetPeerWriter(ILogger logger, int capacity = 1024 * 16)
 		{
 			Logger = logger;
 
@@ -24,7 +24,7 @@ namespace EcsSync2.Fps
 			m_stream = new MemoryStream( m_buffer );
 		}
 
-		public void Write(NetPeer netPeer, IMessage message)
+		public void Write(NetPeer netPeer, Message message)
 		{
 			SerializeMessage( message );
 
@@ -33,7 +33,7 @@ namespace EcsSync2.Fps
 			IncreaseWriteCont();
 		}
 
-		public void Write(IEnumerable<NetPeer> netPeers, IMessage message)
+		public void Write(IEnumerable<NetPeer> netPeers, Message message)
 		{
 			SerializeMessage( message );
 
@@ -43,11 +43,11 @@ namespace EcsSync2.Fps
 			IncreaseWriteCont();
 		}
 
-		void SerializeMessage(IMessage message)
+		void SerializeMessage(Message message)
 		{
 			var env = new MessageEnvelop() { Message = message };
 			m_stream.SetLength( 0 );
-			MessagePackSerializer.Serialize( m_stream, env );
+			Serializer.Serialize( m_stream, env );
 		}
 
 		void IncreaseWriteCont()

@@ -1,9 +1,9 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 
 namespace EcsSync2.Fps
 {
-	[MessagePackObject]
-	public class GameManagerSettings : IEntitySettings
+	[ProtoContract]
+	public class GameManagerSettings : EntitySettings
 	{
 	}
 

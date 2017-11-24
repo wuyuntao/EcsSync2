@@ -1,19 +1,19 @@
 ﻿using EcsSync2.Fps;
-using MessagePack;
+using ProtoBuf;
 using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	public abstract class SyncFrame : Referencable, IMessage
+	public abstract class SyncFrame : Message
 	{
-		[Key( 0 )]
+		[ProtoMember( 1 )]
 		public uint Time;
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class FullSyncFrame : SyncFrame
 	{
-		[Key( 10 )]
+		[ProtoMember( 11 )]
 		public List<EntitySnapshot> Entities = new List<EntitySnapshot>();
 
 		protected override void OnAllocate()
@@ -35,11 +35,11 @@ namespace EcsSync2
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class DeltaSyncFrame : SyncFrame
 	{
-		[Key( 10 )]
-		public List<IEvent> Events = new List<IEvent>();
+		[ProtoMember( 11 )]
+		public List<Event> Events = new List<Event>();
 
 		protected override void OnAllocate()
 		{

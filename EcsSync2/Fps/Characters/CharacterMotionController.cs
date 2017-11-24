@@ -1,18 +1,18 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 using System;
 
 namespace EcsSync2.Fps
 {
-	[MessagePackObject]
-	class CharacterMotionControllerSnapshot : ComponentSnapshot, IComponentSnapshot
+	[ProtoContract]
+	class CharacterMotionControllerSnapshot : ComponentSnapshot
 	{
-		[Key( 20 )]
+		[ProtoMember( 21 )]
 		public Vector2D InputDirection;
 
-		[Key( 21 )]
+		[ProtoMember( 22 )]
 		public float InputMagnitude;
 
-		[Key( 22 )]
+		[ProtoMember( 23 )]
 		public float MaxSpeed;
 
 		protected override void OnReset()
@@ -46,13 +46,13 @@ namespace EcsSync2.Fps
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class MoveCharacterCommand : ComponentCommand
 	{
-		[Key( 20 )]
+		[ProtoMember( 21 )]
 		public Vector2D InputDirection;
 
-		[Key( 21 )]
+		[ProtoMember( 22 )]
 		public float InputMagnitude;
 
 		protected override void OnReset()
@@ -63,13 +63,13 @@ namespace EcsSync2.Fps
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class InputChangedEvent : ComponentEvent
 	{
-		[Key( 20 )]
+		[ProtoMember( 21 )]
 		public Vector2D InputDirection;
 
-		[Key( 21 )]
+		[ProtoMember( 22 )]
 		public float InputMagnitude;
 
 		protected override void OnReset()

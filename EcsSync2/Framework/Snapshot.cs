@@ -1,5 +1,5 @@
 ﻿using EcsSync2.Fps;
-using MessagePack;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -7,17 +7,17 @@ using System.Reflection;
 namespace EcsSync2
 {
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class EntitySnapshot : Referencable
 	{
-		[Key( 10 )]
+		[ProtoMember( 11 )]
 		public uint Id;
 
-		[Key( 11 )]
-		public IEntitySettings Settings;
+		[ProtoMember( 12 )]
+		public EntitySettings Settings;
 
-		[Key( 12 )]
-		public List<IComponentSnapshot> Components = new List<IComponentSnapshot>();
+		[ProtoMember( 13 )]
+		public List<ComponentSnapshot> Components = new List<ComponentSnapshot>();
 
 		protected override void OnAllocate()
 		{
@@ -38,19 +38,16 @@ namespace EcsSync2
 		}
 	}
 
-	[Union( 0, typeof( CharacterMotionControllerSnapshot ) )]
-	[Union( 1, typeof( TransformSnapshot ) )]
-	[Union( 2, typeof( ProcessControllerSnapshot ) )]
-	[Union( 3, typeof( ConnectingSnapshot ) )]
-	[Union( 4, typeof( ConnectedSnapshot ) )]
-	[Union( 5, typeof( DisconnectedSnapshot ) )]
-	public interface IComponentSnapshot : IReferencable
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( CharacterMotionControllerSnapshot ) )]
+	[ProtoInclude( 2, typeof( TransformSnapshot ) )]
+	[ProtoInclude( 3, typeof( ProcessControllerSnapshot ) )]
+	[ProtoInclude( 4, typeof( ConnectingSnapshot ) )]
+	[ProtoInclude( 5, typeof( ConnectedSnapshot ) )]
+	[ProtoInclude( 6, typeof( DisconnectedSnapshot ) )]
+	public abstract class ComponentSnapshot : SerializableReferencable
 	{
-	}
-
-	public abstract class ComponentSnapshot : MessagePackReferencable, IComponentSnapshot
-	{
-		[Key( 10 )]
+		[ProtoMember( 11 )]
 		public uint ComponentId;
 
 		protected internal virtual bool IsApproximate(ComponentSnapshot other)
@@ -60,7 +57,7 @@ namespace EcsSync2
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
-				var attr = f.GetCustomAttribute( typeof( KeyAttribute ) );
+				var attr = f.GetCustomAttribute( typeof( ProtoMemberAttribute ) );
 				if( attr == null )
 					continue;
 
@@ -131,7 +128,7 @@ namespace EcsSync2
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
-				var attr = f.GetCustomAttribute( typeof( KeyAttribute ) );
+				var attr = f.GetCustomAttribute( typeof( ProtoMemberAttribute ) );
 				if( attr == null )
 					continue;
 

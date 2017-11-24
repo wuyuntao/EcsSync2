@@ -1,10 +1,10 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 using System;
 
 namespace EcsSync2.Fps
 {
-	[MessagePackObject]
-	public class ConnectingSnapshot : ComponentSnapshot, IComponentSnapshot
+	[ProtoContract]
+	public class ConnectingSnapshot : ComponentSnapshot
 	{
 		protected override void OnReset()
 		{
@@ -19,8 +19,8 @@ namespace EcsSync2.Fps
 		}
 	}
 
-	[MessagePackObject]
-	public class ConnectedSnapshot : ComponentSnapshot, IComponentSnapshot
+	[ProtoContract]
+	public class ConnectedSnapshot : ComponentSnapshot
 	{
 		protected override void OnReset()
 		{
@@ -35,8 +35,8 @@ namespace EcsSync2.Fps
 		}
 	}
 
-	[MessagePackObject]
-	public class DisconnectedSnapshot : ComponentSnapshot, IComponentSnapshot
+	[ProtoContract]
+	public class DisconnectedSnapshot : ComponentSnapshot
 	{
 		protected override void OnReset()
 		{
@@ -51,7 +51,7 @@ namespace EcsSync2.Fps
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class PlayerConnectCommand : ComponentCommand
 	{
 		protected override void OnReset()
@@ -60,7 +60,7 @@ namespace EcsSync2.Fps
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class PlayerConnectedEvent : ComponentEvent
 	{
 		protected override void OnReset()

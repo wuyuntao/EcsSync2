@@ -1,22 +1,23 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 
 namespace EcsSync2.Fps
 {
-	[Union( 0, typeof( LoginRequestMessage ) )]
-	[Union( 1, typeof( LoginResponseMessage ) )]
-	[Union( 2, typeof( HeartbeatRequestMessage ) )]
-	[Union( 3, typeof( HeartbeatResponseMessage ) )]
-	[Union( 4, typeof( CommandFrame ) )]
-	[Union( 5, typeof( FullSyncFrame ) )]
-	[Union( 6, typeof( DeltaSyncFrame ) )]
-	public interface IMessage
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( LoginRequestMessage ) )]
+	[ProtoInclude( 2, typeof( LoginResponseMessage ) )]
+	[ProtoInclude( 3, typeof( HeartbeatRequestMessage ) )]
+	[ProtoInclude( 4, typeof( HeartbeatResponseMessage ) )]
+	[ProtoInclude( 5, typeof( CommandFrame ) )]
+	[ProtoInclude( 6, typeof( FullSyncFrame ) )]
+	[ProtoInclude( 7, typeof( DeltaSyncFrame ) )]
+	public abstract class Message : Referencable
 	{
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class MessageEnvelop
 	{
-		[Key( 0 )]
-		public IMessage Message;
+		[ProtoMember( 1 )]
+		public Message Message;
 	}
 }

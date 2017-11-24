@@ -1,5 +1,4 @@
 ﻿using EcsSync2.Fps;
-using MessagePack;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -12,7 +11,6 @@ namespace EcsSync2.Examples
 
 		static void Main(string[] args)
 		{
-			//TestSerializer();
 			//RunStandaloneSimulator();
 
 			RunServer( null );
@@ -23,14 +21,6 @@ namespace EcsSync2.Examples
 			Console.ReadLine();
 
 			m_end = true;
-		}
-
-
-		static void TestSerializer()
-		{
-			var s0 = new PlayerSettings() { UserId = 100, IsAI = true };
-			var bytes = MessagePackSerializer.Serialize( s0 );
-			var s1 = MessagePackSerializer.Deserialize<PlayerSettings>( bytes );
 		}
 
 		static void RunStandaloneSimulator()
@@ -69,7 +59,7 @@ namespace EcsSync2.Examples
 		}
 
 		static void EnqueueCommand<T>(Simulator simulator, Action<T> handler)
-			where T : class, ICommand, new()
+			where T : Command, new()
 		{
 			var frame = simulator.ReferencableAllocator.Allocate<CommandFrame>();
 			frame.Time = simulator.FixedTime + Configuration.SimulationDeltaTime;

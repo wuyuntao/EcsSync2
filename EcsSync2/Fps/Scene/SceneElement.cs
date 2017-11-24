@@ -1,12 +1,12 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 using System;
 
 namespace EcsSync2.Fps
 {
-	[MessagePackObject]
-	public class SceneElementSettings : IEntitySettings
+	[ProtoContract]
+	public class SceneElementSettings : EntitySettings
 	{
-		[Key( 0 )]
+		[ProtoMember( 1 )]
 		public string Type = "Door";
 	}
 

@@ -1,13 +1,13 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 using System;
 
 namespace EcsSync2
 {
-	[MessagePackObject]
+	[ProtoContract]
 	public class CreateEntityCommand : SceneCommand
 	{
-		[Key( 10 )]
-		public IEntitySettings Settings;
+		[ProtoMember( 11 )]
+		public EntitySettings Settings;
 
 		protected override void OnReset()
 		{
@@ -15,10 +15,10 @@ namespace EcsSync2
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class RemoveEntityCommand : SceneCommand
 	{
-		[Key( 10 )]
+		[ProtoMember( 11 )]
 		public uint EntityId;
 
 		protected override void OnReset()
@@ -27,14 +27,14 @@ namespace EcsSync2
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class EntityCreatedEvent : SceneEvent
 	{
-		[Key( 10 )]
+		[ProtoMember( 11 )]
 		public uint EntityId;
 
-		[Key( 11 )]
-		public IEntitySettings Settings;
+		[ProtoMember( 12 )]
+		public EntitySettings Settings;
 
 		protected override void OnReset()
 		{
@@ -43,10 +43,10 @@ namespace EcsSync2
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class EntityRemovedEvent : SceneEvent
 	{
-		[Key( 10 )]
+		[ProtoMember( 11 )]
 		public uint EntityId;
 
 		protected override void OnReset()
@@ -71,16 +71,16 @@ namespace EcsSync2
 
 		protected abstract void OnInitialize();
 
-		protected internal abstract void CreateEntity(InstanceId id, IEntitySettings settings);
+		protected internal abstract void CreateEntity(InstanceId id, EntitySettings settings);
 
-		protected TEntity CreateEntity<TEntity, TEntitySettings>(InstanceId id, IEntitySettings settings)
+		protected TEntity CreateEntity<TEntity, TEntitySettings>(InstanceId id, EntitySettings settings)
 			where TEntity : Entity, new()
-			where TEntitySettings : IEntitySettings
+			where TEntitySettings : EntitySettings
 		{
 			return SceneManager.CreateEntity<TEntity>( id, settings );
 		}
 
-		public void ApplyEntityCreatedEvent(IEntitySettings settings)
+		public void ApplyEntityCreatedEvent(EntitySettings settings)
 		{
 			var e = SceneManager.Simulator.ReferencableAllocator.Allocate<EntityCreatedEvent>();
 			e.EntityId = SceneManager.Simulator.InstanceIdAllocator.Allocate();

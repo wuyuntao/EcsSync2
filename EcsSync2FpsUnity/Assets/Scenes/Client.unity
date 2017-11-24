@@ -1180,7 +1180,7 @@ Prefab:
     - target: {fileID: 224982277808544620, guid: bed0b88bbbaf344479c16d9985a8b118,
         type: 2}
       propertyPath: m_LocalPosition.y
-      value: 400
+      value: 360
       objectReference: {fileID: 0}
     - target: {fileID: 224982277808544620, guid: bed0b88bbbaf344479c16d9985a8b118,
         type: 2}
@@ -1327,6 +1327,22 @@ Prefab:
       propertyPath: m_LocalPosition.y
       value: 40
       objectReference: {fileID: 0}
+    - target: {fileID: 1027311806010918, guid: bed0b88bbbaf344479c16d9985a8b118, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1356714258649534, guid: bed0b88bbbaf344479c16d9985a8b118, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1461603082857156, guid: bed0b88bbbaf344479c16d9985a8b118, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1714337674532824, guid: bed0b88bbbaf344479c16d9985a8b118, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: bed0b88bbbaf344479c16d9985a8b118, type: 2}
   m_IsPrefabParent: 0
@@ -1427,7 +1443,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ServerAddress: 192.168.92.144
   ServerPort: 3687
-  UserId: 1002
+  UserId: 1001
   ScenePawn: {fileID: 114280436440034866, guid: ba6d2d5c52ca1ea4faa9140f709a30e1,
     type: 2}
   Camera: {fileID: 1664309194}

@@ -1,8 +1,9 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
-using MessagePack;
+using ProtoBuf;
 using System;
 using System.Diagnostics;
+using System.IO;
 
 namespace EcsSync2.Fps
 {
@@ -108,40 +109,43 @@ namespace EcsSync2.Fps
 
 		void Listener_NetworkReceiveEvent(NetPeer peer, NetDataReader reader)
 		{
-			var me = MessagePackSerializer.Deserialize<MessageEnvelop>( reader.Data );
-
-			switch( me.Message )
+			using( var ms = new MemoryStream( reader.Data ) )
 			{
-				case LoginResponseMessage m:
-					LastUpdateMs = Stopwatch.ElapsedMilliseconds;
-					Simulator = new Simulator( Context, false, true, null, UserId );
-					OnLogin?.Invoke( Simulator );
-					Simulator.SynchronizedClock.Synchronize( m.ServerTime / 1000f, ( LastUpdateMs - m.ClientTime ) / 1000f );
-					Scene = Simulator.SceneManager.LoadScene<BattleScene>();
-					Logger?.Log( "Login {0}", peer );
-					break;
+				var me = Serializer.Deserialize<MessageEnvelop>( ms );
 
-				case HeartbeatResponseMessage m:
-					Simulator.SynchronizedClock.Synchronize( m.ServerTime / 1000f, ( Stopwatch.ElapsedMilliseconds - m.ClientTime ) / 1000f );
-					//Logger?.Log( "Heartbeat {0}", peer );
-					break;
+				switch( me.Message )
+				{
+					case LoginResponseMessage m:
+						LastUpdateMs = Stopwatch.ElapsedMilliseconds;
+						Simulator = new Simulator( Context, false, true, null, UserId );
+						OnLogin?.Invoke( Simulator );
+						Simulator.SynchronizedClock.Synchronize( m.ServerTime / 1000f, ( LastUpdateMs - m.ClientTime ) / 1000f );
+						Scene = Simulator.SceneManager.LoadScene<BattleScene>();
+						Logger?.Log( "Login {0}", peer );
+						break;
 
-				case FullSyncFrame m:
-					Simulator.ReferencableAllocator.Allocate( m );
-					Simulator.ClientTickScheduler.ReceiveSyncFrame( m );
-					Logger?.Log( "FullSyncFrame {0}", peer );
-					m.Release();
-					break;
+					case HeartbeatResponseMessage m:
+						Simulator.SynchronizedClock.Synchronize( m.ServerTime / 1000f, ( Stopwatch.ElapsedMilliseconds - m.ClientTime ) / 1000f );
+						//Logger?.Log( "Heartbeat {0}", peer );
+						break;
 
-				case DeltaSyncFrame m:
-					Simulator.ReferencableAllocator.Allocate( m );
-					Simulator.ClientTickScheduler.ReceiveSyncFrame( m );
-					//Logger?.Log( "DeltaSyncFrame {0}", peer );
-					m.Release();
-					break;
+					case FullSyncFrame m:
+						Simulator.ReferencableAllocator.Allocate( m );
+						Simulator.ClientTickScheduler.ReceiveSyncFrame( m );
+						Logger?.Log( "FullSyncFrame {0}", peer );
+						m.Release();
+						break;
 
-				default:
-					throw new NotSupportedException( me.Message.ToString() );
+					case DeltaSyncFrame m:
+						Simulator.ReferencableAllocator.Allocate( m );
+						Simulator.ClientTickScheduler.ReceiveSyncFrame( m );
+						//Logger?.Log( "DeltaSyncFrame {0}", peer );
+						m.Release();
+						break;
+
+					default:
+						throw new NotSupportedException( me.Message.ToString() );
+				}
 			}
 		}
 

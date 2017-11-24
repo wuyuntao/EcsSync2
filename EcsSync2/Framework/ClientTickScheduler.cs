@@ -107,7 +107,10 @@ namespace EcsSync2
 				else if( e is ComponentEvent ce )
 				{
 					var component = Simulator.SceneManager.FindComponent( ce.ComponentId );
-					component.ApplyEvent( ce );
+					if( component == null )
+						Simulator.Context.LogError( "Failed to find component '{0}'", ce.ComponentId );
+					else
+						component.ApplyEvent( ce );
 
 					m_syncedComponents.Add( component );
 				}

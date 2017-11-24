@@ -1,10 +1,10 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 using System;
 
 namespace EcsSync2.Fps
 {
-	[MessagePackObject]
-	public class ProcessControllerSnapshot : ComponentSnapshot, IComponentSnapshot
+	[ProtoContract]
+	public class ProcessControllerSnapshot : ComponentSnapshot
 	{
 	}
 

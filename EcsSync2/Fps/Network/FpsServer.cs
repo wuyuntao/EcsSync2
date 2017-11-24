@@ -1,9 +1,10 @@
 ﻿using LiteNetLib;
 using LiteNetLib.Utils;
-using MessagePack;
+using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 
 namespace EcsSync2.Fps
 {
@@ -78,7 +79,7 @@ namespace EcsSync2.Fps
 				{
 					//Logger?.Log( "Send deltaSyncFrame {0}", deltaSyncFrame.Time );
 					NetPeerWriter.Write( Peers, deltaSyncFrame );
-				
+
 					deltaSyncFrame.Release();
 					deltaSyncFrame = Simulator.ServerTickScheduler.FetchDeltaSyncFrame();
 				}
@@ -117,40 +118,41 @@ namespace EcsSync2.Fps
 
 		void Listener_NetworkReceiveEvent(NetPeer peer, NetDataReader reader)
 		{
-			var me = MessagePackSerializer.Deserialize<MessageEnvelop>( reader.Data );
-
-			switch( me.Message )
+			using( var ms = new MemoryStream( reader.Data ) )
 			{
-				case LoginRequestMessage m:
-					NewPeers.Add( peer );
+				var me = Serializer.Deserialize<MessageEnvelop>( ms );
 
-					var res1 = new LoginResponseMessage() { Ok = true, ClientTime = m.ClientTime, ServerTime = (uint)Stopwatch.ElapsedMilliseconds };
-					var enb1 = new MessageEnvelop() { Message = res1 };
-					peer.Send( MessagePackSerializer.Serialize( enb1 ), SendOptions.ReliableOrdered );
-					Logger?.Log( "Login {0}", peer );
+				switch( me.Message )
+				{
+					case LoginRequestMessage m:
+						NewPeers.Add( peer );
 
-					EnsureCommandFrame();
-					var c = m_commandFrame.AddCommand<CreateEntityCommand>();
-					c.Settings = new PlayerSettings() { UserId = m.UserId };
+						var res1 = new LoginResponseMessage() { Ok = true, ClientTime = m.ClientTime, ServerTime = (uint)Stopwatch.ElapsedMilliseconds };
+						NetPeerWriter.Write( peer, res1 );
+						Logger?.Log( "Login {0}", peer );
 
-					break;
+						EnsureCommandFrame();
+						var c = m_commandFrame.AddCommand<CreateEntityCommand>();
+						c.Settings = new PlayerSettings() { UserId = m.UserId };
 
-				case HeartbeatRequestMessage m:
-					var res2 = new HeartbeatResponseMessage() { ClientTime = m.ClientTime, ServerTime = (uint)Stopwatch.ElapsedMilliseconds };
-					var env2 = new MessageEnvelop() { Message = res2 };
-					peer.Send( MessagePackSerializer.Serialize( env2 ), SendOptions.ReliableOrdered );
-					//Logger?.Log( "Heartbeat {0}", peer );
-					break;
+						break;
 
-				case CommandFrame m:
-					Simulator.ReferencableAllocator.Allocate( m );
-					Simulator.CommandQueue.Add( m.UserId, m );
-					//Logger?.Log( "CommandFrame {0}", peer );
-					m.Release();
-					break;
+					case HeartbeatRequestMessage m:
+						var res2 = new HeartbeatResponseMessage() { ClientTime = m.ClientTime, ServerTime = (uint)Stopwatch.ElapsedMilliseconds };
+						NetPeerWriter.Write( peer, res2 );
+						//Logger?.Log( "Heartbeat {0}", peer );
+						break;
 
-				default:
-					throw new NotSupportedException( me.Message.ToString() );
+					case CommandFrame m:
+						Simulator.ReferencableAllocator.Allocate( m );
+						Simulator.CommandQueue.Add( m.UserId, m );
+						//Logger?.Log( "CommandFrame {0}", peer );
+						m.Release();
+						break;
+
+					default:
+						throw new NotSupportedException( me.Message.ToString() );
+				}
 			}
 		}
 

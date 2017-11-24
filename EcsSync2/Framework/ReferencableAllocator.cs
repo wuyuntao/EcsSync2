@@ -1,4 +1,4 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -44,7 +44,7 @@ namespace EcsSync2
 		#endregion
 	}
 
-	public abstract class MessagePackReferencable : Referencable
+	public abstract class SerializableReferencable : Referencable
 	{
 		public override string ToString()
 		{
@@ -54,7 +54,7 @@ namespace EcsSync2
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
-				var attr = f.GetCustomAttribute( typeof( KeyAttribute ) );
+				var attr = f.GetCustomAttribute( typeof( ProtoMemberAttribute ) );
 				if( attr == null )
 					continue;
 
@@ -74,7 +74,7 @@ namespace EcsSync2
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
-				var attr = f.GetCustomAttribute( typeof( KeyAttribute ) );
+				var attr = f.GetCustomAttribute( typeof( ProtoMemberAttribute ) );
 				if( attr == null )
 					continue;
 
@@ -183,7 +183,9 @@ namespace EcsSync2
 		{
 			readonly List<IReferenceCounter> m_counters;
 			readonly Queue<int> m_unreferenced;
+#if ENABLE_ALLOCATOR_LOG
 			int m_overflowCount;
+#endif
 
 			public ReferencableCounterPool(ReferencableAllocator allocator, Type type, int initialCapacity = 16)
 			{
@@ -268,9 +270,9 @@ namespace EcsSync2
 			public Type ReferencableType { get; private set; }
 		}
 
-		#endregion
+#endregion
 
-		#region ReferencableCounter
+#region ReferencableCounter
 
 		class ReferencableCounter : IReferenceCounter
 		{
@@ -442,6 +444,6 @@ namespace EcsSync2
 			public ReferencableAllocator Allocator { get; }
 		}
 
-		#endregion
+#endregion
 	}
 }

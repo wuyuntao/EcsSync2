@@ -1,23 +1,23 @@
 ﻿using EcsSync2.Fps;
-using MessagePack;
+using ProtoBuf;
 using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	[MessagePackObject]
-	public class CommandFrame : Referencable, IMessage
+	[ProtoContract]
+	public class CommandFrame : Message
 	{
-		[Key( 0 )]
+		[ProtoMember( 1 )]
 		public ulong UserId;
 
-		[Key( 1 )]
+		[ProtoMember( 2 )]
 		public uint Time;
 
-		[Key( 2 )]
-		public List<ICommand> Commands = new List<ICommand>();
+		[ProtoMember( 3 )]
+		public List<Command> Commands = new List<Command>();
 
 		public T AddCommand<T>()
-			where T : class, ICommand, new()
+			where T : Command, new()
 		{
 			var command = ReferenceCounter.Allocate<T>();
 			Commands.Add( command );

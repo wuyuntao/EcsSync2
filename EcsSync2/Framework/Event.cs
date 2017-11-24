@@ -1,31 +1,30 @@
 ﻿using EcsSync2.Fps;
-using MessagePack;
+using ProtoBuf;
 
 namespace EcsSync2
 {
-	[Union( 0, typeof( EntityCreatedEvent ) )]
-	[Union( 1, typeof( EntityRemovedEvent ) )]
-	[Union( 2, typeof( InputChangedEvent ) )]
-	[Union( 3, typeof( PlayerConnectedEvent ) )]
-	[Union( 4, typeof( TransformMovedEvent ) )]
-	[Union( 5, typeof( TransformVelocityChangedEvent ) )]
-	public interface IEvent : IReferencable
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( SceneEvent ) )]
+	[ProtoInclude( 2, typeof( ComponentEvent ) )]
+	public abstract class Event : SerializableReferencable
 	{
 	}
 
-	[MessagePackObject]
-	public abstract class Event : MessagePackReferencable, IEvent
-	{
-	}
-
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( EntityCreatedEvent ) )]
+	[ProtoInclude( 2, typeof( EntityRemovedEvent ) )]
 	public abstract class SceneEvent : Event
 	{
 	}
 
-	[MessagePackObject]
-	public class ComponentEvent : Event
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( InputChangedEvent ) )]
+	[ProtoInclude( 2, typeof( PlayerConnectedEvent ) )]
+	[ProtoInclude( 3, typeof( TransformMovedEvent ) )]
+	[ProtoInclude( 4, typeof( TransformVelocityChangedEvent ) )]
+	public abstract class ComponentEvent : Event
 	{
-		[Key( 10 )]
+		[ProtoMember( 11 )]
 		public uint ComponentId;
 	}
 }

@@ -1,4 +1,4 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 using System;
 using System.Diagnostics;
 
@@ -13,13 +13,13 @@ namespace EcsSync2.Fps
 		public bool IsStatic;
 	}
 
-	[MessagePackObject]
-	public class TransformSnapshot : ComponentSnapshot, IComponentSnapshot
+	[ProtoContract]
+	public class TransformSnapshot : ComponentSnapshot
 	{
-		[Key( 20 )]
+		[ProtoMember( 21 )]
 		public Vector2D Position;
 
-		[Key( 21 )]
+		[ProtoMember( 22 )]
 		public Vector2D Velocity;
 
 		protected override void OnReset()
@@ -50,10 +50,10 @@ namespace EcsSync2.Fps
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class TransformMovedEvent : ComponentEvent
 	{
-		[Key( 20 )]
+		[ProtoMember( 21 )]
 		public Vector2D Position;
 
 		protected override void OnReset()
@@ -63,10 +63,10 @@ namespace EcsSync2.Fps
 		}
 	}
 
-	[MessagePackObject]
+	[ProtoContract]
 	public class TransformVelocityChangedEvent : ComponentEvent
 	{
-		[Key( 20 )]
+		[ProtoMember( 21 )]
 		public Vector2D Velocity;
 
 		protected override void OnReset()

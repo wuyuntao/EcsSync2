@@ -1,44 +1,44 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 
 namespace EcsSync2.Fps
 {
-	[MessagePackObject]
-	public class LoginRequestMessage : IMessage
+	[ProtoContract]
+	public class LoginRequestMessage : Message
 	{
-		[Key( 0 )]
+		[ProtoMember( 1 )]
 		public ulong UserId;
 
-		[Key( 1 )]
+		[ProtoMember( 2 )]
 		public uint ClientTime;
 	}
 
-	[MessagePackObject]
-	public class LoginResponseMessage : IMessage
+	[ProtoContract]
+	public class LoginResponseMessage : Message
 	{
-		[Key( 0 )]
+		[ProtoMember( 1 )]
 		public bool Ok;
 
-		[Key( 1 )]
+		[ProtoMember( 2 )]
 		public uint ClientTime;
 
-		[Key( 2 )]
+		[ProtoMember( 3 )]
 		public uint ServerTime;
 	}
 
-	[MessagePackObject]
-	public class HeartbeatRequestMessage : IMessage
+	[ProtoContract]
+	public class HeartbeatRequestMessage : Message
 	{
-		[Key( 0 )]
+		[ProtoMember( 1 )]
 		public uint ClientTime;
 	}
 
-	[MessagePackObject]
-	public class HeartbeatResponseMessage : IMessage
+	[ProtoContract]
+	public class HeartbeatResponseMessage : Message
 	{
-		[Key( 0 )]
+		[ProtoMember( 1 )]
 		public uint ClientTime;
 
-		[Key( 1 )]
+		[ProtoMember( 2 )]
 		public uint ServerTime;
 	}
 }

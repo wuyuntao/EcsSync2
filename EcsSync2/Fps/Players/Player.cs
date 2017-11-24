@@ -1,14 +1,14 @@
-﻿using MessagePack;
+﻿using ProtoBuf;
 
 namespace EcsSync2.Fps
 {
-	[MessagePackObject]
-	public class PlayerSettings : IEntitySettings
+	[ProtoContract]
+	public class PlayerSettings : EntitySettings
 	{
-		[Key( 0 )]
+		[ProtoMember( 1 )]
 		public ulong UserId;
 
-		[Key( 1 )]
+		[ProtoMember( 2 )]
 		public bool IsAI;
 	}
 
