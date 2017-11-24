@@ -107,9 +107,9 @@ namespace EcsSync2
 			referencable.ReferenceCounter.Retain();
 		}
 
-		public static void Release(this IReferencable referencable)
+		public static void Release(this IReferencable referencable, bool checkUnreferenced = false)
 		{
-			referencable.ReferenceCounter.Release();
+			referencable.ReferenceCounter.Release( checkUnreferenced );
 		}
 	}
 
@@ -117,7 +117,7 @@ namespace EcsSync2
 	{
 		void Retain();
 
-		void Release();
+		void Release(bool checkUnreferenced);
 
 		T Allocate<T>() where T : class, IReferencable, new();
 
@@ -156,7 +156,7 @@ namespace EcsSync2
 
 		public IReferencable Allocate(IReferencable value)
 		{
-			return EnsurePool( value.GetType() ).Allocate( value ).Value;
+			EnsurePool( value.GetType() ).Allocate( value ).Value;
 		}
 
 		public void Clear()
@@ -290,7 +290,7 @@ namespace EcsSync2
 				}
 
 #if ENABLE_ALLOCATOR_LOG
-				if( pool.ReferencableType == typeof( Fps.PlayerConnectedEvent ) )
+				if( pool.ReferencableType == typeof( Fps.CharacterMotionControllerSnapshot ) )
 					m_logs = new List<string>();
 #endif
 
@@ -316,7 +316,7 @@ namespace EcsSync2
 				m_referencedCount++;
 			}
 
-			public void Release()
+			public void Release(bool checkUnreferenced)
 			{
 #if ENABLE_ALLOCATOR_LOG
 				AppendLog( nameof( Release ) );
@@ -340,6 +340,13 @@ namespace EcsSync2
 #if ENABLE_ALLOCATOR_LOG
 					//ClearLogs();
 #endif
+				}
+				else if( checkUnreferenced )
+				{
+#if ENABLE_ALLOCATOR_LOG
+					DumpLogs();
+#endif
+					throw new InvalidOperationException( $"{this} is still referenced by {m_referencedCount} objects" );
 				}
 			}
 

@@ -137,7 +137,6 @@ namespace EcsSync2
 
 		void ReconcilePredictions()
 		{
-
 			// 没有新的同步帧，或没有新的预测帧需要和解
 			if( m_syncTickContext.Time <= m_reconcilationTickContext.Time ||
 				m_predictionTickContext.Time < m_syncTickContext.Time )
@@ -158,7 +157,6 @@ namespace EcsSync2
 			{
 				//Simulator.Context.Log( "{0}|All appromiate", Simulator.FixedTime );
 
-				// 清理**预测**时间轴
 				CleanUpAcknowledgedCommands();
 				CleanUpPredictionSnapshots( components );
 
@@ -246,6 +244,7 @@ namespace EcsSync2
 
 		void CleanUpPredictionSnapshots(List<Component> components)
 		{
+			// 清理**预测**时间轴
 			var context = new TickContext( TickContextType.Prediction, m_reconcilationTickContext.Time );
 
 			foreach( var component in components )

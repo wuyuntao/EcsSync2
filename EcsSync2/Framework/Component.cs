@@ -114,7 +114,9 @@ namespace EcsSync2
 		{
 			EnsureTickContext();
 
-			State = OnEventApplied( @event );
+			var state = OnEventApplied( @event );
+			State = state;
+			state.Release();
 
 			if( Entity.SceneManager.Simulator.ServerTickScheduler != null )
 				Entity.SceneManager.Simulator.EventBus.EnqueueEvent( TickScheduler.CurrentContext.Value.Time, @event );
@@ -155,8 +157,8 @@ namespace EcsSync2
 			{
 				EnsureTickContext();
 
-				if( m_state == value )
-					return;
+				if( ReferenceEquals( m_state, value ) )
+					throw new InvalidOperationException( $"State {m_state} is set multiple times" );
 
 				m_state?.Release();
 				m_state = value;
@@ -294,12 +296,12 @@ namespace EcsSync2
 			switch( context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
-					m_syncTimeline?.RemoveBefore( context.Time );
+					/*var removed1 = */m_syncTimeline?.RemoveBefore( context.Time );
 					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed1 );
 					break;
 
 				case TickScheduler.TickContextType.Prediction:
-					m_predictionTimeline?.RemoveBefore( context.Time );
+					/*var removed2 = */m_predictionTimeline?.RemoveBefore( context.Time );
 					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed2 );
 					break;
 

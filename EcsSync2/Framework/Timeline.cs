@@ -138,15 +138,15 @@ namespace EcsSync2
 
 				// Equals
 				if( time == prevPoint.Time )
-					return (ComponentSnapshot)prevPoint.Snapshot.Clone();
+					return prevPoint.Snapshot.Clone();
 
 				// Extrapolation
 				if( i == m_head + m_count - 1 )
-					return (ComponentSnapshot)prevPoint.Snapshot.Extrapolate( prevPoint.Time, time );
+					return prevPoint.Snapshot.Extrapolate( prevPoint.Time, time );
 
 				// Interpolation
 				var nextPoint = m_points[( i + 1 ) % m_points.Length];
-				return (ComponentSnapshot)prevPoint.Snapshot.Interpolate( prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time );
+				return prevPoint.Snapshot.Interpolate( prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time );
 			}
 
 			return null;
@@ -175,7 +175,7 @@ namespace EcsSync2
 			for( int i = offset; i < offset + size; i++ )
 			{
 				var index = i % m_points.Length;
-				m_points[index].Release();
+				m_points[index].Release( true );
 				m_points[index] = null;
 			}
 		}
