@@ -8,8 +8,7 @@ namespace EcsSync2.Fps
 	[ProtoInclude( 3, typeof( HeartbeatRequestMessage ) )]
 	[ProtoInclude( 4, typeof( HeartbeatResponseMessage ) )]
 	[ProtoInclude( 5, typeof( CommandFrame ) )]
-	[ProtoInclude( 6, typeof( FullSyncFrame ) )]
-	[ProtoInclude( 7, typeof( DeltaSyncFrame ) )]
+	[ProtoInclude( 6, typeof( SyncFrame ) )]
 	public abstract class Message : Referencable
 	{
 	}

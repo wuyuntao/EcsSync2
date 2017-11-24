@@ -4,16 +4,19 @@ using System.Collections.Generic;
 
 namespace EcsSync2
 {
+	[ProtoContract]
+	[ProtoInclude( 1, typeof( FullSyncFrame ) )]
+	[ProtoInclude( 2, typeof( DeltaSyncFrame ) )]
 	public abstract class SyncFrame : Message
 	{
-		[ProtoMember( 1 )]
+		[ProtoMember( 11 )]
 		public uint Time;
 	}
 
 	[ProtoContract]
 	public class FullSyncFrame : SyncFrame
 	{
-		[ProtoMember( 11 )]
+		[ProtoMember( 21 )]
 		public List<EntitySnapshot> Entities = new List<EntitySnapshot>();
 
 		protected override void OnAllocate()
@@ -38,7 +41,7 @@ namespace EcsSync2
 	[ProtoContract]
 	public class DeltaSyncFrame : SyncFrame
 	{
-		[ProtoMember( 11 )]
+		[ProtoMember( 21 )]
 		public List<Event> Events = new List<Event>();
 
 		protected override void OnAllocate()

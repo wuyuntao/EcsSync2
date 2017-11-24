@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace EcsSync2
 {
@@ -35,6 +36,8 @@ namespace EcsSync2
 
 		public void ReceiveSyncFrame(SyncFrame frame)
 		{
+			Debug.Assert( frame.Time != 0 );
+
 			if( StartFixedTime == null )
 				StartFixedTime = frame.Time;
 
