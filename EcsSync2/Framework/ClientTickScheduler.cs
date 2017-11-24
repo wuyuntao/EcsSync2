@@ -10,6 +10,7 @@ namespace EcsSync2
 		TickContext m_predictionTickContext = new TickContext( TickContextType.Prediction, 0 );
 		TickContext m_interpolationTickContext = new TickContext( TickContextType.Interpolation, 0 );
 
+		List<Component> m_syncedComponents = new List<Component>();
 		List<Component> m_predictiveComponents = new List<Component>();
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
 		Queue<CommandFrame> m_commandFrames = new Queue<CommandFrame>();
@@ -45,6 +46,9 @@ namespace EcsSync2
 
 		void ApplySyncFrames()
 		{
+			if( m_syncFrames.Count == 0 )
+				return;
+
 			while( m_syncFrames.Count > 0 )
 			{
 				var frame = m_syncFrames.Dequeue();
@@ -63,6 +67,8 @@ namespace EcsSync2
 
 				frame.Release();
 			}
+
+			CleanUpSyncSnapshots();
 		}
 
 		void ApplyFullSyncFrame(FullSyncFrame frame)
@@ -102,10 +108,27 @@ namespace EcsSync2
 				{
 					var component = Simulator.SceneManager.FindComponent( ce.ComponentId );
 					component.ApplyEvent( ce );
+
+					m_syncedComponents.Add( component );
 				}
 				else
 					throw new NotSupportedException( e.ToString() );
 			}
+		}
+
+		void CleanUpSyncSnapshots()
+		{
+			// 清理冗余的 Sync Timeline
+			var expiration = (uint)Math.Round( Simulator.SynchronizedClock.Rtt / 2f * 1000f + Simulator.InterpolationManager.InterpolationDelay * 2 );
+			if( m_syncTickContext.Time > expiration )
+			{
+				var context = new TickContext( TickContextType.Sync, m_syncTickContext.Time - expiration );
+
+				foreach( var component in m_syncedComponents )
+					component.RemoveStatesBefore( m_syncTickContext );
+			}
+
+			m_syncedComponents.Clear();
 		}
 
 		#endregion
@@ -114,7 +137,6 @@ namespace EcsSync2
 
 		void ReconcilePredictions()
 		{
-			// TODO 如果无需和解清理**预测**和**同步**时间轴
 
 			// 没有新的同步帧，或没有新的预测帧需要和解
 			if( m_syncTickContext.Time <= m_reconcilationTickContext.Time ||
@@ -135,6 +157,11 @@ namespace EcsSync2
 			if( !RequireReconcilation( components ) )
 			{
 				//Simulator.Context.Log( "{0}|All appromiate", Simulator.FixedTime );
+
+				// 清理**预测**时间轴
+				CleanUpAcknowledgedCommands();
+				CleanUpPredictionSnapshots( components );
+
 				return;
 			}
 
@@ -186,7 +213,7 @@ namespace EcsSync2
 			m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_syncTickContext.Time );
 
 			// 清理已确认命令
-			Simulator.CommandQueue.RemoveBefore( Simulator.LocalUserId.Value, m_syncTickContext.Time );
+			CleanUpAcknowledgedCommands();
 		}
 
 		bool RequireReconcilation(List<Component> components)
@@ -210,6 +237,19 @@ namespace EcsSync2
 			}
 
 			return false;
+		}
+
+		void CleanUpAcknowledgedCommands()
+		{
+			Simulator.CommandQueue.RemoveBefore( Simulator.LocalUserId.Value, m_syncTickContext.Time );
+		}
+
+		void CleanUpPredictionSnapshots(List<Component> components)
+		{
+			var context = new TickContext( TickContextType.Prediction, m_reconcilationTickContext.Time );
+
+			foreach( var component in components )
+				component.RemoveStatesBefore( context );
 		}
 
 		#endregion

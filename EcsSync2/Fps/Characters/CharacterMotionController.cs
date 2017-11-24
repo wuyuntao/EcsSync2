@@ -15,6 +15,14 @@ namespace EcsSync2.Fps
 		[Key( 22 )]
 		public float MaxSpeed;
 
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+			InputDirection = Vector2D.Zero;
+			InputMagnitude = 0;
+			MaxSpeed = 0;
+		}
+
 		public override ComponentSnapshot Clone()
 		{
 			var s = this.Allocate<CharacterMotionControllerSnapshot>();

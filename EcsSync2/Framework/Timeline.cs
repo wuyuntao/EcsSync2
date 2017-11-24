@@ -81,7 +81,7 @@ namespace EcsSync2
 			for( int i = m_head; i < m_head + m_count; i++ )
 			{
 				var point = m_points[i % m_points.Length];
-				if( point.Time > time )
+				if( point.Time >= time )
 					break;
 
 				count++;

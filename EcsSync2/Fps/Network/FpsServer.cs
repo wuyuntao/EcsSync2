@@ -15,6 +15,7 @@ namespace EcsSync2.Fps
 
 		public NetManager NetManager { get; }
 		public ILogger Logger { get; }
+		NetPeerWriter NetPeerWriter { get; }
 
 		public Simulator Simulator { get; }
 		public BattleScene Scene { get; }
@@ -31,6 +32,7 @@ namespace EcsSync2.Fps
 			Port = port;
 			ConnectKey = connectKey;
 			Logger = context;
+			NetPeerWriter = new NetPeerWriter( Logger );
 
 			var listener = new EventBasedNetListener();
 			listener.PeerConnectedEvent += Listener_PeerConnectedEvent;
@@ -75,14 +77,9 @@ namespace EcsSync2.Fps
 				while( deltaSyncFrame != null )
 				{
 					//Logger?.Log( "Send deltaSyncFrame {0}", deltaSyncFrame.Time );
-
-					var env = new MessageEnvelop() { Message = deltaSyncFrame };
-					var bytes = MessagePackSerializer.Serialize( env );
+					NetPeerWriter.Write( Peers, deltaSyncFrame );
+				
 					deltaSyncFrame.Release();
-
-					foreach( var p in Peers )
-						p.Send( bytes, SendOptions.ReliableOrdered );
-
 					deltaSyncFrame = Simulator.ServerTickScheduler.FetchDeltaSyncFrame();
 				}
 			}
@@ -91,14 +88,9 @@ namespace EcsSync2.Fps
 			{
 				var fullSyncFrame = Simulator.ServerTickScheduler.FetchFullSyncFrame();
 
-				Logger?.Log( "Send fullSyncFrame {0}", fullSyncFrame.Time );
-
-				var env = new MessageEnvelop() { Message = fullSyncFrame };
-				var bytes = MessagePackSerializer.Serialize( env );
+				//Logger?.Log( "Send fullSyncFrame {0}", fullSyncFrame.Time );
+				NetPeerWriter.Write( NewPeers, fullSyncFrame );
 				fullSyncFrame.Release();
-
-				foreach( var p in NewPeers )
-					p.Send( bytes, SendOptions.ReliableOrdered );
 
 				Peers.AddRange( NewPeers );
 				NewPeers.Clear();

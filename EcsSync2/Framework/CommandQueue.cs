@@ -51,21 +51,30 @@ namespace EcsSync2
 			return null;
 		}
 
-		public void RemoveBefore(ulong userId, uint time)
+		public int RemoveBefore(ulong userId, uint time)
 		{
-			RemoveBefore( EnsureQueue( userId ), time );
+			return RemoveBefore( EnsureQueue( userId ), time );
 		}
 
-		public void RemoveBefore(uint time)
+		public int RemoveBefore(uint time)
 		{
+			var count = 0;
 			foreach( var q in m_queues.Values )
-				RemoveBefore( q, time );
+				count += RemoveBefore( q, time );
+			return count;
 		}
 
-		void RemoveBefore(Queue<CommandFrame> queue, uint time)
+		int RemoveBefore(Queue<CommandFrame> queue, uint time)
 		{
+			var count = 0;
+
 			while( queue.Count > 0 && queue.Peek().Time < time )
+			{
 				queue.Dequeue().Release();
+				count++;
+			}
+
+			return count;
 		}
 
 		Queue<CommandFrame> EnsureQueue(ulong userId)

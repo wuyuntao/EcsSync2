@@ -74,15 +74,18 @@ namespace EcsSync2
 				}
 			}
 
-			while( FixedTime + Configuration.SimulationDeltaTime <= targetFixedTime )
+			if( ClientTickScheduler == null || ClientTickScheduler.StartFixedTime != null )
 			{
-				FixedTime += Configuration.SimulationDeltaTime;
+				while( FixedTime + Configuration.SimulationDeltaTime <= targetFixedTime )
+				{
+					FixedTime += Configuration.SimulationDeltaTime;
 
-				TickScheduler.Tick();
-				EventBus.DispatchEvents();
+					TickScheduler.Tick();
+					EventBus.DispatchEvents();
+				}
+
+				InterpolationManager?.Interpolate();
 			}
-
-			InterpolationManager?.Interpolate();
 		}
 	}
 }

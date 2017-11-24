@@ -53,6 +53,7 @@ namespace EcsSync2
 			var frame = Simulator.ReferencableAllocator.Allocate<CommandFrame>();
 			frame.UserId = Simulator.LocalUserId.Value;
 			frame.Time = Simulator.FixedTime;
+			//Simulator.Context.Log( "CreateCommands {0} / {1}", Simulator.FixedTime, frame.Time );
 
 			var scene = Simulator.SceneManager.Scene as BattleScene;
 			if( scene != null )

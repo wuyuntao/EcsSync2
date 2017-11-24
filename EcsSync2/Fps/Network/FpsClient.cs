@@ -19,6 +19,7 @@ namespace EcsSync2.Fps
 		public NetManager NetManager { get; }
 		public NetPeer NetPeer { get; private set; }
 		public ILogger Logger { get; }
+		NetPeerWriter NetPeerWriter { get; }
 
 		Simulator.IContext Context { get; }
 		public Simulator Simulator { get; private set; }
@@ -35,6 +36,7 @@ namespace EcsSync2.Fps
 			ConnectKey = connectKey;
 			UserId = userId;
 			Logger = Context = context;
+			NetPeerWriter = new NetPeerWriter( Logger );
 
 			var listener = new EventBasedNetListener();
 			listener.PeerConnectedEvent += Listener_PeerConnectedEvent;
@@ -68,13 +70,10 @@ namespace EcsSync2.Fps
 				while( commandFrame != null )
 				{
 					commandFrame.UserId = UserId;
-					var env = new MessageEnvelop() { Message = commandFrame };
-					var bytes = MessagePackSerializer.Serialize( env );
+					NetPeerWriter.Write( NetPeer, commandFrame );
 
 					commandFrame.Release();
 					commandFrame = Simulator.ClientTickScheduler.FetchCommandFrame();
-
-					NetPeer.Send( bytes, SendOptions.ReliableOrdered );
 				}
 
 				if( Stopwatch.ElapsedMilliseconds - LastHeartbeatMs > Configuration.HeartbeatIntervalTime )
@@ -82,10 +81,8 @@ namespace EcsSync2.Fps
 					LastHeartbeatMs = Stopwatch.ElapsedMilliseconds;
 
 					var msg = new HeartbeatRequestMessage() { ClientTime = (uint)LastHeartbeatMs };
-					var env = new MessageEnvelop() { Message = msg };
-					var bytes = MessagePackSerializer.Serialize( env );
 
-					NetPeer.Send( bytes, SendOptions.ReliableOrdered );
+					NetPeerWriter.Write( NetPeer, msg );
 				}
 			}
 		}
@@ -101,9 +98,7 @@ namespace EcsSync2.Fps
 			NetPeer = peer;
 
 			var req = new LoginRequestMessage() { UserId = UserId, ClientTime = (uint)Stopwatch.ElapsedMilliseconds };
-			var env = new MessageEnvelop() { Message = req };
-			var bytes = MessagePackSerializer.Serialize( env );
-			peer.Send( bytes, SendOptions.ReliableOrdered );
+			NetPeerWriter.Write( NetPeer, req );
 		}
 
 		void Listener_PeerDisconnectedEvent(NetPeer peer, DisconnectInfo disconnectInfo)

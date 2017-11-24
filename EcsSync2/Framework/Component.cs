@@ -289,6 +289,25 @@ namespace EcsSync2
 			return timeline;
 		}
 
+		internal void RemoveStatesBefore(TickScheduler.TickContext context)
+		{
+			switch( context.Type )
+			{
+				case TickScheduler.TickContextType.Sync:
+					m_syncTimeline?.RemoveBefore( context.Time );
+					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed1 );
+					break;
+
+				case TickScheduler.TickContextType.Prediction:
+					m_predictionTimeline?.RemoveBefore( context.Time );
+					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed2 );
+					break;
+
+				default:
+					throw new NotSupportedException( context.Type.ToString() );
+			}
+		}
+
 		#endregion
 	}
 }

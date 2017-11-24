@@ -181,6 +181,7 @@ namespace EcsSync2
 		{
 			readonly List<IReferenceCounter> m_counters;
 			readonly Queue<int> m_unreferenced;
+			int m_overflowCount;
 
 			public ReferencableCounterPool(ReferencableAllocator allocator, Type type, int initialCapacity = 16)
 			{
@@ -188,6 +189,11 @@ namespace EcsSync2
 				ReferencableType = type;
 				m_counters = new List<IReferenceCounter>( initialCapacity );
 				m_unreferenced = new Queue<int>( initialCapacity );
+			}
+
+			public override string ToString()
+			{
+				return $"{GetType().Name}({ReferencableType.Name})";
 			}
 
 			public IReferenceCounter Allocate<T>()
@@ -222,6 +228,9 @@ namespace EcsSync2
 				}
 				else
 				{
+					if( ( ++m_overflowCount % Allocator.m_maxCapacity ) == 1 )
+						Allocator.Simulator.Context.LogWarning( "{0} overflowed {1}", this, m_overflowCount );
+
 					return new ReferencableCounter( this, -1, (IReferencable)Activator.CreateInstance( type ) );
 				}
 			}
@@ -239,6 +248,9 @@ namespace EcsSync2
 				}
 				else
 				{
+					if( ( ++m_overflowCount % Allocator.m_maxCapacity ) == 1 )
+						Allocator.Simulator.Context.LogWarning( "{0} overflowed {1}", this, m_overflowCount );
+
 					return new ReferencableCounter( this, -1, value );
 				}
 			}

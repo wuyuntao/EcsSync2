@@ -12,5 +12,7 @@ namespace EcsSync2
 		internal void Interpolate()
 		{
 		}
+
+		public uint InterpolationDelay { get; private set; } = 50;
 	}
 }
