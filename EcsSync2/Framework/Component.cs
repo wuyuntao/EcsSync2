@@ -37,6 +37,11 @@ namespace EcsSync2
 			OnInitialize();
 		}
 
+		public override string ToString()
+		{
+			return $"{GetType().Name}-{Id}";
+		}
+
 		internal void Start()
 		{
 			EnsureTickContext( false );

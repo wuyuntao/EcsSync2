@@ -40,6 +40,11 @@ namespace EcsSync2
 			OnInitialize();
 		}
 
+		public override string ToString()
+		{
+			return $"{GetType().Name}-{Id}";
+		}
+
 		protected abstract void OnInitialize();
 
 		internal void Start()
