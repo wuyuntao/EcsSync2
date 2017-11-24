@@ -121,9 +121,9 @@ namespace EcsSync2
 
 		T Allocate<T>() where T : class, IReferencable, new();
 
-		IReferencable Allocate(IReferencable value);
-
 		IReferencable Allocate(Type type);
+
+		IReferencable Allocate(IReferencable value);
 
 		int ReferencedCount { get; }
 
@@ -136,27 +136,29 @@ namespace EcsSync2
 	{
 		int m_maxCapacity;
 		Dictionary<Type, ReferencableCounterPool> m_pools = new Dictionary<Type, ReferencableCounterPool>();
+		OverflowReferencableCounter m_overflowReferenceCounter;
 
 		public ReferencableAllocator(Simulator simulator, int maxCapacity = 100)
 			: base( simulator )
 		{
 			m_maxCapacity = maxCapacity;
+			m_overflowReferenceCounter = new OverflowReferencableCounter( this );
 		}
 
 		public T Allocate<T>()
 			where T : class, IReferencable, new()
 		{
-			return (T)EnsurePool( typeof( T ) ).Allocate<T>().Value;
+			return (T)EnsurePool( typeof( T ) ).Allocate<T>();
 		}
 
 		public IReferencable Allocate(Type type)
 		{
-			return EnsurePool( type ).Allocate( type ).Value;
+			return EnsurePool( type ).Allocate( type );
 		}
 
 		public IReferencable Allocate(IReferencable value)
 		{
-			EnsurePool( value.GetType() ).Allocate( value ).Value;
+			return EnsurePool( value.GetType() ).Allocate( value );
 		}
 
 		public void Clear()
@@ -196,19 +198,13 @@ namespace EcsSync2
 				return $"{GetType().Name}({ReferencableType.Name})";
 			}
 
-			public IReferenceCounter Allocate<T>()
+			public IReferencable Allocate<T>()
 				where T : class, IReferencable, new()
 			{
 				return Allocate( typeof( T ) );
 			}
 
-			public IReferenceCounter Allocate<T>(T value)
-				where T : class, IReferencable, new()
-			{
-				return Allocate( (IReferencable)value );
-			}
-
-			public IReferenceCounter Allocate(Type type)
+			public IReferencable Allocate(Type type)
 			{
 				if( type != ReferencableType )
 					throw new ArgumentException( nameof( type ) );
@@ -218,24 +214,28 @@ namespace EcsSync2
 					var index = m_unreferenced.Dequeue();
 					var counter = m_counters[index];
 					counter.Retain();
-					return counter;
+					return counter.Value;
 				}
 				else if( m_counters.Count < Allocator.m_maxCapacity )
 				{
 					var counter = new ReferencableCounter( this, m_counters.Count, (IReferencable)Activator.CreateInstance( type ) );
 					m_counters.Add( counter );
-					return counter;
+					return counter.Value;
 				}
 				else
 				{
+#if ENABLE_ALLOCATOR_LOG
 					if( ( ++m_overflowCount % Allocator.m_maxCapacity ) == 1 )
 						Allocator.Simulator.Context.LogWarning( "{0} overflowed {1}", this, m_overflowCount );
+#endif
 
-					return new ReferencableCounter( this, -1, (IReferencable)Activator.CreateInstance( type ) );
+					var value = (IReferencable)Activator.CreateInstance( type );
+					Allocator.m_overflowReferenceCounter.Attach( value );
+					return value;
 				}
 			}
 
-			public IReferenceCounter Allocate(IReferencable value)
+			public IReferencable Allocate(IReferencable value)
 			{
 				if( value.GetType() != ReferencableType )
 					throw new ArgumentException( nameof( value ) );
@@ -244,14 +244,17 @@ namespace EcsSync2
 				{
 					var counter = new ReferencableCounter( this, m_counters.Count, value );
 					m_counters.Add( counter );
-					return counter;
+					return counter.Value;
 				}
 				else
 				{
+#if ENABLE_ALLOCATOR_LOG
 					if( ( ++m_overflowCount % Allocator.m_maxCapacity ) == 1 )
 						Allocator.Simulator.Context.LogWarning( "{0} overflowed {1}", this, m_overflowCount );
+#endif
 
-					return new ReferencableCounter( this, -1, value );
+					Allocator.m_overflowReferenceCounter.Attach( value );
+					return value;
 				}
 			}
 
@@ -398,6 +401,45 @@ namespace EcsSync2
 			public int ReferencedCount => m_referencedCount;
 
 			public ReferencableAllocator Allocator => m_pool.Allocator;
+		}
+
+		class OverflowReferencableCounter : IReferenceCounter
+		{
+			public OverflowReferencableCounter(ReferencableAllocator allocator)
+			{
+				Allocator = allocator;
+			}
+
+			public void Attach(IReferencable referencable)
+			{
+				referencable.ReferenceCounter = this;
+				referencable.OnAllocate();
+			}
+
+			public void Retain() { }
+
+			public void Release(bool checkUnreferenced) { }
+
+			T IReferenceCounter.Allocate<T>()
+			{
+				return Allocator.Allocate<T>();
+			}
+
+			public IReferencable Allocate(Type type)
+			{
+				return Allocator.Allocate( type );
+			}
+
+			public IReferencable Allocate(IReferencable value)
+			{
+				return Allocator.Allocate( value );
+			}
+
+			public int ReferencedCount => throw new NotSupportedException();
+
+			public IReferencable Value => throw new NotSupportedException();
+
+			public ReferencableAllocator Allocator { get; }
 		}
 
 		#endregion
