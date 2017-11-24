@@ -66,6 +66,7 @@ namespace EcsSync2
 		protected override void DisposeManaged()
 		{
 			m_state?.Release();
+			m_state = null;
 			m_syncTimeline?.Clear();
 			m_reconcilationTimeline?.Clear();
 			m_predictionTimeline?.Clear();

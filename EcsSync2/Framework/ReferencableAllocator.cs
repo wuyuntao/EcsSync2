@@ -310,7 +310,7 @@ namespace EcsSync2
 
 			public override string ToString()
 			{
-				return $"{m_pool.ReferencableType.Name}-{m_index}";
+				return $"{GetType().Name}({m_pool.ReferencableType.Name}-{m_index})";
 			}
 
 			public void Retain()

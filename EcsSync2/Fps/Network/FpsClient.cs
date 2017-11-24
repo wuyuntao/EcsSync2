@@ -130,14 +130,12 @@ namespace EcsSync2.Fps
 						break;
 
 					case FullSyncFrame m:
-						Simulator.ReferencableAllocator.Allocate( m );
 						Simulator.ClientTickScheduler.ReceiveSyncFrame( m );
 						Logger?.Log( "FullSyncFrame {0}", peer );
 						m.Release();
 						break;
 
 					case DeltaSyncFrame m:
-						Simulator.ReferencableAllocator.Allocate( m );
 						Simulator.ClientTickScheduler.ReceiveSyncFrame( m );
 						//Logger?.Log( "DeltaSyncFrame {0}", peer );
 						m.Release();

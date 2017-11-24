@@ -38,9 +38,8 @@ namespace EcsSync2
 			if( StartFixedTime == null )
 				StartFixedTime = frame.Time;
 
-			// TODO 有必要加入引用计数么？
-			frame.Retain();
-
+			// 加入 sync frame 处理队列
+			Simulator.ReferencableAllocator.Allocate( frame );
 			m_syncFrames.Enqueue( frame );
 		}
 
@@ -51,6 +50,7 @@ namespace EcsSync2
 
 			while( m_syncFrames.Count > 0 )
 			{
+				// 移除 sync frame 处理队列
 				var frame = m_syncFrames.Dequeue();
 
 				m_syncTickContext = new TickContext( TickContextType.Sync, frame.Time );
@@ -65,6 +65,7 @@ namespace EcsSync2
 
 				LeaveContext();
 
+				// 移除 sync frame 处理队列
 				frame.Release();
 			}
 
@@ -86,8 +87,6 @@ namespace EcsSync2
 						Simulator.Context.LogError( "Failed to find component '{0}'", cs.ComponentId );
 					else
 						component.RecoverSnapshot( cs );
-
-					cs.Release();
 				}
 			}
 		}

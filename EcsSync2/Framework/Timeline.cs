@@ -13,6 +13,7 @@ namespace EcsSync2
 		{
 			Time = 0;
 			Snapshot?.Release();
+			Snapshot = null;
 
 			base.OnReset();
 		}
@@ -59,6 +60,8 @@ namespace EcsSync2
 			if( lastPoint != null && lastPoint.Time == time )
 			{
 				point = lastPoint;
+				point.Snapshot.Release();
+				point.Snapshot = null;
 				isNewPoint = false;
 			}
 			else
@@ -68,7 +71,6 @@ namespace EcsSync2
 				isNewPoint = true;
 			}
 
-			point.Snapshot?.Release();
 			point.Snapshot = snapshot;
 			point.Snapshot.Retain();
 
