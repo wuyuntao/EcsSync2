@@ -1,6 +1,0 @@
-[submodule "Lib/LiteNetLib"]
-	path = Lib/LiteNetLib
-	url = https://github.com/RevenantX/LiteNetLib.git
-[submodule "Lib/MessagePack"]
-	path = Lib/MessagePack
-	url = https://github.com/neuecc/MessagePack-CSharp
