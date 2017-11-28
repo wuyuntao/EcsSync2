@@ -77,7 +77,7 @@ namespace EcsSync2
 
 		void ApplyFullSyncFrame(FullSyncFrame frame)
 		{
-			Simulator.Context.Log( "{0}|ApplyFullSyncFrame {1}", Simulator.FixedTime, frame.Time );
+			//Simulator.Context.Log( "{0}|ApplyFullSyncFrame {1}", Simulator.FixedTime, frame.Time );
 
 			foreach( var es in frame.Entities )
 			{
@@ -125,12 +125,12 @@ namespace EcsSync2
 		{
 			// 清理冗余的 Sync Timeline
 			var expiration = (uint)Math.Round( Simulator.SynchronizedClock.Rtt / 2f * 1000f + Simulator.InterpolationManager.InterpolationDelay * 2 );
-			if( m_syncTickContext.Time > expiration )
+			if( Simulator.FixedTime > expiration )
 			{
-				var context = new TickContext( TickContextType.Sync, m_syncTickContext.Time - expiration );
+				var context = new TickContext( TickContextType.Sync, Simulator.FixedTime - expiration );
 
 				foreach( var component in m_syncedComponents )
-					component.RemoveStatesBefore( m_syncTickContext );
+					component.RemoveStatesBefore( context );
 			}
 
 			m_syncedComponents.Clear();
@@ -169,7 +169,7 @@ namespace EcsSync2
 			}
 
 			// 回滚到同步状态
-			Simulator.Context.LogWarning( "{0}|Rollback snapshot to reconcilation {1} -> {2}", Simulator.FixedTime, m_predictionTickContext.Time, m_reconcilationTickContext.Time );
+			//Simulator.Context.LogWarning( "{0}|Rollback snapshot to reconcilation {1} -> {2}", Simulator.FixedTime, m_predictionTickContext.Time, m_reconcilationTickContext.Time );
 
 			EnterContext( m_reconcilationTickContext );
 			foreach( var component in components )
@@ -232,8 +232,8 @@ namespace EcsSync2
 				var syncState = component.GetState( m_syncTickContext );
 				if( !syncState.IsApproximate( predictionState ) )
 				{
-					//Simulator.Context.LogWarning( "Found prediction error. Prediction: {0}, {1}, Sync: {2}, {3}",
-					//	predictionContext.Time, predictionState, m_syncTickContext.Time, syncState );
+					Simulator.Context.LogWarning( "Found prediction error. Prediction: {0}, {1}, Sync: {2}, {3}",
+						predictionContext.Time, predictionState, m_syncTickContext.Time, syncState );
 
 					return true;
 				}
@@ -314,6 +314,13 @@ namespace EcsSync2
 				return m_commandFrames.Dequeue();
 			else
 				return null;
+		}
+
+		internal CommandFrame FetchCommandFrame2()
+		{
+			var frame = Simulator.CommandQueue.Find( Simulator.LocalUserId.Value, m_predictionTickContext.Time );
+			frame.Retain();
+			return frame;
 		}
 	}
 }

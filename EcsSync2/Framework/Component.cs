@@ -87,6 +87,8 @@ namespace EcsSync2
 
 			EnsureTickContext();
 
+			//Entity.SceneManager.Simulator.Context.Log( "RecoverSnapshot {0}, {1}, {2}", this, m_context, state );
+
 			switch( m_context.Value.Type )
 			{
 				case TickScheduler.TickContextType.Reconcilation:
@@ -113,12 +115,16 @@ namespace EcsSync2
 		{
 			EnsureTickContext();
 
+			//Entity.SceneManager.Simulator.Context.Log( "ReceiveCommand {0}, {1}, {2}", this, m_context, command );
+
 			OnCommandReceived( command );
 		}
 
 		protected internal void ApplyEvent(ComponentEvent @event)
 		{
 			EnsureTickContext();
+
+			//Entity.SceneManager.Simulator.Context.Log( "ApplyEvent {0}, {1}, {2}", this, m_context, @event );
 
 			var state = OnEventApplied( @event );
 			State = state;
@@ -302,12 +308,12 @@ namespace EcsSync2
 			switch( context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
-					/*var removed1 = */m_syncTimeline?.RemoveBefore( context.Time );
+					var removed1 = m_syncTimeline?.RemoveBefore( context.Time );
 					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed1 );
 					break;
 
 				case TickScheduler.TickContextType.Prediction:
-					/*var removed2 = */m_predictionTimeline?.RemoveBefore( context.Time );
+					var removed2 = m_predictionTimeline?.RemoveBefore( context.Time );
 					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed2 );
 					break;
 

@@ -19,6 +19,11 @@ namespace EcsSync2
 		[ProtoMember( 21 )]
 		public List<EntitySnapshot> Entities = new List<EntitySnapshot>();
 
+		public override string ToString()
+		{
+			return $"{GetType().Name}<Time: {Time}, Entities: {Entities.Count}>";
+		}
+
 		protected override void OnAllocate()
 		{
 			base.OnAllocate();
@@ -43,6 +48,11 @@ namespace EcsSync2
 	{
 		[ProtoMember( 21 )]
 		public List<Event> Events = new List<Event>();
+
+		public override string ToString()
+		{
+			return $"{GetType().Name}<Time: {Time}, Events: {Events.Count}>";
+		}
 
 		protected override void OnAllocate()
 		{

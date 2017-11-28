@@ -16,6 +16,11 @@ namespace EcsSync2
 		[ProtoMember( 3 )]
 		public List<Command> Commands = new List<Command>();
 
+		public override string ToString()
+		{
+			return $"{GetType().Name}<User: {UserId}, Time: {Time}, Commands: {Commands.Count}>";
+		}
+
 		public T AddCommand<T>()
 			where T : Command, new()
 		{

@@ -79,6 +79,8 @@ namespace EcsSync2
 		{
 			var c = frame.AddCommand<PlayerConnectCommand>();
 			c.ComponentId = player.ConnectionManager.Id;
+
+			Simulator.Context.Log( "PlayerConnectCommand {0}, {1}", frame, player );
 		}
 
 		void MoveCharacterCommand(CommandFrame frame, CharacterMotionController motion)
@@ -87,6 +89,8 @@ namespace EcsSync2
 			c.ComponentId = motion.Id;
 			c.InputDirection = new Vector2D( m_joystickDirection[0], m_joystickDirection[1] );
 			c.InputMagnitude = m_joystickMagnitude;
+
+			//Simulator.Context.Log( "MoveCharacterCommand {0}, {1}", frame, motion );
 		}
 	}
 }

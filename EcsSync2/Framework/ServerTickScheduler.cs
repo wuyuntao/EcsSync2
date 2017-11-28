@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace EcsSync2
@@ -49,6 +50,10 @@ namespace EcsSync2
 			// TODO 减少按 UserId 的查询
 			m_dispatchedCommands.TryGetValue( userId, out CommandFrame lastFrame );
 
+			// 如果之前没收到过命令的话，从前一帧命令开始
+			//if( lastFrame == null )
+			//	lastFrame = Simulator.CommandQueue.FindFirst( userId );
+
 			// 尝试执行从上一次应用的命令帧开始，到当前帧之间的所有命令
 			var lastFrameChanged = false;
 			for( var time = lastFrame != null ? lastFrame.Time + Configuration.SimulationDeltaTime : context.Time;
@@ -62,6 +67,9 @@ namespace EcsSync2
 				DispatchCommands( frame );
 				lastFrame = frame;
 				lastFrameChanged = true;
+
+				if( lastFrame.Time != context.Time )
+					Simulator.Context.LogWarning( "Re-dispatch commands {0}", frame );
 			}
 
 			if( lastFrame != null )
@@ -74,6 +82,7 @@ namespace EcsSync2
 				if( lastFrame.Time != context.Time )
 				{
 					DispatchCommands( lastFrame );
+					Simulator.Context.LogWarning( "Dispatch last commands {0} since current frame is not received", lastFrame );
 
 					// TODO 按需加速客户端
 				}
@@ -117,6 +126,30 @@ namespace EcsSync2
 			if( m_lastDeltaSyncTime == null )
 				m_lastDeltaSyncTime = m_context.Time;
 
+			return f;
+		}
+
+		internal FullSyncFrame FetchFullSyncFrame2()
+		{
+			var f = Simulator.ReferencableAllocator.Allocate<FullSyncFrame>();
+			f.Time = m_context.Time;
+
+			EnterContext( m_context );
+			foreach( var e in Simulator.SceneManager.Entities )
+			{
+				var s = e.CreateSnapshot();
+				f.Entities.Add( s );
+
+				s.Retain();
+			}
+			LeaveContext();
+			return f;
+		}
+
+		internal DeltaSyncFrame FetchDeltaSyncFrame2()
+		{
+			var f = Simulator.EventBus.FetchEvents( m_context.Time );
+			f.Retain();
 			return f;
 		}
 	}
