@@ -64,8 +64,8 @@ namespace EcsSync2
 				lastFrame = frame;
 				lastFrameChanged = true;
 
-				if( lastFrame.Time != context.Time )
-					Simulator.Context.LogWarning( "Re-dispatch commands {0}", frame );
+				//if( lastFrame.Time != context.Time )
+				//	Simulator.Context.LogWarning( "Re-dispatch commands {0}", frame );
 
 				++dispatchedCommands;
 			}
@@ -80,7 +80,7 @@ namespace EcsSync2
 				if( lastFrame.Time != context.Time )
 				{
 					DispatchCommands( lastFrame );
-					Simulator.Context.LogWarning( "Dispatch last commands {0} since current frame is not received", lastFrame );
+					//Simulator.Context.LogWarning( "Dispatch last commands {0} since current frame is not received", lastFrame );
 
 					// TODO 按需加速客户端
 				}

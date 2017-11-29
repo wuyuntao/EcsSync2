@@ -165,7 +165,7 @@ namespace EcsSync2.Examples
 					message = env.Message;
 				}
 
-				Logger.Log( "{0} send {1}", this, message );
+				//Logger.Log( "{0} send {1}", this, message );
 
 				var stream = Client.ClientStream == this ?
 					Client.ServerStream :

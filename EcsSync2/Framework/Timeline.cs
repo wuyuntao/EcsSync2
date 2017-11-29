@@ -14,6 +14,12 @@ namespace EcsSync2
 			return $"{GetType().Name}({Time})";
 		}
 
+		protected override void OnAllocate()
+		{
+			if( Snapshot != null )
+				throw new NotSupportedException( nameof( Timepoint ) );
+		}
+
 		protected override void OnReset()
 		{
 			Time = 0;

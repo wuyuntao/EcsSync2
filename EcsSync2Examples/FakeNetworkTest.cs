@@ -153,7 +153,7 @@ namespace EcsSync2.Examples
 						s_time += s_deltaTime;
 						s_timeVersion++;
 
-						Logger.Log( "#{0} Tick. deltaTime: {1}s, time: {2}s", s_timeVersion, s_deltaTime, s_time );
+						//Logger.Log( "#{0} Tick. deltaTime: {1}s, time: {2}s", s_timeVersion, s_deltaTime, s_time );
 					}
 
 					Network.InvokeActions( s_time );

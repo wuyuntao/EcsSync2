@@ -73,6 +73,9 @@ namespace EcsSync2
 
 		public void Simulate(float deltaTime)
 		{
+			if( deltaTime <= 0 )
+				return;
+
 			SynchronizedClock.Tick( deltaTime );
 
 			NetworkComponet?.ReceiveMessages();

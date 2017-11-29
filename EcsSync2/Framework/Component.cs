@@ -225,45 +225,40 @@ namespace EcsSync2
 			switch( context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
-					{
-						return GetState_Sync( context );
-					}
+					return GetSyncState( context );
 
 				case TickScheduler.TickContextType.Reconcilation:
-					{
-						if( m_reconcilationTimeline != null && m_reconcilationTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
-							return snapshot;
+					if( m_reconcilationTimeline != null && m_reconcilationTimeline.TryFind( context.Time, out ComponentSnapshot s1 ) )
+						return s1;
 
-						return GetState_Sync( context );
-					}
+					return GetSyncState( context );
 
 				case TickScheduler.TickContextType.Prediction:
 				case TickScheduler.TickContextType.Interpolation:
-					{
-						if( m_predictionTimeline != null && m_predictionTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
-							return snapshot;
+					if( m_predictionTimeline != null && m_predictionTimeline.TryFind( context.Time, out ComponentSnapshot s2 ) )
+						return s2;
 
-						return GetState_Sync( context );
-					}
+					return GetSyncState( context );
 
 				default:
 					throw new NotSupportedException( context.Type.ToString() );
 			}
 		}
 
-		ComponentSnapshot GetState_Sync(TickScheduler.TickContext context)
+		ComponentSnapshot GetSyncState(TickScheduler.TickContext context)
 		{
-			if( m_syncTimeline == null )
-				throw new InvalidOperationException( $"Missing sync timeline of {this}" );
-
-			if( m_syncTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
-				return snapshot;
-
-			if( m_syncTimeline.FirstPoint != null )
+			// 如果是纯客户端本地预测对象，可能没有 sync timeline
+			if( m_syncTimeline != null )
 			{
-				Entity.SceneManager.Simulator.Context.LogWarning( "Cannot find sync snapshot for {0}, Use first snapshot instead {1}", context, m_syncTimeline.FirstPoint );
+				if( m_syncTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
+					return snapshot;
 
-				return m_syncTimeline.FirstPoint.Snapshot;
+				if( m_syncTimeline.FirstPoint != null )
+				{
+					Entity.SceneManager.Simulator.Context.LogWarning( "Cannot find sync snapshot for {0}, Use first snapshot instead {1}", context, m_syncTimeline.FirstPoint );
+
+					return m_syncTimeline.FirstPoint.Snapshot;
+				}
 			}
 
 			throw new InvalidOperationException( $"Cannot find sync snapshot of {this} for {context}" );

@@ -80,7 +80,7 @@ namespace EcsSync2
 			var c = frame.AddCommand<PlayerConnectCommand>();
 			c.ComponentId = player.ConnectionManager.Id;
 
-			Simulator.Context.Log( "PlayerConnectCommand {0}, {1}", frame, player );
+			//Simulator.Context.Log( "PlayerConnectCommand {0}, {1}", frame, player );
 		}
 
 		void MoveCharacterCommand(CommandFrame frame, CharacterMotionController motion)
