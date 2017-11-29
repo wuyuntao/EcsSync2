@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace EcsSync2
@@ -50,13 +49,9 @@ namespace EcsSync2
 			// TODO 减少按 UserId 的查询
 			m_dispatchedCommands.TryGetValue( userId, out CommandFrame lastFrame );
 
-			// 如果之前没收到过命令的话，从前一帧命令开始
-			//if( lastFrame == null )
-			//	lastFrame = Simulator.CommandQueue.FindFirst( userId );
-
 			// 尝试执行从上一次应用的命令帧开始，到当前帧之间的所有命令
 			var lastFrameChanged = false;
-			for( var time = lastFrame != null ? lastFrame.Time + Configuration.SimulationDeltaTime : context.Time;
+			for( var time = GetUserCommandStartTime( context, userId, lastFrame );
 				time <= context.Time;
 				time += Configuration.SimulationDeltaTime )
 			{
@@ -94,6 +89,18 @@ namespace EcsSync2
 				// 清理已应用命令
 				Simulator.CommandQueue.RemoveBefore( userId, lastFrame.Time );
 			}
+		}
+
+		uint GetUserCommandStartTime(TickContext context, ulong userId, CommandFrame lastDispatchedFrame)
+		{
+			if( lastDispatchedFrame != null )
+				return lastDispatchedFrame.Time + Configuration.SimulationDeltaTime;
+
+			var firstUndispatchedFrame = Simulator.CommandQueue.FindFirst( userId );
+			if( firstUndispatchedFrame != null )
+				return firstUndispatchedFrame.Time;
+
+			return context.Time;
 		}
 
 		public DeltaSyncFrame FetchDeltaSyncFrame()

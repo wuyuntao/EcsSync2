@@ -17,7 +17,7 @@ namespace EcsSync2
 
 		public void Synchronize(float serverTime, float rtt)
 		{
-			Simulator.Context.Log( "Synchronize st: {0}, rtt: {1}, time: {2}", serverTime, rtt, m_time );
+			//Simulator.Context.Log( "Synchronize st: {0}, rtt: {1}, time: {2}", serverTime, rtt, m_time );
 
 			m_remoteTime = ( serverTime + rtt / 2f );
 			m_rtt = rtt;

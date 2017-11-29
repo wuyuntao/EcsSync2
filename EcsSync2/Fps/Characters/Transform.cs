@@ -91,14 +91,16 @@ namespace EcsSync2.Fps
 			{
 				case TransformMovedEvent e:
 					var s1 = (TransformSnapshot)State.Clone();
-					//Entity.SceneManager.Simulator.Context.Log($"received {nameof(TransformMovedEvent)} {e.Position} <- {s1.Position}");
+					//if( Entity is Character c1 && !c1.IsLocalCharacter )
+					//	Entity.SceneManager.Simulator.Context.Log( $"received {nameof( TransformMovedEvent )} {e.Position} <- {s1.Position}" );
 					s1.Position = e.Position;
 					OnMoved?.Invoke();
 					return s1;
 
 				case TransformVelocityChangedEvent e:
 					var s2 = (TransformSnapshot)State.Clone();
-					//Entity.SceneManager.Simulator.Context.Log($"received {nameof(TransformVelocityChangedEvent)} {e.Velocity} <- {s2.Velocity}");
+					//if( Entity is Character c2 && !c2.IsLocalCharacter )
+					//	Entity.SceneManager.Simulator.Context.Log( $"received {nameof( TransformVelocityChangedEvent )} {e.Velocity} <- {s2.Velocity}" );
 					s2.Velocity = e.Velocity;
 					return s2;
 

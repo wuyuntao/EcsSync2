@@ -24,7 +24,8 @@ namespace EcsSync2.FpsUnity
 
 		void OnMoved()
 		{
-			if( Character.Transform.TickType == TickScheduler.TickContextType.Prediction )
+			if( ( Character.IsLocalCharacter && Character.Transform.TickType == TickScheduler.TickContextType.Prediction )
+				|| ( !Character.IsLocalCharacter && Character.Transform.TickType == TickScheduler.TickContextType.Sync ) )
 				transform.position = Character.Transform.Position.ToUnityPos();
 		}
 
