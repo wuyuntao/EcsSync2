@@ -135,7 +135,7 @@ namespace EcsSync2.Examples
 			public Client Client { get; }
 			public bool ClientSide { get; }
 
-			byte[] m_buffer = new byte[200];
+			byte[] m_buffer = new byte[1024];
 
 			public Stream(FakeNetwork network, uint id, Client client, bool clientSide)
 				: base( network, id )

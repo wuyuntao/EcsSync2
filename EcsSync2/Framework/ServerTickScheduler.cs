@@ -48,11 +48,12 @@ namespace EcsSync2
 		{
 			// TODO 减少按 UserId 的查询
 			m_dispatchedCommands.TryGetValue( userId, out CommandFrame lastFrame );
+			var lastFrameChanged = false;
 
 			// 尝试执行从上一次应用的命令帧开始，到当前帧之间的所有命令
-			var lastFrameChanged = false;
+			int dispatchedCommands = 0;
 			for( var time = GetUserCommandStartTime( context, userId, lastFrame );
-				time <= context.Time;
+				time <= context.Time && dispatchedCommands < Configuration.MaxCommandDispatchCount;
 				time += Configuration.SimulationDeltaTime )
 			{
 				var frame = Simulator.CommandQueue.Find( userId, time );
@@ -65,6 +66,8 @@ namespace EcsSync2
 
 				if( lastFrame.Time != context.Time )
 					Simulator.Context.LogWarning( "Re-dispatch commands {0}", frame );
+
+				++dispatchedCommands;
 			}
 
 			if( lastFrame != null )

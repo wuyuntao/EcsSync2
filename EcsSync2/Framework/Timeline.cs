@@ -9,6 +9,11 @@ namespace EcsSync2
 
 		public ComponentSnapshot Snapshot;
 
+		public override string ToString()
+		{
+			return $"{GetType().Name}({Time})";
+		}
+
 		protected override void OnReset()
 		{
 			Time = 0;

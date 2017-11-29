@@ -19,5 +19,7 @@
 		public const float ComponentReconcilationRatio = 0.1f;
 
 		public const int HeartbeatIntervalTime = 1000;
+
+		public const int MaxCommandDispatchCount = 10;
 	}
 }

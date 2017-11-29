@@ -26,6 +26,8 @@ namespace EcsSync2.Examples
 				Task.Run( (Action)RunServer );
 				Task.Run( (Action)RunClient );
 				Task.Run( (Action)RunClient );
+				Task.Run( (Action)RunClient );
+				Task.Run( (Action)RunClient );
 
 				WaitForShutdown();
 			}
