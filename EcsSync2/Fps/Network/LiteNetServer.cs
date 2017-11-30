@@ -10,8 +10,8 @@ namespace EcsSync2.Fps
 	{
 		const string ConnectKey = "EcsSync2";
 
-		public Action<NetworkComponet.IStream> OnConnected { get; set; }
-		public Action<NetworkComponet.IStream> OnDisconnected { get; set; }
+		public Action<NetworkManager.IStream> OnConnected { get; set; }
+		public Action<NetworkManager.IStream> OnDisconnected { get; set; }
 
 		public ILogger Logger { get; }
 
@@ -56,7 +56,7 @@ namespace EcsSync2.Fps
 
 		void Listener_PeerDisconnectedEvent(NetPeer peer, DisconnectInfo disconnectInfo)
 		{
-			var stream = (NetworkComponet.IStream)peer.Tag;
+			var stream = (NetworkManager.IStream)peer.Tag;
 			OnDisconnected?.Invoke( stream );
 
 			Logger?.Log( "Listener_PeerDisconnectedEvent {0}, {1}", peer, disconnectInfo );
@@ -68,7 +68,7 @@ namespace EcsSync2.Fps
 			{
 				var env = Serializer.Deserialize<MessageEnvelop>( ms );
 
-				var stream = (NetworkComponet.IStream)peer.Tag;
+				var stream = (NetworkManager.IStream)peer.Tag;
 				stream.OnReceived?.Invoke( env.Message );
 			}
 		}

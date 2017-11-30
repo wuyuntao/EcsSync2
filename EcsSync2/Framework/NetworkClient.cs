@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace EcsSync2
 {
-	public class NetworkClient : NetworkComponet
+	public class NetworkClient : NetworkManager
 	{
 		public interface IClientContext : IContext
 		{

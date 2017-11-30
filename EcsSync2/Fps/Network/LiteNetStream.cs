@@ -3,7 +3,7 @@ using LiteNetLib;
 
 namespace EcsSync2.Fps
 {
-	class LiteNetStream : NetworkComponet.IStream
+	class LiteNetStream : NetworkManager.IStream
 	{
 		public Action<Message> OnReceived { get; set; }
 

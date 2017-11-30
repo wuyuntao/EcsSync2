@@ -3,7 +3,7 @@ using System;
 
 namespace EcsSync2
 {
-	public abstract class NetworkComponet : SimulatorComponent
+	public abstract class NetworkManager : SimulatorComponent
 	{
 		public interface IContext
 		{
@@ -21,7 +21,7 @@ namespace EcsSync2
 			void Send(Message message);
 		}
 
-		protected NetworkComponet(Simulator simulator)
+		protected NetworkManager(Simulator simulator)
 			: base( simulator )
 		{
 		}

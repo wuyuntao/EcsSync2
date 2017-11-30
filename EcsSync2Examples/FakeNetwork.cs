@@ -29,7 +29,7 @@ namespace EcsSync2.Examples
 			return client;
 		}
 
-		NetworkComponet.IStream CreateStream(Client client, bool clientSide)
+		NetworkManager.IStream CreateStream(Client client, bool clientSide)
 		{
 			return new Stream( this, ++m_maxId, client, clientSide );
 		}
@@ -69,8 +69,8 @@ namespace EcsSync2.Examples
 
 		class Server : BaseObject, NetworkServer.IServerContext
 		{
-			public Action<NetworkComponet.IStream> OnConnected { get; set; }
-			public Action<NetworkComponet.IStream> OnDisconnected { get; set; }
+			public Action<NetworkManager.IStream> OnConnected { get; set; }
+			public Action<NetworkManager.IStream> OnDisconnected { get; set; }
 
 			public Server(FakeNetwork network, uint id)
 				: base( network, id )
@@ -89,13 +89,13 @@ namespace EcsSync2.Examples
 
 		class Client : BaseObject, NetworkClient.IClientContext
 		{
-			public Action<NetworkComponet.IStream> OnConnected { get; set; }
-			public Action<NetworkComponet.IStream> OnDisconnected { get; set; }
+			public Action<NetworkManager.IStream> OnConnected { get; set; }
+			public Action<NetworkManager.IStream> OnDisconnected { get; set; }
 
 			public float Rtt { get; } = 0.1f;
 
-			public NetworkComponet.IStream ClientStream { get; private set; }
-			public NetworkComponet.IStream ServerStream { get; private set; }
+			public NetworkManager.IStream ClientStream { get; private set; }
+			public NetworkManager.IStream ServerStream { get; private set; }
 
 			public Client(FakeNetwork network, uint id)
 				: base( network, id )
@@ -128,7 +128,7 @@ namespace EcsSync2.Examples
 			}
 		}
 
-		class Stream : BaseObject, NetworkComponet.IStream
+		class Stream : BaseObject, NetworkManager.IStream
 		{
 			public Action<Message> OnReceived { get; set; }
 

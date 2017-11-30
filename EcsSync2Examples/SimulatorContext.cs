@@ -15,7 +15,7 @@ namespace EcsSync2.Examples
 			m_client = client;
 		}
 
-		Action<NetworkComponet.IStream> NetworkComponet.IContext.OnConnected
+		Action<NetworkManager.IStream> NetworkManager.IContext.OnConnected
 		{
 			get
 			{
@@ -37,7 +37,7 @@ namespace EcsSync2.Examples
 			}
 		}
 
-		Action<NetworkComponet.IStream> NetworkComponet.IContext.OnDisconnected
+		Action<NetworkManager.IStream> NetworkManager.IContext.OnDisconnected
 		{
 			get
 			{
@@ -69,7 +69,7 @@ namespace EcsSync2.Examples
 			m_client?.Connect( address, port );
 		}
 
-		void NetworkComponet.IContext.Poll()
+		void NetworkManager.IContext.Poll()
 		{
 			if( m_server != null )
 				m_server.Poll();

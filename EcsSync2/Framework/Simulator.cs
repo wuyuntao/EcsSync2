@@ -27,7 +27,7 @@ namespace EcsSync2
 		public EventBus EventBus { get; }
 		public InterpolationManager InterpolationManager { get; }
 
-		public NetworkComponet NetworkComponet { get; }
+		public NetworkManager NetworkManager { get; }
 		public NetworkClient NetworkClient { get; }
 		public NetworkServer NetworkServer { get; }
 
@@ -61,12 +61,12 @@ namespace EcsSync2
 			}
 			else if( isServer )
 			{
-				NetworkComponet = NetworkServer = new NetworkServer( this );
+				NetworkManager = NetworkServer = new NetworkServer( this );
 				TickScheduler = ServerTickScheduler = new ServerTickScheduler( this );
 			}
 			else
 			{
-				NetworkComponet = NetworkClient = new NetworkClient( this );
+				NetworkManager = NetworkClient = new NetworkClient( this );
 				TickScheduler = ClientTickScheduler = new ClientTickScheduler( this );
 			}
 		}
@@ -78,7 +78,7 @@ namespace EcsSync2
 
 			SynchronizedClock.Tick( deltaTime );
 
-			NetworkComponet?.ReceiveMessages();
+			NetworkManager?.ReceiveMessages();
 
 			var targetFixedTime = SynchronizedClock.Time * 1000;
 			if( ClientTickScheduler != null )
@@ -103,7 +103,7 @@ namespace EcsSync2
 					TickScheduler.Tick();
 					EventBus.DispatchEvents();
 
-					NetworkComponet?.SendMessages();
+					NetworkManager?.SendMessages();
 				}
 
 				InterpolationManager?.Interpolate();

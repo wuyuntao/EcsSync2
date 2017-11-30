@@ -209,6 +209,8 @@ namespace EcsSync2
 					reconcilationState = predictionState.Interpolate( reconcilationState, Configuration.ComponentReconcilationRatio );
 
 				component.RecoverSnapshot( reconcilationState );
+
+				CleanUpReconcilationSnapshots( component );
 			}
 			LeaveContext();
 
@@ -254,6 +256,11 @@ namespace EcsSync2
 
 			foreach( var component in components )
 				component.RemoveStatesBefore( context );
+		}
+
+		void CleanUpReconcilationSnapshots(Component component)
+		{
+			// TODO 完全清理**纠正**时间轴
 		}
 
 		#endregion
