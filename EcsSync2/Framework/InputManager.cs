@@ -52,11 +52,10 @@ namespace EcsSync2
 		{
 			var frame = Simulator.ReferencableAllocator.Allocate<CommandFrame>();
 			frame.UserId = Simulator.LocalUserId.Value;
-			frame.Time = Simulator.FixedTime;
+			frame.Time = Simulator.TickScheduler.CurrentContext.Value.Time;
 			//Simulator.Context.Log( "CreateCommands {0} / {1}", Simulator.FixedTime, frame.Time );
 
-			var scene = Simulator.SceneManager.Scene as BattleScene;
-			if( scene != null )
+			if( Simulator.SceneManager.Scene is BattleScene scene )
 			{
 				if( scene.LocalCharacter != null )
 				{

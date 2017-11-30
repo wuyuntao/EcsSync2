@@ -74,7 +74,7 @@ namespace EcsSync2
 		public void Simulate(float deltaTime)
 		{
 			if( deltaTime <= 0 )
-				return;
+				throw new ArgumentOutOfRangeException( nameof( deltaTime ) );
 
 			SynchronizedClock.Tick( deltaTime );
 
