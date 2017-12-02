@@ -27,6 +27,10 @@ namespace EcsSync2
 		public EventBus EventBus { get; }
 		public InterpolationManager InterpolationManager { get; }
 
+		public NetworkManager NetworkManager { get; }
+		public NetworkClient NetworkClient { get; }
+		public NetworkServer NetworkServer { get; }
+
 		public uint FixedTime { get; private set; }
 
 		public Simulator(IContext context, bool isServer, bool isClient, int? randomSeed, ulong? localUserId)
@@ -50,17 +54,31 @@ namespace EcsSync2
 				InterpolationManager = new InterpolationManager( this );
 			}
 
-			if( isServer && isClient )
+			var isStandalone = isServer && isClient;
+			if( isStandalone )
+			{
 				TickScheduler = StandaloneTickScheduler = new StandaloneTickScheduler( this );
+			}
 			else if( isServer )
+			{
+				NetworkManager = NetworkServer = new NetworkServer( this );
 				TickScheduler = ServerTickScheduler = new ServerTickScheduler( this );
+			}
 			else
+			{
+				NetworkManager = NetworkClient = new NetworkClient( this );
 				TickScheduler = ClientTickScheduler = new ClientTickScheduler( this );
+			}
 		}
 
 		public void Simulate(float deltaTime)
 		{
+			if( deltaTime <= 0 )
+				throw new ArgumentOutOfRangeException( nameof( deltaTime ) );
+
 			SynchronizedClock.Tick( deltaTime );
+
+			NetworkManager?.ReceiveMessages();
 
 			var targetFixedTime = SynchronizedClock.Time * 1000;
 			if( ClientTickScheduler != null )
@@ -80,8 +98,12 @@ namespace EcsSync2
 				{
 					FixedTime += Configuration.SimulationDeltaTime;
 
+					//Context.Log( "Before Tick targetFixedTime: {0}, fixedTime: {1}", targetFixedTime, FixedTime );
+
 					TickScheduler.Tick();
 					EventBus.DispatchEvents();
+
+					NetworkManager?.SendMessages();
 				}
 
 				InterpolationManager?.Interpolate();

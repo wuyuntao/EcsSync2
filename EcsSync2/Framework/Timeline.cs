@@ -9,6 +9,17 @@ namespace EcsSync2
 
 		public ComponentSnapshot Snapshot;
 
+		public override string ToString()
+		{
+			return $"{GetType().Name}({Time})";
+		}
+
+		protected override void OnAllocate()
+		{
+			if( Snapshot != null )
+				throw new NotSupportedException( nameof( Timepoint ) );
+		}
+
 		protected override void OnReset()
 		{
 			Time = 0;
@@ -95,6 +106,8 @@ namespace EcsSync2
 
 				m_count -= count;
 				m_head = ( m_head + count ) % m_points.Length;
+
+				ValidateCorrectness();
 				return count;
 			}
 			else
@@ -158,6 +171,8 @@ namespace EcsSync2
 		{
 			ReleasePoints( m_head, m_count );
 			m_head = m_count = 0;
+
+			ValidateCorrectness();
 		}
 
 		Timepoint AllocatePoint()
@@ -169,6 +184,8 @@ namespace EcsSync2
 			var point = m_allocator.Allocate<Timepoint>();
 			m_points[index] = point;
 			m_count++;
+
+			ValidateCorrectness();
 			return point;
 		}
 
@@ -188,8 +205,8 @@ namespace EcsSync2
 				return;
 
 			var points = new Timepoint[m_points.Length * 2];
-			var tail = ( m_head + m_count ) % m_points.Length;
 			var head = m_head % m_points.Length;
+			var tail = ( m_head + m_count ) % m_points.Length;
 
 			if( tail > head )
 			{
@@ -202,11 +219,34 @@ namespace EcsSync2
 			}
 			else
 			{
-				Array.Copy( m_points, points, m_points.Length );                        // [0, capacity)
+				Array.Copy( m_points, head, points, head, m_points.Length - head );     // [head, capacity)
+				Array.Copy( m_points, 0, points, m_points.Length, head );               // [capacity, capacity + tail)
 			}
 
 			m_points = points;
 			m_head = m_head % m_points.Length;
+
+			ValidateCorrectness();
+		}
+
+		void ValidateCorrectness()
+		{
+			var head = m_head % m_points.Length;
+			var tail = ( m_head + m_count ) % m_points.Length;
+
+			for( int i = 0; i < m_points.Length; i++ )
+			{
+				bool hasValue;
+				if( head > tail )
+					hasValue = i >= head || i < tail;
+				else if( head < tail )
+					hasValue = i >= head && i < tail;
+				else
+					hasValue = m_count > 0;
+
+				if( ( m_points[i] != null ) != hasValue )
+					throw new InvalidOperationException( $"Invalid value of #{i}" );
+			}
 		}
 
 		public Timepoint FirstPoint => m_count > 0 ? m_points[m_head % m_points.Length] : null;

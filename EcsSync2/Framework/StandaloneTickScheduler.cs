@@ -2,7 +2,7 @@
 {
 	public class StandaloneTickScheduler : TickScheduler
 	{
-		TickContext m_context;
+		TickContext m_context = new TickContext( TickContextType.Sync, 0 );
 
 		public StandaloneTickScheduler(Simulator simulator)
 			: base( simulator )

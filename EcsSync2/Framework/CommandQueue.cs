@@ -13,8 +13,8 @@ namespace EcsSync2
 
 		public void Add(ulong userId, CommandFrame frame)
 		{
-			//if( frame.Commands.Count > 0 )
-			//	Simulator.Context.Log( "EqueueCommands for user {0}, time {1}, {2} commands", userId, frame.Time, frame.Commands.Count );
+			//if( frame.Commands.Count > 0 && Simulator.IsServer )
+			//	Simulator.Context.Log( "EqueueCommands for {0}, {1}, {2}", userId, frame, Simulator.FixedTime );
 
 			frame.Retain();
 
@@ -34,6 +34,17 @@ namespace EcsSync2
 				if( f != null )
 					yield return f;
 			}
+		}
+
+		public CommandFrame FindFirst(ulong userId)
+		{
+			if( !m_queues.TryGetValue( userId, out Queue<CommandFrame> queue ) )
+				return null;
+
+			if( queue.Count == 0 )
+				return null;
+
+			return queue.Peek();
 		}
 
 		CommandFrame Find(Queue<CommandFrame> queue, uint time)

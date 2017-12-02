@@ -87,6 +87,8 @@ namespace EcsSync2
 
 			EnsureTickContext();
 
+			//Entity.SceneManager.Simulator.Context.Log( "RecoverSnapshot {0}, {1}, {2}", this, m_context, state );
+
 			switch( m_context.Value.Type )
 			{
 				case TickScheduler.TickContextType.Reconcilation:
@@ -113,12 +115,16 @@ namespace EcsSync2
 		{
 			EnsureTickContext();
 
+			//Entity.SceneManager.Simulator.Context.Log( "ReceiveCommand {0}, {1}, {2}", this, m_context, command );
+
 			OnCommandReceived( command );
 		}
 
 		protected internal void ApplyEvent(ComponentEvent @event)
 		{
 			EnsureTickContext();
+
+			//Entity.SceneManager.Simulator.Context.Log( "ApplyEvent {0}, {1}, {2}", this, m_context, @event );
 
 			var state = OnEventApplied( @event );
 			State = state;
@@ -219,48 +225,43 @@ namespace EcsSync2
 			switch( context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
-					{
-						if( m_syncTimeline == null )
-							throw new InvalidOperationException( $"Missing sync timeline of {this}" );
-
-						if( m_syncTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
-							return snapshot;
-
-						throw new InvalidOperationException( $"Cannot find snapshot of {this} for {context}" );
-					}
+					return GetSyncState( context );
 
 				case TickScheduler.TickContextType.Reconcilation:
-					{
-						if( m_syncTimeline == null )
-							throw new InvalidOperationException( $"Missing sync timeline of {this}" );
+					if( m_reconcilationTimeline != null && m_reconcilationTimeline.TryFind( context.Time, out ComponentSnapshot s1 ) )
+						return s1;
 
-						if( m_reconcilationTimeline != null && m_reconcilationTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
-							return snapshot;
-
-						if( m_syncTimeline.TryFind( context.Time, out snapshot ) )
-							return snapshot;
-
-						throw new InvalidOperationException( $"Cannot find snapshot of {this} for {context}" );
-					}
+					return GetSyncState( context );
 
 				case TickScheduler.TickContextType.Prediction:
 				case TickScheduler.TickContextType.Interpolation:
-					{
-						if( m_syncTimeline == null )
-							throw new InvalidOperationException( $"Missing sync timeline of {this}" );
+					if( m_predictionTimeline != null && m_predictionTimeline.TryFind( context.Time, out ComponentSnapshot s2 ) )
+						return s2;
 
-						if( m_predictionTimeline != null && m_predictionTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
-							return snapshot;
-
-						if( m_syncTimeline.TryFind( context.Time, out snapshot ) )
-							return snapshot;
-
-						throw new InvalidOperationException( $"Cannot find snapshot of {this} for {context}" );
-					}
+					return GetSyncState( context );
 
 				default:
 					throw new NotSupportedException( context.Type.ToString() );
 			}
+		}
+
+		ComponentSnapshot GetSyncState(TickScheduler.TickContext context)
+		{
+			// 如果是纯客户端本地预测对象，可能没有 sync timeline
+			if( m_syncTimeline != null )
+			{
+				if( m_syncTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
+					return snapshot;
+
+				if( m_syncTimeline.FirstPoint != null )
+				{
+					Entity.SceneManager.Simulator.Context.LogWarning( "Cannot find sync snapshot for {0}, Use first snapshot instead {1}", context, m_syncTimeline.FirstPoint );
+
+					return m_syncTimeline.FirstPoint.Snapshot;
+				}
+			}
+
+			throw new InvalidOperationException( $"Cannot find sync snapshot of {this} for {context}" );
 		}
 
 		void SetState(TickScheduler.TickContext context, ComponentSnapshot state)
@@ -302,12 +303,12 @@ namespace EcsSync2
 			switch( context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
-					/*var removed1 = */m_syncTimeline?.RemoveBefore( context.Time );
+					var removed1 = m_syncTimeline?.RemoveBefore( context.Time );
 					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed1 );
 					break;
 
 				case TickScheduler.TickContextType.Prediction:
-					/*var removed2 = */m_predictionTimeline?.RemoveBefore( context.Time );
+					var removed2 = m_predictionTimeline?.RemoveBefore( context.Time );
 					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed2 );
 					break;
 

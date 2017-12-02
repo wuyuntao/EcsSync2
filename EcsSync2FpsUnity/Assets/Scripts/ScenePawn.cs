@@ -13,7 +13,6 @@ namespace EcsSync2.FpsUnity
 		{
 			m_simulator = simulator;
 			m_simulator.SceneManager.OnSceneLoaded += SceneManager_OnSceneLoaded;
-			m_simulator.SceneManager.LoadScene<BattleScene>();
 		}
 
 		void SceneManager_OnSceneLoaded(Scene scene)

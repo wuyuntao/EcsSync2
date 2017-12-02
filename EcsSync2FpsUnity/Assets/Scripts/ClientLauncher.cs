@@ -7,20 +7,35 @@ namespace EcsSync2.FpsUnity
 	public class ClientLauncher : MonoBehaviour
 	{
 		public string ServerAddress = "192.168.92.144";
-		public int ServerPort = 5000;
+		public int ServerPort = 3687;
 		public ulong UserId = 1000;
 
 		public ScenePawn ScenePawn;
 		public Camera Camera;
 		public UIStatus UIStatus;
 
-		FpsClient m_client;
+		SimulatorContext m_simulatorContext;
+		Simulator m_simulator;
 
 		void Awake()
 		{
-			m_client = new FpsClient( new SimulatorContext(),
-				ServerAddress, ServerPort, UserId );
-			m_client.OnLogin += OnLogin;
+			m_simulatorContext = new SimulatorContext();
+			m_simulator = new Simulator( m_simulatorContext, false, true, null, UserId );
+
+			var go = Instantiate( ScenePawn.gameObject );
+			var pawn = go.GetComponent<ScenePawn>();
+			pawn.Camera = Camera;
+			pawn.Initialize( m_simulator );
+
+			m_simulator.SceneManager.LoadScene<BattleScene>();
+			m_simulator.NetworkClient.Start( ServerAddress, ServerPort );
+
+			m_simulator.NetworkClient.OnLogin += OnLogin;
+		}
+
+		void OnLogin()
+		{
+			Debug.Log( "OnLogin" );
 		}
 
 		void Start()
@@ -30,30 +45,15 @@ namespace EcsSync2.FpsUnity
 
 		void UpdateStatus()
 		{
-			if( m_client.Simulator != null )
+			if( m_simulator != null )
 			{
-				UIStatus.RTT = m_client.Simulator.SynchronizedClock.Rtt;
+				UIStatus.RTT = m_simulator.SynchronizedClock.Rtt;
 			}
-		}
-
-		void OnLogin(Simulator simulator)
-		{
-			Debug.LogFormat( "OnLogin" );
-
-			var go = Instantiate( ScenePawn.gameObject );
-			var pawn = go.GetComponent<ScenePawn>();
-			pawn.Camera = Camera;
-			pawn.Initialize( simulator );
-		}
-
-		void OnDestroy()
-		{
-			m_client.Stop();
 		}
 
 		void Update()
 		{
-			m_client.Update();
+			m_simulator.Simulate( Time.deltaTime );
 		}
 	}
 }

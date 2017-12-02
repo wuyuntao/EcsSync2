@@ -87,12 +87,14 @@ namespace EcsSync2.Fps
 			switch( command )
 			{
 				case MoveCharacterCommand c:
-					var e = CreateEvent<InputChangedEvent>();
-					var s = (CharacterMotionControllerSnapshot)State;
-					e.InputDirection = c.InputMagnitude > 0 ? c.InputDirection : s.InputDirection;
-					e.InputMagnitude = c.InputMagnitude;
-					//Entity.SceneManager.Simulator.Context.Log($"received {nameof(MoveCharacterCommand)} {e.InputDirection} {e.InputMagnitude}");
-					ApplyEvent( e );
+					if( Entity.SceneManager.Simulator.IsServer || ( Entity is Character character && character.TheSettings.UserId == Entity.SceneManager.Simulator.LocalUserId ) )
+					{
+						var e = CreateEvent<InputChangedEvent>();
+						var s = (CharacterMotionControllerSnapshot)State;
+						e.InputDirection = c.InputMagnitude > 0 ? c.InputDirection : s.InputDirection;
+						e.InputMagnitude = c.InputMagnitude;
+						ApplyEvent( e );
+					}
 					break;
 
 				default:
@@ -117,14 +119,17 @@ namespace EcsSync2.Fps
 
 		protected override void OnFixedUpdate()
 		{
-			var s = (CharacterMotionControllerSnapshot)State;
-			var velocity = s.InputDirection * s.InputMagnitude * s.MaxSpeed;
-			var offset = velocity * Configuration.SimulationDeltaTime / 1000f;
+			if( Entity.SceneManager.Simulator.IsServer || ( Entity is Character character && character.TheSettings.UserId == Entity.SceneManager.Simulator.LocalUserId ) )
+			{
+				var s = (CharacterMotionControllerSnapshot)State;
+				var velocity = s.InputDirection * s.InputMagnitude * s.MaxSpeed;
+				var offset = velocity * Configuration.SimulationDeltaTime / 1000f;
 
-			Character.Transform.ApplyTransformVelocityChangedEvent( velocity );
+				Character.Transform.ApplyTransformVelocityChangedEvent( velocity );
 
-			if( offset.LengthSquared() > 0 )
-				Character.Transform.ApplyTransformMovedEvent( offset );
+				if( offset.LengthSquared() > 0 )
+					Character.Transform.ApplyTransformMovedEvent( offset );
+			}
 		}
 
 		protected override void OnSnapshotRecovered(ComponentSnapshot state)
