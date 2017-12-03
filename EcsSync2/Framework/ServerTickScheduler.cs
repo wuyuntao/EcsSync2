@@ -113,7 +113,7 @@ namespace EcsSync2
 			if( m_lastDeltaSyncTime >= m_context.Time )
 				return null;
 
-			var f = Simulator.EventBus.FetchEvents( m_lastDeltaSyncTime.Value + Configuration.SimulationDeltaTime );
+			var f = Simulator.EventDispatcher.FetchEvents( m_lastDeltaSyncTime.Value + Configuration.SimulationDeltaTime );
 			m_lastDeltaSyncTime += Configuration.SimulationDeltaTime;
 			return f;
 		}
@@ -158,7 +158,7 @@ namespace EcsSync2
 
 		internal DeltaSyncFrame FetchDeltaSyncFrame2()
 		{
-			var f = Simulator.EventBus.FetchEvents( m_context.Time );
+			var f = Simulator.EventDispatcher.FetchEvents( m_context.Time );
 			f.Retain();
 			return f;
 		}

@@ -129,7 +129,7 @@ namespace EcsSync2
 			OnEventApplied( @event );
 
 			if( SceneManager.Simulator.ServerTickScheduler != null )
-				SceneManager.Simulator.EventBus.EnqueueEvent( SceneManager.Simulator.TickScheduler.CurrentContext.Value.Time, @event );
+				SceneManager.Simulator.EventDispatcher.AddEventToFrame( SceneManager.Simulator.TickScheduler.CurrentContext.Value.Time, @event );
 
 			@event.Release();
 		}

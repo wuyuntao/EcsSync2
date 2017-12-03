@@ -24,7 +24,7 @@ namespace EcsSync2
 		public StandaloneTickScheduler StandaloneTickScheduler { get; }
 		public ServerTickScheduler ServerTickScheduler { get; }
 		public ClientTickScheduler ClientTickScheduler { get; }
-		public EventBus EventBus { get; }
+		public EventDispatcher EventDispatcher { get; }
 		public InterpolationManager InterpolationManager { get; }
 
 		public NetworkManager NetworkManager { get; }
@@ -46,7 +46,7 @@ namespace EcsSync2
 			CommandQueue = new CommandQueue( this );
 			InstanceIdAllocator = new InstanceIdAllocator( this );
 			SceneManager = new SceneManager( this );
-			EventBus = new EventBus( this );
+			EventDispatcher = new EventDispatcher( this );
 
 			if( isClient )
 			{
@@ -73,8 +73,8 @@ namespace EcsSync2
 
 		public void Simulate(float deltaTime)
 		{
-			if( deltaTime <= 0 )
-				throw new ArgumentOutOfRangeException( nameof( deltaTime ) );
+            if (deltaTime <= 0)
+                return;
 
 			SynchronizedClock.Tick( deltaTime );
 
@@ -101,7 +101,7 @@ namespace EcsSync2
 					//Context.Log( "Before Tick targetFixedTime: {0}, fixedTime: {1}", targetFixedTime, FixedTime );
 
 					TickScheduler.Tick();
-					EventBus.DispatchEvents();
+					EventDispatcher.Invoke();
 
 					NetworkManager?.SendMessages();
 				}
