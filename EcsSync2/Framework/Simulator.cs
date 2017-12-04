@@ -76,38 +76,41 @@ namespace EcsSync2
             if (deltaTime <= 0)
                 return;
 
+			InterpolationManager?.EndInterpolate();
 			SynchronizedClock.Tick( deltaTime );
+			TickScheduler.Tick();
+			InterpolationManager?.BeginInterpolate();
 
-			NetworkManager?.ReceiveMessages();
+			//NetworkManager?.ReceiveMessages();
 
-			var targetFixedTime = SynchronizedClock.Time * 1000;
-			if( ClientTickScheduler != null )
-			{
-				targetFixedTime += SynchronizedClock.Rtt / 2 * 1000 + Configuration.SimulationDeltaTime;
+			//var targetFixedTime = SynchronizedClock.Time * 1000;
+			//if( ClientTickScheduler != null )
+			//{
+			//	targetFixedTime += SynchronizedClock.Rtt / 2 * 1000 + Configuration.SimulationDeltaTime;
 
-				if( FixedTime < ClientTickScheduler.StartFixedTime )
-				{
-					Context.Log( "Reset fixed time => {0}", ClientTickScheduler.StartFixedTime );
-					FixedTime = ClientTickScheduler.StartFixedTime.Value;
-				}
-			}
+			//	if( FixedTime < ClientTickScheduler.StartFixedTime )
+			//	{
+			//		Context.Log( "Reset fixed time => {0}", ClientTickScheduler.StartFixedTime );
+			//		FixedTime = ClientTickScheduler.StartFixedTime.Value;
+			//	}
+			//}
 
-			if( ClientTickScheduler == null || ClientTickScheduler.StartFixedTime != null )
-			{
-				while( FixedTime + Configuration.SimulationDeltaTime <= targetFixedTime )
-				{
-					FixedTime += Configuration.SimulationDeltaTime;
+			//if( ClientTickScheduler == null || ClientTickScheduler.StartFixedTime != null )
+			//{
+			//	while( FixedTime + Configuration.SimulationDeltaTime <= targetFixedTime )
+			//	{
+			//		FixedTime += Configuration.SimulationDeltaTime;
 
-					//Context.Log( "Before Tick targetFixedTime: {0}, fixedTime: {1}", targetFixedTime, FixedTime );
+			//		//Context.Log( "Before Tick targetFixedTime: {0}, fixedTime: {1}", targetFixedTime, FixedTime );
 
-					TickScheduler.Tick();
-					EventDispatcher.Invoke();
+			//		TickScheduler.Tick();
+			//		EventDispatcher.Invoke();
 
-					NetworkManager?.SendMessages();
-				}
+			//		NetworkManager?.SendMessages();
+			//	}
 
-				InterpolationManager?.Interpolate();
-			}
+			//	InterpolationManager?.Interpolate();
+			//}
 		}
 	}
 }

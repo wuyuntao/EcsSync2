@@ -11,24 +11,32 @@
 
 		internal override void Tick()
 		{
-			m_context = new TickContext( TickContextType.Sync, Simulator.FixedTime );
+			for( int i = 0; i < Configuration.MaxTickCount; i++ )
+			{
+				var nextTime = ( m_context.Time + Configuration.SimulationDeltaTime ) / 1000f;
+				if( Simulator.SynchronizedClock.Time < nextTime )
+					break;
 
-			EnterContext( m_context );
+				m_context = new TickContext( TickContextType.Sync, m_context.Time + Configuration.SimulationDeltaTime );
 
-			Simulator.InputManager.SetInput();
-			Simulator.InputManager.CreateCommands();
+				EnterContext( m_context );
 
-			foreach( var commands in Simulator.CommandQueue.Find( m_context.Time ) )
-				DispatchCommands( commands );
+				Simulator.InputManager.SetInput();
+				Simulator.InputManager.CreateCommands();
 
-			FixedUpdate();
+				foreach( var commands in Simulator.CommandQueue.Find( m_context.Time ) )
+					DispatchCommands( commands );
 
-			Simulator.CommandQueue.RemoveBefore( m_context.Time );
-			Simulator.InputManager.ResetInput();
+				FixedUpdate();
+				Simulator.EventDispatcher.Dispatch();
 
-			LeaveContext();
+				Simulator.CommandQueue.RemoveBefore( m_context.Time );
+				Simulator.InputManager.ResetInput();
 
-			//Simulator.Context.Log( "Tick {0}", m_context.Time );
+				LeaveContext();
+
+				//Simulator.Context.Log( "Tick {0}", m_context.Time );
+			}
 		}
 	}
 }

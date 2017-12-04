@@ -18,10 +18,10 @@ namespace EcsSync2.Examples
 			var lastSimulateTime = 0f;
 			for( int i = 1; ; i++ )
 			{
-				var elaspedMs = (uint)stopwatch.ElapsedMilliseconds;
-				var targetMs = i * Configuration.SimulationDeltaTime;
+				var elaspedMs = (int)stopwatch.ElapsedMilliseconds;
+				var targetMs = (int)( i * Configuration.SimulationDeltaTime );
 				if( targetMs > elaspedMs )
-					await Task.Delay( (int)( targetMs - elaspedMs ) );
+					await Task.Delay( targetMs - elaspedMs );
 
 				var elaspedSecs = (float)stopwatch.Elapsed.TotalSeconds;
 				simulator.Simulate( elaspedSecs - lastSimulateTime );

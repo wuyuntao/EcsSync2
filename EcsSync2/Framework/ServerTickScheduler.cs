@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace EcsSync2
 {
 	public class ServerTickScheduler : TickScheduler
 	{
-		TickContext m_context;
+		TickContext m_context = new TickContext( TickContextType.Sync, 0 );
 		SortedList<ulong, CommandFrame> m_dispatchedCommands = new SortedList<ulong, CommandFrame>();
-		uint? m_lastDeltaSyncTime;
+		SortedList<uint, DeltaSyncFrame> m_deltaSyncFrames = new SortedList<uint, DeltaSyncFrame>();
 
 		public ServerTickScheduler(Simulator simulator)
 			: base( simulator )
@@ -16,35 +15,47 @@ namespace EcsSync2
 
 		internal override void Tick()
 		{
-			m_context = new TickContext( TickContextType.Sync, Simulator.FixedTime );
+			Simulator.NetworkServer.ReceiveMessages();
 
-			EnterContext( m_context );
-			DispatchCommands( m_context );
-			FixedUpdate();
-			LeaveContext();
+			for( int i = 0; i < Configuration.MaxTickCount; i++ )
+			{
+				var nextTime = ( m_context.Time + Configuration.SimulationDeltaTime ) / 1000f;
+				if( Simulator.SynchronizedClock.Time < nextTime )
+					break;
 
-			//Simulator.Context.Log( "Tick {0}", m_context.Time );
+				m_context = new TickContext( TickContextType.Sync, m_context.Time + Configuration.SimulationDeltaTime );
+
+				EnterContext( m_context );
+				DispatchCommands();
+				FixedUpdate();
+				Simulator.EventDispatcher.Dispatch();
+				LeaveContext();
+
+				Simulator.NetworkServer.SendMessages();
+
+				//Simulator.Context.Log( "Tick {0}", m_context.Time );
+			}
 		}
 
-		void DispatchCommands(TickContext context)
+		void DispatchCommands()
 		{
 			foreach( var userId in Simulator.CommandQueue.UserIds )
 			{
 				if( userId == 0 )
-					DispathSimulatorCommands( context );
+					DispathSimulatorCommands();
 				else
-					DispatchUserCommands( context, userId );
+					DispatchUserCommands( userId );
 			}
 		}
 
-		void DispathSimulatorCommands(TickContext context)
+		void DispathSimulatorCommands()
 		{
-			var frame = Simulator.CommandQueue.Find( 0, context.Time );
+			var frame = Simulator.CommandQueue.Find( 0, m_context.Time );
 			if( frame != null )
 				DispatchCommands( frame );
 		}
 
-		void DispatchUserCommands(TickContext context, ulong userId)
+		void DispatchUserCommands(ulong userId)
 		{
 			// TODO 减少按 UserId 的查询
 			m_dispatchedCommands.TryGetValue( userId, out CommandFrame lastFrame );
@@ -52,8 +63,8 @@ namespace EcsSync2
 
 			// 尝试执行从上一次应用的命令帧开始，到当前帧之间的所有命令
 			int dispatchedCommands = 0;
-			for( var time = GetUserCommandStartTime( context, userId, lastFrame );
-				time <= context.Time && dispatchedCommands < Configuration.MaxCommandDispatchCount;
+			for( var time = GetUserCommandStartTime( userId, lastFrame );
+				time <= m_context.Time && dispatchedCommands < Configuration.MaxCommandDispatchCount;
 				time += Configuration.SimulationDeltaTime )
 			{
 				var frame = Simulator.CommandQueue.Find( userId, time );
@@ -77,7 +88,7 @@ namespace EcsSync2
 					m_dispatchedCommands[userId] = lastFrame;
 
 				// 如果无法获取当前帧的话，总是重复上一次的命令帧
-				if( lastFrame.Time != context.Time )
+				if( lastFrame.Time != m_context.Time )
 				{
 					DispatchCommands( lastFrame );
 					//Simulator.Context.LogWarning( "Dispatch last commands {0} since current frame is not received", lastFrame );
@@ -94,7 +105,7 @@ namespace EcsSync2
 			}
 		}
 
-		uint GetUserCommandStartTime(TickContext context, ulong userId, CommandFrame lastDispatchedFrame)
+		uint GetUserCommandStartTime(ulong userId, CommandFrame lastDispatchedFrame)
 		{
 			if( lastDispatchedFrame != null )
 				return lastDispatchedFrame.Time + Configuration.SimulationDeltaTime;
@@ -103,22 +114,32 @@ namespace EcsSync2
 			if( firstUndispatchedFrame != null )
 				return firstUndispatchedFrame.Time;
 
-			return context.Time;
+			return m_context.Time;
 		}
 
-		public DeltaSyncFrame FetchDeltaSyncFrame()
+		internal void EnqueueEvent(Event @event)
 		{
-			Debug.Assert( m_lastDeltaSyncTime != null );
+			//Simulator.Context.Log( "AddEvent {0}ms {1}", time, @event );
 
-			if( m_lastDeltaSyncTime >= m_context.Time )
-				return null;
-
-			var f = Simulator.EventDispatcher.FetchEvents( m_lastDeltaSyncTime.Value + Configuration.SimulationDeltaTime );
-			m_lastDeltaSyncTime += Configuration.SimulationDeltaTime;
-			return f;
+			var frame = EnsureFrame( m_context.Time );
+			@event.Retain();
+			frame.Events.Add( @event );
 		}
 
-		public FullSyncFrame FetchFullSyncFrame()
+		DeltaSyncFrame EnsureFrame(uint time)
+		{
+			if( !m_deltaSyncFrames.TryGetValue( time, out DeltaSyncFrame frame ) )
+			{
+				frame = Simulator.ReferencableAllocator.Allocate<DeltaSyncFrame>();
+				frame.Time = time;
+
+				frame.Retain();
+				m_deltaSyncFrames.Add( time, frame );
+			}
+			return frame;
+		}
+
+		internal FullSyncFrame FetchFullSyncFrame()
 		{
 			var f = Simulator.ReferencableAllocator.Allocate<FullSyncFrame>();
 			f.Time = m_context.Time;
@@ -132,33 +153,12 @@ namespace EcsSync2
 				s.Retain();
 			}
 			LeaveContext();
-
-			if( m_lastDeltaSyncTime == null )
-				m_lastDeltaSyncTime = m_context.Time;
-
 			return f;
 		}
 
-		internal FullSyncFrame FetchFullSyncFrame2()
+		internal DeltaSyncFrame FetchDeltaSyncFrame()
 		{
-			var f = Simulator.ReferencableAllocator.Allocate<FullSyncFrame>();
-			f.Time = m_context.Time;
-
-			EnterContext( m_context );
-			foreach( var e in Simulator.SceneManager.Entities )
-			{
-				var s = e.CreateSnapshot();
-				f.Entities.Add( s );
-
-				s.Retain();
-			}
-			LeaveContext();
-			return f;
-		}
-
-		internal DeltaSyncFrame FetchDeltaSyncFrame2()
-		{
-			var f = Simulator.EventDispatcher.FetchEvents( m_context.Time );
+			var f = EnsureFrame( m_context.Time );
 			f.Retain();
 			return f;
 		}

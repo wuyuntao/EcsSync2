@@ -131,7 +131,7 @@ namespace EcsSync2
 			state.Release();
 
 			if( Entity.SceneManager.Simulator.ServerTickScheduler != null )
-				Entity.SceneManager.Simulator.EventDispatcher.AddEventToFrame( TickScheduler.CurrentContext.Value.Time, @event );
+				Entity.SceneManager.Simulator.ServerTickScheduler.EnqueueEvent( @event );
 
 			@event.Release();
 		}

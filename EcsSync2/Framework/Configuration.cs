@@ -21,5 +21,7 @@
 		public const int HeartbeatIntervalTime = 1000;
 
 		public const int MaxCommandDispatchCount = 10;
+
+		public const int MaxTickCount = 10;
 	}
 }

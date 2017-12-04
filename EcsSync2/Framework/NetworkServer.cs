@@ -232,7 +232,7 @@ namespace EcsSync2
 				if( session.IsNewSession )
 				{
 					if( fullSyncFrame == null )
-						fullSyncFrame = Simulator.ServerTickScheduler.FetchFullSyncFrame2();
+						fullSyncFrame = Simulator.ServerTickScheduler.FetchFullSyncFrame();
 
 					session.Stream.Send( fullSyncFrame );
 					session.OnFullSynchornized();
@@ -240,7 +240,7 @@ namespace EcsSync2
 				else if( session.UserId > 0 )
 				{
 					if( deltaSyncFrame == null )
-						deltaSyncFrame = Simulator.ServerTickScheduler.FetchDeltaSyncFrame2();
+						deltaSyncFrame = Simulator.ServerTickScheduler.FetchDeltaSyncFrame();
 
 					session.Stream.Send( deltaSyncFrame );
 				}
