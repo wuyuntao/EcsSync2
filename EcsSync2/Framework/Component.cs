@@ -136,6 +136,14 @@ namespace EcsSync2
 			@event.Release();
 		}
 
+		internal void Interpolate()
+		{
+			if( m_context == TickScheduler.Simulator.InterpolationManager.CurrentContext )
+				return;
+
+			m_context = TickScheduler.Simulator.InterpolationManager.CurrentContext;
+		}
+
 		#endregion
 
 		#region Public Interface
@@ -234,11 +242,16 @@ namespace EcsSync2
 					return GetSyncState( context );
 
 				case TickScheduler.TickContextType.Prediction:
-				case TickScheduler.TickContextType.Interpolation:
 					if( m_predictionTimeline != null && m_predictionTimeline.TryFind( context.Time, out ComponentSnapshot s2 ) )
 						return s2;
 
 					return GetSyncState( context );
+
+				case TickScheduler.TickContextType.Interpolation:
+					if( m_predictionTimeline != null && m_predictionTimeline.TryInterpolate( context.Time, out ComponentSnapshot s3 ) )
+						return s3;
+
+					return InterpolateSyncState( context );
 
 				default:
 					throw new NotSupportedException( context.Type.ToString() );
@@ -251,6 +264,25 @@ namespace EcsSync2
 			if( m_syncTimeline != null )
 			{
 				if( m_syncTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
+					return snapshot;
+
+				if( m_syncTimeline.FirstPoint != null )
+				{
+					Entity.SceneManager.Simulator.Context.LogWarning( "Cannot find sync snapshot for {0}, Use first snapshot instead {1}", context, m_syncTimeline.FirstPoint );
+
+					return m_syncTimeline.FirstPoint.Snapshot;
+				}
+			}
+
+			throw new InvalidOperationException( $"Cannot find sync snapshot of {this} for {context}" );
+		}
+
+		ComponentSnapshot InterpolateSyncState(TickScheduler.TickContext context)
+		{
+			// 如果是纯客户端本地预测对象，可能没有 sync timeline
+			if( m_syncTimeline != null )
+			{
+				if( m_syncTimeline.TryInterpolate( context.Time, out ComponentSnapshot snapshot ) )
 					return snapshot;
 
 				if( m_syncTimeline.FirstPoint != null )

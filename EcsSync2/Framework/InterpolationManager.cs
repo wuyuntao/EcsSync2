@@ -20,12 +20,17 @@ namespace EcsSync2
 			m_context = new TickScheduler.TickContext( TickScheduler.TickContextType.Interpolation, time );
 
 			Simulator.TickScheduler.EnterContext( m_context );
+
+			foreach( var component in Simulator.TickScheduler.Components )
+				component.Interpolate();
 		}
 
 		internal void EndInterpolate()
 		{
 			Simulator.TickScheduler.LeaveContext();
 		}
+
+		internal TickScheduler.TickContext? CurrentContext => m_context;
 
 		public uint InterpolationDelay { get; private set; } = 50;
 	}

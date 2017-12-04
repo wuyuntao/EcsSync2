@@ -140,31 +140,45 @@ namespace EcsSync2
 			return false;
 		}
 
-		public ComponentSnapshot Interpolate(uint time)
+		public bool TryInterpolate(uint time, out ComponentSnapshot snapshot)
 		{
+			snapshot = null;
 			if( m_count == 0 )
-				return null;
+				return false;
 
 			for( int i = m_head + m_count - 1; i >= m_head; i-- )
 			{
 				var prevPoint = m_points[i % m_points.Length];
-				if( time < prevPoint.Time )
+				if( prevPoint.Time > time )
 					continue;
 
 				// Equals
 				if( time == prevPoint.Time )
-					return prevPoint.Snapshot.Clone();
+				{
+					snapshot = prevPoint.Snapshot.Clone();
+					return true;
+				}
 
 				// Extrapolation
 				if( i == m_head + m_count - 1 )
-					return prevPoint.Snapshot.Extrapolate( prevPoint.Time, time );
+				{
+					snapshot = prevPoint.Snapshot.Extrapolate( prevPoint.Time, time );
+					return true;
+				}
 
 				// Interpolation
 				var nextPoint = m_points[( i + 1 ) % m_points.Length];
-				return prevPoint.Snapshot.Interpolate( prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time );
+				snapshot = prevPoint.Snapshot.Interpolate( prevPoint.Time, nextPoint.Snapshot, nextPoint.Time, time );
+				return true;
 			}
 
-			return null;
+			return false;
+		}
+
+		public ComponentSnapshot Interpolate(uint time)
+		{
+			TryInterpolate( time, out ComponentSnapshot snapshot );
+			return snapshot;
 		}
 
 		public void Clear()
