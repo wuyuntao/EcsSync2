@@ -10,6 +10,8 @@ namespace EcsSync2
 
 	public abstract class Component : Disposable
 	{
+		public EventHandler<Component> OnReconciled;
+
 		public TickScheduler TickScheduler { get; private set; }
 		public Entity Entity { get; private set; }
 		public InstanceId Id { get; private set; }
@@ -35,6 +37,8 @@ namespace EcsSync2
 
 			TickScheduler = entity.SceneManager.Simulator.TickScheduler;
 			TickScheduler.AddComponent( this );
+
+			OnReconciled = CreateEventHandler<Component>();
 
 			OnInitialize();
 		}
@@ -89,7 +93,7 @@ namespace EcsSync2
 			OnFixedUpdate();
 		}
 
-		internal void RecoverSnapshot(ComponentSnapshot state)
+		internal void RecoverSnapshot(ComponentSnapshot state, bool isReconcilation = false)
 		{
 			Debug.Assert( state != null );
 
@@ -117,6 +121,9 @@ namespace EcsSync2
 			SetState( m_context.Value, state );
 
 			OnSnapshotRecovered( state );
+
+			if( isReconcilation )
+				OnReconciled.Invoke( this );
 		}
 
 		internal void ReceiveCommand(ComponentCommand command)

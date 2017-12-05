@@ -77,6 +77,8 @@ namespace EcsSync2
                 return;
 
 			InterpolationManager?.EndInterpolate();
+			SceneManager.RemoveEntities();
+
 			SynchronizedClock.Tick( deltaTime );
 			TickScheduler.Tick();
 			InterpolationManager?.BeginInterpolate();

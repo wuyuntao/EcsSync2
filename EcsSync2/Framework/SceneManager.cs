@@ -10,6 +10,7 @@ namespace EcsSync2
 		Scene m_scene;
 		Dictionary<InstanceId, Entity> m_entities = new Dictionary<InstanceId, Entity>();
 		Dictionary<InstanceId, Component> m_components = new Dictionary<InstanceId, Component>();
+		List<Entity> m_removedEntities = new List<Entity>();
 
 		public SceneManager(Simulator simulator)
 			: base( simulator )
@@ -46,11 +47,22 @@ namespace EcsSync2
 				return;
 
 			entity.Destroy();
-			m_entities.Remove( id );
-			foreach( var component in entity.Components )
-				m_components.Remove( component.Id );
 			m_scene.OnEntityRemoved.Invoke( m_scene, entity );
-			entity.Dispose();
+		}
+
+		internal void RemoveEntities()
+		{
+			foreach( var entity in m_removedEntities )
+			{
+				m_entities.Remove( entity.Id );
+
+				foreach( var component in entity.Components )
+					m_components.Remove( component.Id );
+
+				entity.Dispose();
+			}
+
+			m_removedEntities.Clear();
 		}
 
 		internal Entity FindEntity(InstanceId id)

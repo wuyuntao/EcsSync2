@@ -208,7 +208,7 @@ namespace EcsSync2
 				if( Configuration.ComponentReconcilationRatio < 1 )
 					reconcilationState = predictionState.Interpolate( reconcilationState, Configuration.ComponentReconcilationRatio );
 
-				component.RecoverSnapshot( reconcilationState );
+				component.RecoverSnapshot( reconcilationState, isReconcilation: true );
 
 				CleanUpReconcilationSnapshots( component );
 			}
