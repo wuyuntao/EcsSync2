@@ -78,14 +78,14 @@ namespace EcsSync2.Fps
 
 	public class Transform : Component
 	{
-        public EventHandler OnMoved;
+		public EventHandler OnMoved;
 
-        protected override void OnInitialize()
-        {
-            OnMoved = new EventHandler(Entity.SceneManager.Simulator.EventDispatcher);
-        }
+		protected override void OnInitialize()
+		{
+			OnMoved = CreateEventHandler();
+		}
 
-        protected override void OnCommandReceived(ComponentCommand command)
+		protected override void OnCommandReceived(ComponentCommand command)
 		{
 			throw new NotSupportedException( command.ToString() );
 		}

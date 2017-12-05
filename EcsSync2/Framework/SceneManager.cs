@@ -35,7 +35,7 @@ namespace EcsSync2
 			foreach( var component in entity.Components )
 				m_components.Add( component.Id, component );
 			entity.Start();
-			m_scene.OnEntityCreated?.Invoke( entity );
+			m_scene.OnEntityCreated.Invoke( m_scene, entity );
 			return entity;
 		}
 
@@ -49,7 +49,7 @@ namespace EcsSync2
 			m_entities.Remove( id );
 			foreach( var component in entity.Components )
 				m_components.Remove( component.Id );
-			m_scene.OnEntityRemoved?.Invoke( entity );
+			m_scene.OnEntityRemoved.Invoke( m_scene, entity );
 			entity.Dispose();
 		}
 

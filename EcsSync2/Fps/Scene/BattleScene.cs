@@ -9,7 +9,7 @@ namespace EcsSync2.Fps
 			OnEntityCreated += Scene_OnEntityCreated;
 		}
 
-		void Scene_OnEntityCreated(Entity entity)
+		void Scene_OnEntityCreated(Scene sender, Entity entity)
 		{
 			switch( entity )
 			{

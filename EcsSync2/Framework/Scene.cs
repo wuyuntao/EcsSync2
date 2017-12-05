@@ -55,10 +55,10 @@ namespace EcsSync2
 		}
 	}
 
-	public abstract class Scene
+	public abstract class Scene : Disposable
 	{
-		public Action<Entity> OnEntityCreated;
-		public Action<Entity> OnEntityRemoved;
+		public EventHandler<Scene, Entity> OnEntityCreated;
+		public EventHandler<Scene, Entity> OnEntityRemoved;
 
 		public SceneManager SceneManager { get; private set; }
 
@@ -66,10 +66,21 @@ namespace EcsSync2
 		{
 			SceneManager = sceneManager;
 
+			OnEntityCreated = new EventHandler<Scene, Entity>( sceneManager.Simulator.EventDispatcher );
+			OnEntityRemoved = new EventHandler<Scene, Entity>( sceneManager.Simulator.EventDispatcher );
+
 			OnInitialize();
 		}
 
 		protected abstract void OnInitialize();
+
+		protected override void DisposeManaged()
+		{
+			SafeDispose( ref OnEntityCreated );
+			SafeDispose( ref OnEntityRemoved );
+
+			base.DisposeManaged();
+		}
 
 		protected internal abstract void CreateEntity(InstanceId id, EntitySettings settings);
 

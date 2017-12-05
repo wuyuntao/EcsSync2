@@ -141,7 +141,7 @@ namespace EcsSync2
 
 		#region EventHandler
 
-		internal class EventHandler
+		internal class EventHandler : Disposable
 		{
 			EventDispatcher m_dispatcher;
 			List<EventListener> m_listeners = new List<EventListener>();
@@ -150,6 +150,15 @@ namespace EcsSync2
 			public EventHandler(EventDispatcher dispatcher)
 			{
 				m_dispatcher = dispatcher;
+			}
+
+			protected override void DisposeManaged()
+			{
+				foreach( var l in m_listeners )
+					l.Release();
+				m_listeners.Clear();
+
+				base.DisposeManaged();
 			}
 
 			public void AddListener(EventListener listener)

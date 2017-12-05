@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace EcsSync2
@@ -20,6 +21,7 @@ namespace EcsSync2
 		Timeline m_syncTimeline;
 		Timeline m_reconcilationTimeline;
 		Timeline m_predictionTimeline;
+		List<IDisposable> m_eventHandlers;
 
 		public TickScheduler.TickContextType? TickType => m_context != null ? (TickScheduler.TickContextType?)m_context.Value.Type : null;
 
@@ -70,6 +72,12 @@ namespace EcsSync2
 			m_syncTimeline?.Clear();
 			m_reconcilationTimeline?.Clear();
 			m_predictionTimeline?.Clear();
+
+			if( m_eventHandlers != null )
+			{
+				SafeDispose( m_eventHandlers );
+				m_eventHandlers = null;
+			}
 
 			base.DisposeManaged();
 		}
@@ -138,10 +146,7 @@ namespace EcsSync2
 
 		internal void Interpolate()
 		{
-			if( m_context == TickScheduler.Simulator.InterpolationManager.CurrentContext )
-				return;
-
-			m_context = TickScheduler.Simulator.InterpolationManager.CurrentContext;
+			EnsureTickContext();
 		}
 
 		#endregion
@@ -207,6 +212,31 @@ namespace EcsSync2
 			return e;
 		}
 
+		protected EventHandler CreateEventHandler()
+		{
+			return CreateEventHandler( new EventHandler( Entity.SceneManager.Simulator.EventDispatcher ) );
+		}
+
+		protected EventHandler<T1> CreateEventHandler<T1>()
+		{
+			return CreateEventHandler( new EventHandler<T1>( Entity.SceneManager.Simulator.EventDispatcher ) );
+		}
+
+		protected EventHandler<T1, T2> CreateEventHandler<T1, T2>()
+		{
+			return CreateEventHandler( new EventHandler<T1, T2>( Entity.SceneManager.Simulator.EventDispatcher ) );
+		}
+
+		protected EventHandler<T1, T2, T3> CreateEventHandler<T1, T2, T3>()
+		{
+			return CreateEventHandler( new EventHandler<T1, T2, T3>( Entity.SceneManager.Simulator.EventDispatcher ) );
+		}
+
+		protected EventHandler<T1, T2, T3, T4> CreateEventHandler<T1, T2, T3, T4>()
+		{
+			return CreateEventHandler( new EventHandler<T1, T2, T3, T4>( Entity.SceneManager.Simulator.EventDispatcher ) );
+		}
+
 		#endregion
 
 		#region Private Helpers
@@ -251,7 +281,7 @@ namespace EcsSync2
 					if( m_predictionTimeline != null && m_predictionTimeline.TryInterpolate( context.Time, out ComponentSnapshot s3 ) )
 						return s3;
 
-					return InterpolateSyncState( context );
+					return InterpolateSyncState( context, out s3 );
 
 				default:
 					throw new NotSupportedException( context.Type.ToString() );
@@ -277,13 +307,12 @@ namespace EcsSync2
 			throw new InvalidOperationException( $"Cannot find sync snapshot of {this} for {context}" );
 		}
 
-		ComponentSnapshot InterpolateSyncState(TickScheduler.TickContext context)
+		ComponentSnapshot InterpolateSyncState(TickScheduler.TickContext context, out ComponentSnapshot s3)
 		{
-			// 如果是纯客户端本地预测对象，可能没有 sync timeline
 			if( m_syncTimeline != null )
 			{
-				if( m_syncTimeline.TryInterpolate( context.Time, out ComponentSnapshot snapshot ) )
-					return snapshot;
+				if( m_syncTimeline.TryInterpolate( context.Time, out s3 ) )
+					return s3;
 
 				if( m_syncTimeline.FirstPoint != null )
 				{
@@ -347,6 +376,16 @@ namespace EcsSync2
 				default:
 					throw new NotSupportedException( context.Type.ToString() );
 			}
+		}
+
+		T CreateEventHandler<T>(T handler)
+			where T : IDisposable
+		{
+			if( m_eventHandlers == null )
+				m_eventHandlers = new List<IDisposable>();
+
+			m_eventHandlers.Add( handler );
+			return handler;
 		}
 
 		#endregion
