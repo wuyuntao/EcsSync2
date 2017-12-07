@@ -8,7 +8,7 @@ namespace EcsSync2
 		List<EventHandler> m_dirtyHandlers = new List<EventHandler>();
 		List<EventInvocation> m_invocations = new List<EventInvocation>();
 		//SortedList<uint, EventInvocationFrame> m_syncInvocationFrames = new SortedList<uint, EventInvocationFrame>();
-		//SortedList<uint, EventInvocationFrame> m_reconcilationInvocationFrames = new SortedList<uint, EventInvocationFrame>();
+		//SortedList<uint, EventInvocationFrame> m_reconciliationInvocationFrames = new SortedList<uint, EventInvocationFrame>();
 		//SortedList<uint, EventInvocationFrame> m_predictionInvocationFrames = new SortedList<uint, EventInvocationFrame>();
 
 		public EventDispatcher(Simulator simulator)
@@ -34,8 +34,8 @@ namespace EcsSync2
 			//		AddEventInvocation( m_syncInvocationFrames, context, invocation );
 			//		break;
 
-			//	case TickScheduler.TickContextType.Reconcilation:
-			//		AddEventInvocation( m_reconcilationInvocationFrames, context, invocation );
+			//	case TickScheduler.TickContextType.Reconciliation:
+			//		AddEventInvocation( m_reconciliationInvocationFrames, context, invocation );
 			//		break;
 
 			//	case TickScheduler.TickContextType.Prediction:

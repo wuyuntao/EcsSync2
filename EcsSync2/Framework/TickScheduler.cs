@@ -8,7 +8,7 @@ namespace EcsSync2
 		public enum TickContextType
 		{
 			Sync,
-			Reconcilation,
+			Reconciliation,
 			Prediction,
 			Interpolation,
 		}

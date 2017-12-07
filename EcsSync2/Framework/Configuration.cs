@@ -16,7 +16,7 @@
 
 		public const int TimelineDefaultCapacity = 500 / 16;
 
-		public const float ComponentReconcilationRatio = 0.1f;
+		public const float ComponentReconciliationRatio = 0.1f;
 
 		public const int HeartbeatIntervalTime = 1000;
 

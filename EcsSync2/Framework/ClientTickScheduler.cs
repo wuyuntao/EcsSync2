@@ -7,7 +7,7 @@ namespace EcsSync2
 	public class ClientTickScheduler : TickScheduler
 	{
 		TickContext m_syncTickContext = new TickContext( TickContextType.Sync, 0 );
-		TickContext m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, 0 );
+		TickContext m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, 0 );
 		TickContext m_predictionTickContext = new TickContext( TickContextType.Prediction, 0 );
 		TickContext m_interpolationTickContext = new TickContext( TickContextType.Interpolation, 0 );
 
@@ -138,27 +138,27 @@ namespace EcsSync2
 
 		#endregion
 
-		#region Reconcilation
+		#region Reconciliation
 
 		void ReconcilePredictions()
 		{
 			// 没有新的同步帧，或没有新的预测帧需要和解
-			if( m_syncTickContext.Time <= m_reconcilationTickContext.Time ||
+			if( m_syncTickContext.Time <= m_reconciliationTickContext.Time ||
 				m_predictionTickContext.Time < m_syncTickContext.Time )
 			{
-				//Simulator.Context.Log( "{0}|No need to reconcile #1 Sync: {1}, Reconcilation: {2}, Prediction: {3}",
-				//	Simulator.FixedTime, m_syncTickContext.Time, m_reconcilationTickContext.Time, m_predictionTickContext.Time );
+				//Simulator.Context.Log( "{0}|No need to reconcile #1 Sync: {1}, Reconciliation: {2}, Prediction: {3}",
+				//	Simulator.FixedTime, m_syncTickContext.Time, m_reconciliationTickContext.Time, m_predictionTickContext.Time );
 
 				return;
 			}
 
 			// 更新和解时间
-			m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_syncTickContext.Time );
+			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_syncTickContext.Time );
 
 			var components = m_predictiveComponents;
 
 			// 判断是否需要和解
-			if( !RequireReconcilation( components ) )
+			if( !RequireReconciliation( components ) )
 			{
 				//Simulator.Context.Log( "{0}|All appromiate", Simulator.FixedTime );
 
@@ -169,9 +169,9 @@ namespace EcsSync2
 			}
 
 			// 回滚到同步状态
-			//Simulator.Context.LogWarning( "{0}|Rollback snapshot to reconcilation {1} -> {2}", Simulator.FixedTime, m_predictionTickContext.Time, m_reconcilationTickContext.Time );
+			//Simulator.Context.LogWarning( "{0}|Rollback snapshot to reconciliation {1} -> {2}", Simulator.FixedTime, m_predictionTickContext.Time, m_reconciliationTickContext.Time );
 
-			EnterContext( m_reconcilationTickContext );
+			EnterContext( m_reconciliationTickContext );
 			foreach( var component in components )
 			{
 				var syncState = component.GetState( m_syncTickContext );
@@ -180,13 +180,13 @@ namespace EcsSync2
 			LeaveContext();
 
 			// 以和解模式更新到最新预测的状态
-			while( m_reconcilationTickContext.Time < m_predictionTickContext.Time )
+			while( m_reconciliationTickContext.Time < m_predictionTickContext.Time )
 			{
-				m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_reconcilationTickContext.Time + Configuration.SimulationDeltaTime );
-				//Simulator.Context.Log( "{0}|Simulate for reconcilation {1}", Simulator.FixedTime, m_reconcilationTickContext.Time );
+				m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_reconciliationTickContext.Time + Configuration.SimulationDeltaTime );
+				//Simulator.Context.Log( "{0}|Simulate for reconciliation {1}", Simulator.FixedTime, m_reconciliationTickContext.Time );
 
-				EnterContext( m_reconcilationTickContext );
-				DispatchCommands( m_reconcilationTickContext );
+				EnterContext( m_reconciliationTickContext );
+				DispatchCommands( m_reconciliationTickContext );
 				FixedUpdate();
 				LeaveContext();
 			}
@@ -197,33 +197,33 @@ namespace EcsSync2
 			EnterContext( m_predictionTickContext );
 			foreach( var component in components )
 			{
-				var reconcilationState = component.GetState( m_reconcilationTickContext );
+				var reconciliationState = component.GetState( m_reconciliationTickContext );
 				var predictionState = component.GetState( m_predictionTickContext );
 
 				// 判断是需要修正为和解后的状态
-				if( reconcilationState.IsApproximate( predictionState ) )
+				if( reconciliationState.IsApproximate( predictionState ) )
 					continue;
 
 				// 以和解后的状态和最新预测的状态的中间值，来纠正最新的预测
-				if( Configuration.ComponentReconcilationRatio < 1 )
-					reconcilationState = predictionState.Interpolate( reconcilationState, Configuration.ComponentReconcilationRatio );
+				if( Configuration.ComponentReconciliationRatio < 1 )
+					reconciliationState = predictionState.Interpolate( reconciliationState, Configuration.ComponentReconciliationRatio );
 
-				component.RecoverSnapshot( reconcilationState, isReconcilation: true );
+				component.RecoverSnapshot( reconciliationState, isReconciliation: true );
 
-				CleanUpReconcilationSnapshots( component );
+				CleanUpReconciliationSnapshots( component );
 			}
 			LeaveContext();
 
 			// 重置和解时间
-			m_reconcilationTickContext = new TickContext( TickContextType.Reconcilation, m_syncTickContext.Time );
+			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_syncTickContext.Time );
 
 			// 清理已确认命令
 			CleanUpAcknowledgedCommands();
 		}
 
-		bool RequireReconcilation(List<Component> components)
+		bool RequireReconciliation(List<Component> components)
 		{
-			var predictionContext = new TickContext( TickContextType.Prediction, m_reconcilationTickContext.Time );
+			var predictionContext = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.Time );
 
 			foreach( var component in components )
 			{
@@ -252,13 +252,13 @@ namespace EcsSync2
 		void CleanUpPredictionSnapshots(List<Component> components)
 		{
 			// 清理**预测**时间轴
-			var context = new TickContext( TickContextType.Prediction, m_reconcilationTickContext.Time );
+			var context = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.Time );
 
 			foreach( var component in components )
 				component.RemoveStatesBefore( context );
 		}
 
-		void CleanUpReconcilationSnapshots(Component component)
+		void CleanUpReconciliationSnapshots(Component component)
 		{
 			// TODO 完全清理**纠正**时间轴
 		}

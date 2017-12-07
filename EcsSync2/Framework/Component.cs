@@ -21,7 +21,7 @@ namespace EcsSync2
 		ComponentSnapshot m_state;
 
 		Timeline m_syncTimeline;
-		Timeline m_reconcilationTimeline;
+		Timeline m_reconciliationTimeline;
 		Timeline m_predictionTimeline;
 		List<IDisposable> m_eventHandlers;
 
@@ -74,7 +74,7 @@ namespace EcsSync2
 			m_state?.Release();
 			m_state = null;
 			m_syncTimeline?.Clear();
-			m_reconcilationTimeline?.Clear();
+			m_reconciliationTimeline?.Clear();
 			m_predictionTimeline?.Clear();
 			SafeDispose( m_eventHandlers );
 			m_eventHandlers = null;
@@ -89,7 +89,7 @@ namespace EcsSync2
 			OnFixedUpdate();
 		}
 
-		internal void RecoverSnapshot(ComponentSnapshot state, bool isReconcilation = false)
+		internal void RecoverSnapshot(ComponentSnapshot state, bool isReconciliation = false)
 		{
 			Debug.Assert( state != null );
 
@@ -99,9 +99,9 @@ namespace EcsSync2
 
 			switch( m_context.Value.Type )
 			{
-				case TickScheduler.TickContextType.Reconcilation:
+				case TickScheduler.TickContextType.Reconciliation:
 					{
-						var timeline = EnsureTimeline( TickScheduler.TickContextType.Reconcilation, ref m_reconcilationTimeline );
+						var timeline = EnsureTimeline( TickScheduler.TickContextType.Reconciliation, ref m_reconciliationTimeline );
 						timeline.Clear();
 						break;
 					}
@@ -118,7 +118,7 @@ namespace EcsSync2
 
 			OnSnapshotRecovered( state );
 
-			if( isReconcilation )
+			if( isReconciliation )
 				OnStateReconciled.Invoke( this );
 		}
 
@@ -285,8 +285,8 @@ namespace EcsSync2
 				case TickScheduler.TickContextType.Sync:
 					return GetSyncState( context );
 
-				case TickScheduler.TickContextType.Reconcilation:
-					if( m_reconcilationTimeline != null && m_reconcilationTimeline.TryFind( context.Time, out ComponentSnapshot s1 ) )
+				case TickScheduler.TickContextType.Reconciliation:
+					if( m_reconciliationTimeline != null && m_reconciliationTimeline.TryFind( context.Time, out ComponentSnapshot s1 ) )
 						return s1;
 
 					return GetSyncState( context );
@@ -353,8 +353,8 @@ namespace EcsSync2
 					EnsureTimeline( context.Type, ref m_syncTimeline ).Add( context.Time, state );
 					break;
 
-				case TickScheduler.TickContextType.Reconcilation:
-					EnsureTimeline( context.Type, ref m_reconcilationTimeline ).Add( context.Time, state );
+				case TickScheduler.TickContextType.Reconciliation:
+					EnsureTimeline( context.Type, ref m_reconciliationTimeline ).Add( context.Time, state );
 					break;
 
 				case TickScheduler.TickContextType.Prediction:
@@ -381,8 +381,8 @@ namespace EcsSync2
 		//			EnsureTimeline( context.Type, ref m_syncTimeline ).Add( context.Time, invocation );
 		//			break;
 
-		//		case TickScheduler.TickContextType.Reconcilation:
-		//			EnsureTimeline( context.Type, ref m_reconcilationTimeline ).Add( context.Time, invocation );
+		//		case TickScheduler.TickContextType.Reconciliation:
+		//			EnsureTimeline( context.Type, ref m_reconciliationTimeline ).Add( context.Time, invocation );
 		//			break;
 
 		//		case TickScheduler.TickContextType.Prediction:
