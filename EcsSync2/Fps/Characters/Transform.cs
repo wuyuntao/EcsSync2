@@ -78,11 +78,11 @@ namespace EcsSync2.Fps
 
 	public class Transform : Component
 	{
-		public EventHandler OnMoved;
+		public EventHandler<Transform> OnMoved;
 
 		protected override void OnInitialize()
 		{
-			OnMoved = CreateEventHandler();
+			OnMoved = CreateEventHandler<Transform>();
 		}
 
 		protected override void OnCommandReceived(ComponentCommand command)
@@ -99,7 +99,7 @@ namespace EcsSync2.Fps
 					//if( Entity is Character c1 && !c1.IsLocalCharacter )
 					//	Entity.SceneManager.Simulator.Context.Log( $"received {nameof( TransformMovedEvent )} {e.Position} <- {s1.Position}" );
 					s1.Position = e.Position;
-					OnMoved.Invoke();
+					OnMoved.Invoke( this );
 					return s1;
 
 				case TransformVelocityChangedEvent e:

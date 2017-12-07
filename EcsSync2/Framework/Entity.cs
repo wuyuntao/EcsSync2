@@ -49,12 +49,20 @@ namespace EcsSync2
 
 		internal void Start()
 		{
+			if( m_state != State.Initial )
+				throw new InvalidOperationException( "Already started" );
+
+			m_state = State.Started;
+
 			foreach( var component in Components )
 				component.Start();
 		}
 
 		internal void Destroy()
 		{
+			if( m_state != State.Started )
+				throw new InvalidOperationException( "Not started" );
+
 			foreach( var component in Components )
 				component.Destroy();
 		}
@@ -73,7 +81,7 @@ namespace EcsSync2
 				throw new InvalidOperationException( "Not initialized yet" );
 
 			if( m_state != State.Initial )
-				throw new InvalidOperationException( "Aready started" );
+				throw new InvalidOperationException( "Already started" );
 
 			var component = new T();
 			component.Initialize( this, Id.CreateComponentId( (uint)( Components.Count + 1 ) ), settings );
@@ -96,5 +104,7 @@ namespace EcsSync2
 
 			return s;
 		}
+
+		protected internal virtual bool IsLocalEntity => SceneManager.Simulator.IsServer;
 	}
 }

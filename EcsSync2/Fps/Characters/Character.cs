@@ -23,5 +23,7 @@ namespace EcsSync2.Fps
 		public CharacterSettings TheSettings => (CharacterSettings)Settings;
 
 		public bool IsLocalCharacter => TheSettings.UserId == SceneManager.Simulator.LocalUserId;
+
+		protected internal override bool IsLocalEntity => SceneManager.Simulator.IsServer || IsLocalCharacter;
 	}
 }

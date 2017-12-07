@@ -10,7 +10,7 @@ namespace EcsSync2
 
 	public abstract class Component : Disposable
 	{
-		public EventHandler<Component> OnReconciled;
+		public EventHandler<Component> OnStateReconciled;
 
 		public TickScheduler TickScheduler { get; private set; }
 		public Entity Entity { get; private set; }
@@ -38,7 +38,7 @@ namespace EcsSync2
 			TickScheduler = entity.SceneManager.Simulator.TickScheduler;
 			TickScheduler.AddComponent( this );
 
-			OnReconciled = CreateEventHandler<Component>();
+			OnStateReconciled = CreateEventHandler<Component>();
 
 			OnInitialize();
 		}
@@ -76,12 +76,8 @@ namespace EcsSync2
 			m_syncTimeline?.Clear();
 			m_reconcilationTimeline?.Clear();
 			m_predictionTimeline?.Clear();
-
-			if( m_eventHandlers != null )
-			{
-				SafeDispose( m_eventHandlers );
-				m_eventHandlers = null;
-			}
+			SafeDispose( m_eventHandlers );
+			m_eventHandlers = null;
 
 			base.DisposeManaged();
 		}
@@ -123,7 +119,7 @@ namespace EcsSync2
 			OnSnapshotRecovered( state );
 
 			if( isReconcilation )
-				OnReconciled.Invoke( this );
+				OnStateReconciled.Invoke( this );
 		}
 
 		internal void ReceiveCommand(ComponentCommand command)
@@ -154,6 +150,16 @@ namespace EcsSync2
 		internal void Interpolate()
 		{
 			EnsureTickContext();
+
+			// 触发缓存的事件
+			if( Entity.IsLocalEntity )
+			{
+
+			}
+			else
+			{
+
+			}
 		}
 
 		#endregion
@@ -221,27 +227,34 @@ namespace EcsSync2
 
 		protected EventHandler CreateEventHandler()
 		{
-			return CreateEventHandler( new EventHandler( Entity.SceneManager.Simulator.EventDispatcher ) );
+			return CreateEventHandler( new EventHandler( Entity.SceneManager.Simulator.EventDispatcher, EventHandler_OnInvoke ) );
 		}
 
 		protected EventHandler<T1> CreateEventHandler<T1>()
 		{
-			return CreateEventHandler( new EventHandler<T1>( Entity.SceneManager.Simulator.EventDispatcher ) );
+			return CreateEventHandler( new EventHandler<T1>( Entity.SceneManager.Simulator.EventDispatcher, EventHandler_OnInvoke ) );
 		}
 
 		protected EventHandler<T1, T2> CreateEventHandler<T1, T2>()
 		{
-			return CreateEventHandler( new EventHandler<T1, T2>( Entity.SceneManager.Simulator.EventDispatcher ) );
+			return CreateEventHandler( new EventHandler<T1, T2>( Entity.SceneManager.Simulator.EventDispatcher, EventHandler_OnInvoke ) );
 		}
 
 		protected EventHandler<T1, T2, T3> CreateEventHandler<T1, T2, T3>()
 		{
-			return CreateEventHandler( new EventHandler<T1, T2, T3>( Entity.SceneManager.Simulator.EventDispatcher ) );
+			return CreateEventHandler( new EventHandler<T1, T2, T3>( Entity.SceneManager.Simulator.EventDispatcher, EventHandler_OnInvoke ) );
 		}
 
 		protected EventHandler<T1, T2, T3, T4> CreateEventHandler<T1, T2, T3, T4>()
 		{
-			return CreateEventHandler( new EventHandler<T1, T2, T3, T4>( Entity.SceneManager.Simulator.EventDispatcher ) );
+			return CreateEventHandler( new EventHandler<T1, T2, T3, T4>( Entity.SceneManager.Simulator.EventDispatcher, EventHandler_OnInvoke ) );
+		}
+
+		void EventHandler_OnInvoke(EventDispatcher.EventInvocation invocation)
+		{
+			EnsureTickContext();
+
+			//AddEventInvocation( m_context, invocation );
 		}
 
 		#endregion
@@ -359,6 +372,31 @@ namespace EcsSync2
 					throw new NotSupportedException( context.Type.ToString() );
 			}
 		}
+
+		//void AddEventInvocation(TickScheduler.TickContext context, EventDispatcher.EventInvocation invocation)
+		//{
+		//	switch( context.Type )
+		//	{
+		//		case TickScheduler.TickContextType.Sync:
+		//			EnsureTimeline( context.Type, ref m_syncTimeline ).Add( context.Time, invocation );
+		//			break;
+
+		//		case TickScheduler.TickContextType.Reconcilation:
+		//			EnsureTimeline( context.Type, ref m_reconcilationTimeline ).Add( context.Time, invocation );
+		//			break;
+
+		//		case TickScheduler.TickContextType.Prediction:
+		//			EnsureTimeline( context.Type, ref m_predictionTimeline ).Add( context.Time, invocation );
+		//			break;
+
+		//		case TickScheduler.TickContextType.Interpolation:
+		//			// No need to save interpolated states
+		//			break;
+
+		//		default:
+		//			throw new NotSupportedException( context.Type.ToString() );
+		//	}
+		//}
 
 		Timeline EnsureTimeline(TickScheduler.TickContextType type, ref Timeline timeline)
 		{

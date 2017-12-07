@@ -2,15 +2,17 @@
 
 namespace EcsSync2
 {
-	#region EventHandler
+	#region BaseEventHandler
 
-	public sealed class EventHandler : Disposable
+	public abstract class BaseEventHandler : Disposable
 	{
 		EventDispatcher.EventHandler m_handler;
+		Action<EventDispatcher.EventInvocation> m_onInvoke;
 
-		internal EventHandler(EventDispatcher dispatcher)
+		internal BaseEventHandler(EventDispatcher dispatcher, Action<EventDispatcher.EventInvocation> onInvoke = null)
 		{
 			m_handler = new EventDispatcher.EventHandler( dispatcher );
+			m_onInvoke = onInvoke;
 		}
 
 		protected override void DisposeManaged()
@@ -20,20 +22,17 @@ namespace EcsSync2
 			base.DisposeManaged();
 		}
 
-		public void AddHandler(Action handler)
+		internal void AddListener(EventDispatcher.EventListener listener)
 		{
-			var l = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Listener>();
-			l.Action = handler;
-			m_handler.AddListener( l );
-			l.Release();
+			m_handler.AddListener( listener );
 		}
 
-		public void RemoveHandler(Action handler)
+		internal void RemoveListener(Predicate<EventDispatcher.EventListener> predicate)
 		{
 			for( int i = 0; i < m_handler.Listeners.Count; i++ )
 			{
-				var l = (Listener)m_handler.Listeners[i];
-				if( l.Action == handler )
+				var listener = m_handler.Listeners[i];
+				if( predicate( listener ) )
 				{
 					m_handler.RemoveListener( i );
 					break;
@@ -41,11 +40,55 @@ namespace EcsSync2
 			}
 		}
 
+		internal void Invoke(EventDispatcher.EventArgs args)
+		{
+			var invocation = m_handler.Invoke( args );
+
+			m_onInvoke?.Invoke( invocation );
+		}
+
+		internal TListener CreateListener<TListener>()
+			where TListener : EventDispatcher.EventListener, new()
+		{
+			return m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<TListener>();
+		}
+
+		internal TArgs CreateArgs<TArgs>()
+			where TArgs : EventDispatcher.EventArgs, new()
+		{
+			return m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<TArgs>();
+		}
+	}
+
+	#endregion
+
+	#region EventHandler
+
+	public sealed class EventHandler : BaseEventHandler
+	{
+		internal EventHandler(EventDispatcher dispatcher, Action<EventDispatcher.EventInvocation> onInvoke = null)
+			: base( dispatcher, onInvoke )
+		{
+		}
+
+		public void AddHandler(Action handler)
+		{
+			var l = CreateListener<Listener>();
+			l.Action = handler;
+			AddListener( l );
+			l.Release();
+		}
+
+		public void RemoveHandler(Action handler)
+		{
+			RemoveListener( l => l is Listener l0 && l0.Action == handler );
+		}
+
 		public void Invoke()
 		{
-			var args = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Args>();
+			var args = CreateArgs<Args>();
 
-			m_handler.Invoke( args );
+			Invoke( args );
 		}
 
 		public static EventHandler operator +(EventHandler handler1, Action handler2)
@@ -90,49 +133,32 @@ namespace EcsSync2
 
 	#region EventHandler<T1>
 
-	public sealed class EventHandler<T1> : Disposable
+	public sealed class EventHandler<T1> : BaseEventHandler
 	{
-		EventDispatcher.EventHandler m_handler;
-
-		internal EventHandler(EventDispatcher dispatcher)
+		internal EventHandler(EventDispatcher dispatcher, Action<EventDispatcher.EventInvocation> onInvoke = null)
+			: base( dispatcher, onInvoke )
 		{
-			m_handler = new EventDispatcher.EventHandler( dispatcher );
-		}
-
-		protected override void DisposeManaged()
-		{
-			SafeDispose( ref m_handler );
-
-			base.DisposeManaged();
 		}
 
 		public void AddHandler(Action<T1> handler)
 		{
-			var l = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Listener>();
+			var l = CreateListener<Listener>();
 			l.Action = handler;
-			m_handler.AddListener( l );
+			AddListener( l );
 			l.Release();
 		}
 
 		public void RemoveHandler(Action<T1> handler)
 		{
-			for( int i = 0; i < m_handler.Listeners.Count; i++ )
-			{
-				var l = (Listener)m_handler.Listeners[i];
-				if( l.Action == handler )
-				{
-					m_handler.RemoveListener( i );
-					break;
-				}
-			}
+			RemoveListener( l => l is Listener l0 && l0.Action == handler );
 		}
 
 		public void Invoke(T1 arg1)
 		{
-			var args = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Args>();
+			var args = CreateArgs<Args>();
 			args.Arg1 = arg1;
 
-			m_handler.Invoke( args );
+			Invoke( args );
 		}
 
 		public static EventHandler<T1> operator +(EventHandler<T1> handler1, Action<T1> handler2)
@@ -186,50 +212,33 @@ namespace EcsSync2
 
 	#region EventHandler<T1, T2>
 
-	public sealed class EventHandler<T1, T2> : Disposable
+	public sealed class EventHandler<T1, T2> : BaseEventHandler
 	{
-		EventDispatcher.EventHandler m_handler;
-
-		internal EventHandler(EventDispatcher dispatcher)
+		internal EventHandler(EventDispatcher dispatcher, Action<EventDispatcher.EventInvocation> onInvoke = null)
+			: base( dispatcher, onInvoke )
 		{
-			m_handler = new EventDispatcher.EventHandler( dispatcher );
-		}
-
-		protected override void DisposeManaged()
-		{
-			SafeDispose( ref m_handler );
-
-			base.DisposeManaged();
 		}
 
 		public void AddHandler(Action<T1, T2> handler)
 		{
-			var l = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Listener>();
+			var l = CreateListener<Listener>();
 			l.Action = handler;
-			m_handler.AddListener( l );
+			AddListener( l );
 			l.Release();
 		}
 
 		public void RemoveHandler(Action<T1, T2> handler)
 		{
-			for( int i = 0; i < m_handler.Listeners.Count; i++ )
-			{
-				var l = (Listener)m_handler.Listeners[i];
-				if( l.Action == handler )
-				{
-					m_handler.RemoveListener( i );
-					break;
-				}
-			}
+			RemoveListener( l => l is Listener l0 && l0.Action == handler );
 		}
 
 		public void Invoke(T1 arg1, T2 arg2)
 		{
-			var args = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Args>();
+			var args = CreateArgs<Args>();
 			args.Arg1 = arg1;
 			args.Arg2 = arg2;
 
-			m_handler.Invoke( args );
+			Invoke( args );
 		}
 
 		public static EventHandler<T1, T2> operator +(EventHandler<T1, T2> handler1, Action<T1, T2> handler2)
@@ -285,51 +294,34 @@ namespace EcsSync2
 
 	#region EventHandler<T1, T2, T3>
 
-	public sealed class EventHandler<T1, T2, T3> : Disposable
+	public sealed class EventHandler<T1, T2, T3> : BaseEventHandler
 	{
-		EventDispatcher.EventHandler m_handler;
-
-		internal EventHandler(EventDispatcher dispatcher)
+		internal EventHandler(EventDispatcher dispatcher, Action<EventDispatcher.EventInvocation> onInvoke = null)
+			: base( dispatcher, onInvoke )
 		{
-			m_handler = new EventDispatcher.EventHandler( dispatcher );
-		}
-
-		protected override void DisposeManaged()
-		{
-			SafeDispose( ref m_handler );
-
-			base.DisposeManaged();
 		}
 
 		public void AddHandler(Action<T1, T2, T3> handler)
 		{
-			var l = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Listener>();
+			var l = CreateListener<Listener>();
 			l.Action = handler;
-			m_handler.AddListener( l );
+			AddListener( l );
 			l.Release();
 		}
 
 		public void RemoveHandler(Action<T1, T2, T3> handler)
 		{
-			for( int i = 0; i < m_handler.Listeners.Count; i++ )
-			{
-				var l = (Listener)m_handler.Listeners[i];
-				if( l.Action == handler )
-				{
-					m_handler.RemoveListener( i );
-					break;
-				}
-			}
+			RemoveListener( l => l is Listener l0 && l0.Action == handler );
 		}
 
 		public void Invoke(T1 arg1, T2 arg2, T3 arg3)
 		{
-			var args = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Args>();
+			var args = CreateArgs<Args>();
 			args.Arg1 = arg1;
 			args.Arg2 = arg2;
 			args.Arg3 = arg3;
 
-			m_handler.Invoke( args );
+			Invoke( args );
 		}
 
 		public static EventHandler<T1, T2, T3> operator +(EventHandler<T1, T2, T3> handler1, Action<T1, T2, T3> handler2)
@@ -387,52 +379,35 @@ namespace EcsSync2
 
 	#region EventHandler<T1, T2, T3, T4>
 
-	public sealed class EventHandler<T1, T2, T3, T4> : Disposable
+	public sealed class EventHandler<T1, T2, T3, T4> : BaseEventHandler
 	{
-		EventDispatcher.EventHandler m_handler;
-
-		internal EventHandler(EventDispatcher dispatcher)
+		internal EventHandler(EventDispatcher dispatcher, Action<EventDispatcher.EventInvocation> onInvoke = null)
+			: base( dispatcher, onInvoke )
 		{
-			m_handler = new EventDispatcher.EventHandler( dispatcher );
-		}
-
-		protected override void DisposeManaged()
-		{
-			SafeDispose( ref m_handler );
-
-			base.DisposeManaged();
 		}
 
 		public void AddHandler(Action<T1, T2, T3, T4> handler)
 		{
-			var l = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Listener>();
+			var l = CreateListener<Listener>();
 			l.Action = handler;
-			m_handler.AddListener( l );
+			AddListener( l );
 			l.Release();
 		}
 
 		public void RemoveHandler(Action<T1, T2, T3, T4> handler)
 		{
-			for( int i = 0; i < m_handler.Listeners.Count; i++ )
-			{
-				var l = (Listener)m_handler.Listeners[i];
-				if( l.Action == handler )
-				{
-					m_handler.RemoveListener( i );
-					break;
-				}
-			}
+			RemoveListener( l => l is Listener l0 && l0.Action == handler );
 		}
 
 		public void Invoke(T1 arg1, T2 arg2, T3 arg3, T4 arg4)
 		{
-			var args = m_handler.Dispatcher.Simulator.ReferencableAllocator.Allocate<Args>();
+			var args = CreateArgs<Args>();
 			args.Arg1 = arg1;
 			args.Arg2 = arg2;
 			args.Arg3 = arg3;
 			args.Arg4 = arg4;
 
-			m_handler.Invoke( args );
+			Invoke( args );
 		}
 
 		public static EventHandler<T1, T2, T3, T4> operator +(EventHandler<T1, T2, T3, T4> handler1, Action<T1, T2, T3, T4> handler2)

@@ -25,7 +25,6 @@ namespace EcsSync2
 
 		internal void AddEventInvocation(EventInvocation invocation)
 		{
-			invocation.Retain();
 			m_invocations.Add( invocation );
 
 			//var context = Simulator.TickScheduler.CurrentContext.Value;
@@ -64,7 +63,10 @@ namespace EcsSync2
 		internal void Dispatch()
 		{
 			for( int i = 0; i < m_invocations.Count; i++ )
+			{
 				m_invocations[i].Invoke();
+				m_invocations[i].Release();
+			}
 			m_invocations.Clear();
 
 			for( int i = 0; i < m_dirtyHandlers.Count; i++ )
@@ -95,21 +97,23 @@ namespace EcsSync2
 
 		internal class EventInvocation : Referencable
 		{
-			public EventListener Listener;
+			public List<EventListener> Listeners = new List<EventListener>();
 
 			public EventArgs Args;
 
 			public void Invoke()
 			{
-				Listener.Invoke( Args );
+				foreach( var listener in Listeners )
+					listener.Invoke( Args );
 			}
 
 			protected override void OnReset()
 			{
 				base.OnReset();
 
-				Listener.Release();
-				Listener = null;
+				foreach( var listener in Listeners )
+					listener.Release();
+				Listeners.Clear();
 
 				Args.Release();
 				Args = null;
@@ -184,20 +188,24 @@ namespace EcsSync2
 				IsDirty = false;
 			}
 
-			public void Invoke(EventArgs args)
+			public EventInvocation Invoke(EventArgs args)
 			{
+				var invocation = m_dispatcher.Simulator.ReferencableAllocator.Allocate<EventInvocation>();
+				args.Retain();
+				invocation.Args = args;
+
 				for( int i = 0; i < m_listeners.Count; i++ )
 				{
 					var listener = m_listeners[i];
 					if( listener != null )
 					{
-						var invocation = m_dispatcher.Simulator.ReferencableAllocator.Allocate<EventInvocation>();
-						invocation.Listener = listener;
-						invocation.Args = args;
-
-						m_dispatcher.AddEventInvocation( invocation );
+						listener.Retain();
+						invocation.Listeners.Add( listener );
 					}
 				}
+
+				m_dispatcher.AddEventInvocation( invocation );
+				return invocation;
 			}
 
 			public EventDispatcher Dispatcher => m_dispatcher;
