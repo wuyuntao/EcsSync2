@@ -180,7 +180,7 @@ namespace EcsSync2.Fps
 			return snapshot;
 		}
 
-		protected virtual void ApplyRenderStateStartedEvent(string ownerId, string stateId, bool isInstantaneous)
+		protected void ApplyRenderStateStartedEvent(string ownerId, string stateId, bool isInstantaneous)
 		{
 			var e = CreateEvent<RenderStateStartedEvent>();
 			e.OwnerId = ownerId;
@@ -190,7 +190,7 @@ namespace EcsSync2.Fps
 			ApplyEvent( e );
 		}
 
-		protected virtual void ApplyRenderStateEndedEvent(string ownerId, string stateId)
+		protected void ApplyRenderStateEndedEvent(string ownerId, string stateId)
 		{
 			var e = CreateEvent<RenderStateEndedEvent>();
 			e.OwnerId = ownerId;
