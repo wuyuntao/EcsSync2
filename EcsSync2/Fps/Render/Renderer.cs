@@ -47,7 +47,7 @@ namespace EcsSync2.Fps
 
 		public override ComponentSnapshot Clone()
 		{
-			var s = this.Allocate<RendererSnapshot>();
+			var s = (RendererSnapshot)this.Allocate( GetType() );
 			foreach( var state in States )
 			{
 				var cs = this.Allocate<RenderState>();

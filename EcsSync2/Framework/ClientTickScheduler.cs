@@ -189,30 +189,10 @@ namespace EcsSync2
 				DispatchCommands( m_reconciliationTickContext );
 				FixedUpdate();
 				LeaveContext();
+
+				// 和解所有时间点的预测的状态
+				ReconcilePredictiveComponents( components );
 			}
-
-			// 和解最新预测的状态
-			//Simulator.Context.LogWarning( "{0}|Recover prediction snapshot {1}", Simulator.FixedTime, m_predictionTickContext.Time );
-
-			EnterContext( m_predictionTickContext );
-			foreach( var component in components )
-			{
-				var reconciliationState = component.GetState( m_reconciliationTickContext );
-				var predictionState = component.GetState( m_predictionTickContext );
-
-				// 判断是需要修正为和解后的状态
-				if( reconciliationState.IsApproximate( predictionState ) )
-					continue;
-
-				// 以和解后的状态和最新预测的状态的中间值，来纠正最新的预测
-				if( Configuration.ComponentReconciliationRatio < 1 )
-					reconciliationState = predictionState.Interpolate( reconciliationState, Configuration.ComponentReconciliationRatio );
-
-				component.RecoverSnapshot( reconciliationState, isReconciliation: true );
-
-				CleanUpReconciliationSnapshots( component );
-			}
-			LeaveContext();
 
 			// 重置和解时间
 			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_syncTickContext.Time );
@@ -242,6 +222,31 @@ namespace EcsSync2
 			}
 
 			return false;
+		}
+
+		void ReconcilePredictiveComponents(List<Component> components)
+		{
+			var predictionTickContext = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.Time );
+			//Simulator.Context.LogWarning( "{0}|Recover prediction snapshot {1}", Simulator.FixedTime, predictionTickContext.Time );
+			EnterContext( predictionTickContext );
+			foreach( var component in components )
+			{
+				var reconciliationState = component.GetState( m_reconciliationTickContext );
+				var predictionState = component.GetState( predictionTickContext );
+
+				// 判断是需要修正为和解后的状态
+				if( reconciliationState.IsApproximate( predictionState ) )
+					continue;
+
+				// 以和解后的状态和最新预测的状态的中间值，来纠正最新的预测
+				if( Configuration.ComponentReconciliationRatio < 1 )
+					reconciliationState = predictionState.Interpolate( reconciliationState, Configuration.ComponentReconciliationRatio );
+
+				component.RecoverSnapshot( reconciliationState, isReconciliation: true );
+
+				CleanUpReconciliationSnapshots( component );
+			}
+			LeaveContext();
 		}
 
 		void CleanUpAcknowledgedCommands()
