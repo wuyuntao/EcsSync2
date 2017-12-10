@@ -124,7 +124,7 @@ namespace EcsSync2
 		void CleanUpSyncSnapshots()
 		{
 			// 清理冗余的 Sync Timeline
-			var expiration = (uint)Math.Round( Simulator.SynchronizedClock.Rtt / 2f * 1000f + Simulator.InterpolationManager.InterpolationDelay * 2 );
+			var expiration = (uint)Math.Round( Simulator.SynchronizedClock.Rtt / 2f * 1000f + Simulator.RenderManager.InterpolationDelay * 2 );
 			if( Simulator.FixedTime > expiration )
 			{
 				var context = new TickContext( TickContextType.Sync, Simulator.FixedTime - expiration );

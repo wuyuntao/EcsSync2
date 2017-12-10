@@ -25,7 +25,7 @@ namespace EcsSync2
 		public ServerTickScheduler ServerTickScheduler { get; }
 		public ClientTickScheduler ClientTickScheduler { get; }
 		public EventDispatcher EventDispatcher { get; }
-		public InterpolationManager InterpolationManager { get; }
+		public RenderManager RenderManager { get; }
 
 		public NetworkManager NetworkManager { get; }
 		public NetworkClient NetworkClient { get; }
@@ -51,7 +51,7 @@ namespace EcsSync2
 			if( isClient )
 			{
 				InputManager = new InputManager( this );
-				InterpolationManager = new InterpolationManager( this );
+				RenderManager = new RenderManager( this );
 			}
 
 			var isStandalone = isServer && isClient;
@@ -76,12 +76,12 @@ namespace EcsSync2
             if (deltaTime <= 0)
                 return;
 
-			InterpolationManager?.EndInterpolate();
+			RenderManager?.EndRender();
 			SceneManager.RemoveEntities();
 
 			SynchronizedClock.Tick( deltaTime );
 			TickScheduler.Tick();
-			InterpolationManager?.BeginInterpolate();
+			RenderManager?.BeginRender();
 
 			//NetworkManager?.ReceiveMessages();
 
