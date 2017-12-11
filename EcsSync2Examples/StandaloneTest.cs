@@ -1,13 +1,12 @@
 ﻿using EcsSync2.Fps;
 using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace EcsSync2.Examples
 {
 	static class StandaloneTest
 	{
-		public static async void Run()
+		public static void Run()
 		{
 			var simulatorContext = new SimulatorContext();
 			var simulator = new Simulator( simulatorContext, true, true, 1, 1 );

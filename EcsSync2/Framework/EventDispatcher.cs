@@ -7,9 +7,6 @@ namespace EcsSync2
 	{
 		List<EventHandler> m_dirtyHandlers = new List<EventHandler>();
 		List<EventInvocation> m_invocations = new List<EventInvocation>();
-		//SortedList<uint, EventInvocationFrame> m_syncInvocationFrames = new SortedList<uint, EventInvocationFrame>();
-		//SortedList<uint, EventInvocationFrame> m_reconciliationInvocationFrames = new SortedList<uint, EventInvocationFrame>();
-		//SortedList<uint, EventInvocationFrame> m_predictionInvocationFrames = new SortedList<uint, EventInvocationFrame>();
 
 		public EventDispatcher(Simulator simulator)
 			: base( simulator )
@@ -26,39 +23,7 @@ namespace EcsSync2
 		internal void AddEventInvocation(EventInvocation invocation)
 		{
 			m_invocations.Add( invocation );
-
-			//var context = Simulator.TickScheduler.CurrentContext.Value;
-			//switch( context.Type )
-			//{
-			//	case TickScheduler.TickContextType.Sync:
-			//		AddEventInvocation( m_syncInvocationFrames, context, invocation );
-			//		break;
-
-			//	case TickScheduler.TickContextType.Reconciliation:
-			//		AddEventInvocation( m_reconciliationInvocationFrames, context, invocation );
-			//		break;
-
-			//	case TickScheduler.TickContextType.Prediction:
-			//		AddEventInvocation( m_predictionInvocationFrames, context, invocation );
-			//		break;
-
-			//	default:
-			//		throw new NotSupportedException( context.Type.ToString() );
-			//}
 		}
-
-		//void AddEventInvocation(SortedList<uint, EventInvocationFrame> frames, TickScheduler.TickContext context, EventInvocation invocation)
-		//{
-		//	if( !frames.TryGetValue( context.Time, out EventInvocationFrame frame ) )
-		//	{
-		//		frame = Simulator.ReferencableAllocator.Allocate<EventInvocationFrame>();
-		//		frame.Context = context;
-		//		frames.Add( context.Time, frame );
-		//	}
-
-		//	invocation.Retain();
-		//	frame.Invocations.Add( invocation );
-		//}
 
 		internal void Dispatch()
 		{
@@ -115,7 +80,7 @@ namespace EcsSync2
 					listener.Release();
 				Listeners.Clear();
 
-				Args.Release();
+				Args.Release( true );
 				Args = null;
 			}
 		}

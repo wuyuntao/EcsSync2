@@ -87,8 +87,8 @@ namespace EcsSync2
 		public void Invoke()
 		{
 			var args = CreateArgs<Args>();
-
 			Invoke( args );
+			args.Release();
 		}
 
 		public static EventHandler operator +(EventHandler handler1, Action handler2)
@@ -157,8 +157,8 @@ namespace EcsSync2
 		{
 			var args = CreateArgs<Args>();
 			args.Arg1 = arg1;
-
 			Invoke( args );
+			args.Release();
 		}
 
 		public static EventHandler<T1> operator +(EventHandler<T1> handler1, Action<T1> handler2)
@@ -237,8 +237,8 @@ namespace EcsSync2
 			var args = CreateArgs<Args>();
 			args.Arg1 = arg1;
 			args.Arg2 = arg2;
-
 			Invoke( args );
+			args.Release();
 		}
 
 		public static EventHandler<T1, T2> operator +(EventHandler<T1, T2> handler1, Action<T1, T2> handler2)
@@ -320,8 +320,8 @@ namespace EcsSync2
 			args.Arg1 = arg1;
 			args.Arg2 = arg2;
 			args.Arg3 = arg3;
-
 			Invoke( args );
+			args.Release();
 		}
 
 		public static EventHandler<T1, T2, T3> operator +(EventHandler<T1, T2, T3> handler1, Action<T1, T2, T3> handler2)
@@ -406,8 +406,8 @@ namespace EcsSync2
 			args.Arg2 = arg2;
 			args.Arg3 = arg3;
 			args.Arg4 = arg4;
-
 			Invoke( args );
+			args.Release();
 		}
 
 		public static EventHandler<T1, T2, T3, T4> operator +(EventHandler<T1, T2, T3, T4> handler1, Action<T1, T2, T3, T4> handler2)
