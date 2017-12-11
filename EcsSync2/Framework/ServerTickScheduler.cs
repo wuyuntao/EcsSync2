@@ -162,5 +162,7 @@ namespace EcsSync2
 			f.Retain();
 			return f;
 		}
+
+		internal uint Time => m_context.Time;
 	}
 }

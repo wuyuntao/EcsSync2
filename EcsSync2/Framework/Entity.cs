@@ -17,6 +17,10 @@ namespace EcsSync2
 
 	public abstract class Entity : Disposable
 	{
+		public interface IContext
+		{
+		}
+
 		public enum State
 		{
 			Initial,
@@ -28,6 +32,7 @@ namespace EcsSync2
 		public InstanceId Id { get; private set; }
 		public EntitySettings Settings { get; private set; }
 		public List<Component> Components { get; } = new List<Component>();
+		public IContext Context { get; set; }
 
 		State m_state = State.Initial;
 

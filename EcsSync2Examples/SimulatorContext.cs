@@ -1,13 +1,16 @@
-﻿using System;
+﻿using EcsSync2.Fps;
+using System;
+using System.Collections.Generic;
 
 namespace EcsSync2.Examples
 {
-	class SimulatorContext : Simulator.IContext, InputManager.IContext, NetworkServer.IServerContext, NetworkClient.IClientContext
+	class SimulatorContext : Simulator.IContext, InputManager.IContext, RenderManager.IContext, NetworkServer.IServerContext, NetworkClient.IClientContext
 	{
 		NetworkServer.IServerContext m_server;
 		NetworkClient.IClientContext m_client;
 		float[] m_axis = new float[2];
 		bool[] m_buttons = new bool[3];
+		Dictionary<InstanceId, FakeEntityPawn> m_pawns = new Dictionary<InstanceId, FakeEntityPawn>();
 
 		public SimulatorContext(NetworkServer.IServerContext server = null, NetworkClient.IClientContext client = null)
 		{
@@ -166,6 +169,21 @@ namespace EcsSync2.Examples
 		void ILogger.LogWarning(string msg, params object[] args)
 		{
 			Logger.LogWarning( msg, args );
+		}
+
+		void RenderManager.IContext.CreateEntityPawn(Entity entity)
+		{
+			if( entity is Character )
+			{
+				var pawn = new FakeEntityPawn( entity );
+				m_pawns.Add( entity.Id, pawn );
+			}
+		}
+
+		void RenderManager.IContext.DestroyEntityPawn(Entity entity)
+		{
+			if( entity.Context is FakeEntityPawn )
+				m_pawns.Remove( entity.Id );
 		}
 	}
 }

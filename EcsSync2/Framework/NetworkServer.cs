@@ -144,7 +144,7 @@ namespace EcsSync2
 		{
 			if( m_commandFrame != null )
 			{
-				m_commandFrame.Time = Simulator.FixedTime + Configuration.SimulationDeltaTime;
+				m_commandFrame.Time = Simulator.ServerTickScheduler.Time + Configuration.SimulationDeltaTime;
 
 				Simulator.CommandQueue.Add( 0, m_commandFrame );
 

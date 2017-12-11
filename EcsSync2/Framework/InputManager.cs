@@ -12,19 +12,20 @@ namespace EcsSync2
 			bool GetButton(string name);
 		}
 
+		IContext m_context;
 		Vector2D m_joystickDirection = new Vector2D( 0, 1 );
 		float m_joystickMagnitude = 0;
 		bool[] m_buttons = new bool[3];
-
+		
 		public InputManager(Simulator simulator)
 			: base( simulator )
 		{
+			m_context = (IContext)Simulator.Context;
 		}
 
 		internal void SetInput()
 		{
-			var c = (IContext)Simulator.Context;
-			var axis = new Vector2D( c.GetAxis( "Horizontal" ), c.GetAxis( "Vertical" ) );
+			var axis = new Vector2D( m_context.GetAxis( "Horizontal" ), m_context.GetAxis( "Vertical" ) );
 			Debug.Assert( axis.IsValid() );
 			m_joystickMagnitude = axis.Length();
 			if( m_joystickMagnitude > 0 )
@@ -35,9 +36,9 @@ namespace EcsSync2
 			Debug.Assert( m_joystickDirection.IsValid() );
 			Debug.Assert( !float.IsNaN( m_joystickMagnitude ) );
 
-			m_buttons[0] = c.GetButton( "Fire1" );
-			m_buttons[1] = c.GetButton( "Fire2" );
-			m_buttons[2] = c.GetButton( "Jump" );
+			m_buttons[0] = m_context.GetButton( "Fire1" );
+			m_buttons[1] = m_context.GetButton( "Fire2" );
+			m_buttons[2] = m_context.GetButton( "Jump" );
 		}
 
 		internal void ResetInput()

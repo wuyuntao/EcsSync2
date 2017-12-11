@@ -5,36 +5,24 @@ using UTransform = UnityEngine.Transform;
 
 namespace EcsSync2.FpsUnity
 {
-	public class CharacterPawn : MonoBehaviour
+	public class CharacterPawn : EntityPawn
 	{
 		public MeshRenderer Head;
 		public MeshRenderer Body;
 		public UTransform CameraPod;
 		public Character Character;
 
-		public void Initialize(Character character)
+		public override void Initialize(Entity entity)
 		{
-			Character = character;
-			Character.Transform.OnMoved += OnMoved;
+			base.Initialize( entity );
 
-			URandom.InitState( (int)(uint)character.Id );
+			Character = (Character)entity;
+
+			Character.Interpolator.Context = new InterpolatorContext( transform );
+
+			URandom.InitState( (int)(uint)entity.Id );
 			Head.material.color = URandom.ColorHSV();
 			Body.material.color = URandom.ColorHSV();
-		}
-
-		void OnMoved()
-		{
-			if( ( Character.IsLocalCharacter && Character.Transform.TickType == TickScheduler.TickContextType.Prediction )
-				|| ( !Character.IsLocalCharacter && Character.Transform.TickType == TickScheduler.TickContextType.Sync ) )
-				transform.position = Character.Transform.Position.ToUnityPos();
-		}
-
-		void Update()
-		{
-			//if( Character.Transform.Velocity.LengthSquared() > 0 )
-			//{
-			//	transform.position = Character.Transform.Position.AsUnity3();
-			//}
 		}
 	}
 }

@@ -48,6 +48,44 @@ namespace EcsSync2.Fps
 				IsApproximate( Position, s.Position ) &&
 				IsApproximate( Velocity, s.Velocity );
 		}
+
+		protected internal override ComponentSnapshot Interpolate(ComponentSnapshot other, float factor)
+		{
+			if( !( other is TransformSnapshot t ) )
+				return Clone();
+
+			return Interpolate( this, t, factor );
+		}
+
+		static TransformSnapshot Interpolate(TransformSnapshot t1, TransformSnapshot t2, float factor)
+		{
+			var t = (TransformSnapshot)t1.Clone();
+			if( t2.Velocity.LengthSquared() > 0 )
+				t.Position = MathUtils.Lerp( t1.Position, t2.Position, factor );
+			return t;
+		}
+
+		protected internal override ComponentSnapshot Interpolate(uint time, ComponentSnapshot targetSnapshot, uint targetTime, uint interpolateTime)
+		{
+			if( !( targetSnapshot is TransformSnapshot t ) )
+				return Clone();
+
+			var deltaTime = targetTime - interpolateTime;
+			var totalTime = Math.Min( targetTime - time, Configuration.SimulationDeltaTime );
+			var factor = 1 - 1f * deltaTime / totalTime;
+
+			return Interpolate( this, t, factor );
+		}
+
+		protected internal override ComponentSnapshot Extrapolate(uint time, uint extrapolateTime)
+		{
+			if( Velocity.LengthSquared() <= 0 )
+				return Clone();
+
+			var t = (TransformSnapshot)Clone();
+			t.Position = Position + Velocity * ( extrapolateTime - time ) / 1000f;
+			return t;
+		}
 	}
 
 	[ProtoContract]
@@ -97,7 +135,7 @@ namespace EcsSync2.Fps
 				case TransformMovedEvent e:
 					var s1 = (TransformSnapshot)State.Clone();
 					//if( Entity is Character c1 && !c1.IsLocalCharacter )
-					//	Entity.SceneManager.Simulator.Context.Log( $"received {nameof( TransformMovedEvent )} {e.Position} <- {s1.Position}" );
+					//Entity.SceneManager.Simulator.Context.Log( $"{this} received {nameof( TransformMovedEvent )} {e.Position} <- {s1.Position}" );
 					s1.Position = e.Position;
 					OnMoved.Invoke( this );
 					return s1;

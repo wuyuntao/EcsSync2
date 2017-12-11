@@ -31,8 +31,6 @@ namespace EcsSync2
 		public NetworkClient NetworkClient { get; }
 		public NetworkServer NetworkServer { get; }
 
-		public uint FixedTime { get; private set; }
-
 		public Simulator(IContext context, bool isServer, bool isClient, int? randomSeed, ulong? localUserId)
 		{
 			Context = context;

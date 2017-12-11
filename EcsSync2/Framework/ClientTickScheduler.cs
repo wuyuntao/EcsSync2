@@ -125,9 +125,10 @@ namespace EcsSync2
 		{
 			// 清理冗余的 Sync Timeline
 			var expiration = (uint)Math.Round( Simulator.SynchronizedClock.Rtt / 2f * 1000f + Simulator.RenderManager.InterpolationDelay * 2 );
-			if( Simulator.FixedTime > expiration )
+			// TODO 验证 m_syncTickContext.Time > expiration 是否正确
+			if( m_syncTickContext.Time > expiration )
 			{
-				var context = new TickContext( TickContextType.Sync, Simulator.FixedTime - expiration );
+				var context = new TickContext( TickContextType.Sync, m_syncTickContext.Time - expiration );
 
 				foreach( var component in m_syncedComponents )
 					component.RemoveStatesBefore( context );
@@ -274,7 +275,8 @@ namespace EcsSync2
 
 		void Predict()
 		{
-			m_predictionTickContext = new TickContext( TickContextType.Prediction, Simulator.FixedTime );
+			// TODO 验证 m_predictionTickContext.Time + Configuration.SimulationDeltaTime 是否正确
+			m_predictionTickContext = new TickContext( TickContextType.Prediction, m_predictionTickContext.Time + Configuration.SimulationDeltaTime );
 
 			EnterContext( m_predictionTickContext );
 

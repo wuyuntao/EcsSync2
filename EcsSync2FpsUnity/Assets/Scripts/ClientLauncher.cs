@@ -10,7 +10,7 @@ namespace EcsSync2.FpsUnity
 		public int ServerPort = 3687;
 		public ulong UserId = 1000;
 
-		public ScenePawn ScenePawn;
+		//public ScenePawn ScenePawn;
 		public Camera Camera;
 		public UIStatus UIStatus;
 
@@ -22,10 +22,10 @@ namespace EcsSync2.FpsUnity
 			m_simulatorContext = new SimulatorContext();
 			m_simulator = new Simulator( m_simulatorContext, false, true, null, UserId );
 
-			var go = Instantiate( ScenePawn.gameObject );
-			var pawn = go.GetComponent<ScenePawn>();
-			pawn.Camera = Camera;
-			pawn.Initialize( m_simulator );
+			//var go = Instantiate( ScenePawn.gameObject );
+			//var pawn = go.GetComponent<ScenePawn>();
+			//pawn.Camera = Camera;
+			//pawn.Initialize( m_simulator );
 
 			m_simulator.SceneManager.LoadScene<BattleScene>();
 			m_simulator.NetworkClient.Start( ServerAddress, ServerPort );
