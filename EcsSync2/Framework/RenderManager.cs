@@ -61,20 +61,20 @@ namespace EcsSync2
 			foreach( var entity in m_newEntities )
 				m_context.CreateEntityPawn( entity );
 
-			bool hasRendererDestroyed = false;
+			var hasRendererDestroyed = false;
 			foreach( var renderer in m_renderers )
 			{
 				renderer.Update();
 				hasRendererDestroyed |= renderer.IsDestroyed;
 			}
 
-			if( hasRendererDestroyed )
-				m_renderers.RemoveAll( r => r.IsDestroyed );
-
 			foreach( var entity in m_destroyedEntities )
 				m_context.DestroyEntityPawn( entity );
 
+			// Cleanup
 			m_newEntities.Clear();
+			if( hasRendererDestroyed )
+				m_renderers.RemoveAll( r => r.IsDestroyed );
 			m_destroyedEntities.Clear();
 		}
 
