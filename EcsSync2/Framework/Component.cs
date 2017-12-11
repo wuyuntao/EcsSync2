@@ -59,8 +59,9 @@ namespace EcsSync2
 
 			if( state != null )
 			{
-				State = state;
-				state.Release();
+				// CreateSnapshot 总是包含 Allocate，不需要额外 retain
+				m_state = state;
+				SetState( m_context.Value, state );
 			}
 
 			OnStart();
@@ -73,7 +74,6 @@ namespace EcsSync2
 			OnDestroy();
 
 			IsDestroyed = true;
-
 		}
 
 		protected override void DisposeManaged()
@@ -152,21 +152,6 @@ namespace EcsSync2
 				Entity.SceneManager.Simulator.ServerTickScheduler.EnqueueEvent( @event );
 
 			@event.Release();
-		}
-
-		internal void Interpolate()
-		{
-			EnsureTickContext();
-
-			// 触发缓存的事件
-			if( Entity.IsLocalEntity )
-			{
-
-			}
-			else
-			{
-
-			}
 		}
 
 		#endregion
@@ -284,11 +269,13 @@ namespace EcsSync2
 
 			m_context = TickScheduler.CurrentContext.Value;
 
-			if( getState )
+			if( m_hasState && getState )
 			{
-				m_state?.Release();
+				m_state.Release();
 				m_state = GetState( m_context.Value );
-				m_state?.Retain();
+				// 插值情况时，总是返回已 clone 的状态，所以不需额外 retain
+				if( m_context.Value.Type != TickScheduler.TickContextType.Interpolation )
+					m_state.Retain();
 			}
 		}
 
@@ -352,7 +339,7 @@ namespace EcsSync2
 				{
 					Entity.SceneManager.Simulator.Context.LogWarning( "Cannot find sync snapshot for {0} ({1}), Use first snapshot instead {2}", this, context, m_syncTimeline.FirstPoint );
 
-					return m_syncTimeline.FirstPoint.Snapshot;
+					return m_syncTimeline.FirstPoint.Snapshot.Clone();
 				}
 			}
 
@@ -386,31 +373,6 @@ namespace EcsSync2
 					throw new NotSupportedException( context.Type.ToString() );
 			}
 		}
-
-		//void AddEventInvocation(TickScheduler.TickContext context, EventDispatcher.EventInvocation invocation)
-		//{
-		//	switch( context.Type )
-		//	{
-		//		case TickScheduler.TickContextType.Sync:
-		//			EnsureTimeline( context.Type, ref m_syncTimeline ).Add( context.Time, invocation );
-		//			break;
-
-		//		case TickScheduler.TickContextType.Reconciliation:
-		//			EnsureTimeline( context.Type, ref m_reconciliationTimeline ).Add( context.Time, invocation );
-		//			break;
-
-		//		case TickScheduler.TickContextType.Prediction:
-		//			EnsureTimeline( context.Type, ref m_predictionTimeline ).Add( context.Time, invocation );
-		//			break;
-
-		//		case TickScheduler.TickContextType.Interpolation:
-		//			// No need to save interpolated states
-		//			break;
-
-		//		default:
-		//			throw new NotSupportedException( context.Type.ToString() );
-		//	}
-		//}
 
 		Timeline EnsureTimeline(TickScheduler.TickContextType type, ref Timeline timeline)
 		{

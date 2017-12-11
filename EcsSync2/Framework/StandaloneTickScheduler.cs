@@ -26,8 +26,12 @@ namespace EcsSync2
 				Simulator.InputManager.SetInput();
 				Simulator.InputManager.CreateCommands();
 
-				foreach( var commands in Simulator.CommandQueue.Find( m_tickContext.Time ) )
-					DispatchCommands( commands );
+				foreach( var userId in Simulator.CommandQueue.UserIds )
+				{
+					var commands = Simulator.CommandQueue.Find( userId, m_tickContext.Time );
+					if( commands != null )
+						DispatchCommands( commands );
+				}
 
 				FixedUpdate();
 				Simulator.EventDispatcher.Dispatch();

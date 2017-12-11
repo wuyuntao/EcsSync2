@@ -26,16 +26,6 @@ namespace EcsSync2
 			return Find( EnsureQueue( userId ), time );
 		}
 
-		public IEnumerable<CommandFrame> Find(uint time)
-		{
-			foreach( var q in m_queues.Values )
-			{
-				var f = Find( q, time );
-				if( f != null )
-					yield return f;
-			}
-		}
-
 		public CommandFrame FindFirst(ulong userId)
 		{
 			if( !m_queues.TryGetValue( userId, out Queue<CommandFrame> queue ) )
@@ -69,8 +59,11 @@ namespace EcsSync2
 		public int RemoveBefore(uint time)
 		{
 			var count = 0;
-			foreach( var q in m_queues.Values )
+			for( int i = 0; i < m_queues.Values.Count; ++i )
+			{
+				var q = m_queues.Values[i];
 				count += RemoveBefore( q, time );
+			}
 			return count;
 		}
 

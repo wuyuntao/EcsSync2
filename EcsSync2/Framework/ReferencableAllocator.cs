@@ -214,8 +214,8 @@ namespace EcsSync2
 				if( m_unreferenced.Count > 0 )
 				{
 					var index = m_unreferenced.Dequeue();
-					var counter = m_counters[index];
-					counter.Retain();
+					var counter = (ReferencableCounter)m_counters[index];
+					counter.Retain( false );
 					return counter.Value;
 				}
 				else if( m_counters.Count < Allocator.m_maxCapacity )
@@ -270,9 +270,9 @@ namespace EcsSync2
 			public Type ReferencableType { get; private set; }
 		}
 
-#endregion
+		#endregion
 
-#region ReferencableCounter
+		#region ReferencableCounter
 
 		class ReferencableCounter : IReferenceCounter
 		{
@@ -295,7 +295,7 @@ namespace EcsSync2
 				}
 
 #if ENABLE_ALLOCATOR_LOG
-				if( pool.ReferencableType == typeof( Fps.CharacterMotionControllerSnapshot ) )
+				if( pool.ReferencableType == typeof( Fps.TransformSnapshot ) )
 					m_logs = new List<string>();
 #endif
 
@@ -305,7 +305,7 @@ namespace EcsSync2
 				m_value.ReferenceCounter = this;
 				m_value.OnAllocate();
 
-				Retain();
+				Retain( false );
 			}
 
 			public override string ToString()
@@ -315,6 +315,19 @@ namespace EcsSync2
 
 			public void Retain()
 			{
+				Retain( true );
+			}
+
+			public void Retain(bool checkReferenced)
+			{
+				if( checkReferenced && m_referencedCount == 0 )
+				{
+#if ENABLE_ALLOCATOR_LOG
+					DumpLogs();
+#endif
+					throw new InvalidOperationException( $"{this} is already released" );
+				}
+
 #if ENABLE_ALLOCATOR_LOG
 				AppendLog( nameof( Retain ) );
 #endif
@@ -360,7 +373,7 @@ namespace EcsSync2
 			{
 				if( m_logs != null )
 				{
-					var log = string.Format( "{0}|{1}|{2}|{3}|{4}", m_pool.Allocator.Simulator.FixedTime, m_value, tag, m_referencedCount, Environment.StackTrace );
+					var log = string.Format( "{0}|{1}|{2}|{3}|{4}", m_pool.Allocator.Simulator.SynchronizedClock.Time, m_value, tag, m_referencedCount, Environment.StackTrace );
 
 					m_logs.Add( log );
 				}
@@ -444,6 +457,6 @@ namespace EcsSync2
 			public ReferencableAllocator Allocator { get; }
 		}
 
-#endregion
+		#endregion
 	}
 }
