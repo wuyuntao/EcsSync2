@@ -215,3 +215,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Head: {fileID: 23567920220272330}
   Body: {fileID: 23407143759565714}
+  Animator: {fileID: 95531500979277994}

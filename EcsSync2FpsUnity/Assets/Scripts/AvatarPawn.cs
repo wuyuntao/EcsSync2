@@ -7,6 +7,7 @@ namespace EcsSync2.FpsUnity
 	{
 		public MeshRenderer Head;
 		public MeshRenderer Body;
+		public Animator Animator;
 
 		public void Randomnize(int seed)
 		{

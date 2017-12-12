@@ -21,6 +21,7 @@ namespace EcsSync2.FpsUnity
 
 			Avatar = Instantiate( AvatarPawnPrefab, transform ).GetComponent<AvatarPawn>();
 			Avatar.Randomnize( (int)(uint)entity.Id );
+			Character.Animator.Context = new AnimatorContext( Avatar.Animator );
 		}
 	}
 }

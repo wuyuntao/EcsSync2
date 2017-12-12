@@ -59,14 +59,24 @@ namespace EcsSync2.Fps
 		[ProtoMember( 5 )]
 		public List<AnimatorFloatParameter> FloatParameters = new List<AnimatorFloatParameter>();
 
+		public override ComponentSnapshot Clone()
+		{
+			var s = this.Allocate<AnimatorSnapshot>();
+			s.ComponentId = ComponentId;
+			s.Revision = Revision;
+			s.StateName = StateName;
+			s.BoolParameters.AddRange( BoolParameters );
+			s.IntParameters.AddRange( IntParameters );
+			s.FloatParameters.AddRange( FloatParameters );
+			return s;
+		}
+
 		protected override void OnReset()
 		{
 			StateName = null;
 			BoolParameters.Clear();
 			IntParameters.Clear();
 			FloatParameters.Clear();
-
-			base.OnReset();
 		}
 
 		#region Parameter Helpers
@@ -149,6 +159,36 @@ namespace EcsSync2.Fps
 		}
 	}
 
+	[ProtoContract]
+	public class AnimatorBoolParameterChangedEvent : ComponentEvent
+	{
+		[ProtoMember( 1 )]
+		public string Name { get; set; }
+
+		[ProtoMember( 2 )]
+		public bool Value { get; set; }
+	}
+
+	[ProtoContract]
+	public class AnimatorIntParameterChangedEvent : ComponentEvent
+	{
+		[ProtoMember( 1 )]
+		public string Name { get; set; }
+
+		[ProtoMember( 2 )]
+		public int Value { get; set; }
+	}
+
+	[ProtoContract]
+	public class AnimatorFloatParameterChangedEvent : ComponentEvent
+	{
+		[ProtoMember( 1 )]
+		public string Name { get; set; }
+
+		[ProtoMember( 2 )]
+		public float Value { get; set; }
+	}
+
 	public sealed class Animator : Renderer2
 	{
 		public interface IContext
@@ -182,6 +222,15 @@ namespace EcsSync2.Fps
 				case AnimatorStateChangedEvent e:
 					return OnAnimatorStateChangedEvent( e );
 
+				case AnimatorBoolParameterChangedEvent e:
+					return OnAnimatorBoolParameterChangedEvent( e );
+
+				case AnimatorIntParameterChangedEvent e:
+					return OnAnimatorIntParameterChangedEvent( e );
+
+				case AnimatorFloatParameterChangedEvent e:
+					return OnAnimatorFloatParameterChangedEvent( e );
+
 				default:
 					throw new NotSupportedException( @event.ToString() );
 			}
@@ -192,6 +241,30 @@ namespace EcsSync2.Fps
 			var s = (AnimatorSnapshot)State.Clone();
 			s.Revision++;
 			s.StateName = e.State;
+			return s;
+		}
+
+		AnimatorSnapshot OnAnimatorBoolParameterChangedEvent(AnimatorBoolParameterChangedEvent e)
+		{
+			var s = (AnimatorSnapshot)State.Clone();
+			s.Revision++;
+			s.SetBool( e.Name, e.Value );
+			return s;
+		}
+
+		AnimatorSnapshot OnAnimatorIntParameterChangedEvent(AnimatorIntParameterChangedEvent e)
+		{
+			var s = (AnimatorSnapshot)State.Clone();
+			s.Revision++;
+			s.SetInt( e.Name, e.Value );
+			return s;
+		}
+
+		AnimatorSnapshot OnAnimatorFloatParameterChangedEvent(AnimatorFloatParameterChangedEvent e)
+		{
+			var s = (AnimatorSnapshot)State.Clone();
+			s.Revision++;
+			s.SetFloat( e.Name, e.Value );
 			return s;
 		}
 

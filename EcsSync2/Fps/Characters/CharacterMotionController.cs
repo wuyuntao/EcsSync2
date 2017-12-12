@@ -119,13 +119,14 @@ namespace EcsSync2.Fps
 
 		protected override void OnFixedUpdate()
 		{
-			if( Entity.SceneManager.Simulator.IsServer || ( Entity is Character character && character.TheSettings.UserId == Entity.SceneManager.Simulator.LocalUserId ) )
+			if( Entity.SceneManager.Simulator.IsServer || Character.IsLocalCharacter )
 			{
 				var s = (CharacterMotionControllerSnapshot)State;
 				var velocity = s.InputDirection * s.InputMagnitude * s.MaxSpeed;
 				var offset = velocity * Configuration.SimulationDeltaTime / 1000f;
 
-				Character.Transform.ApplyTransformVelocityChangedEvent( velocity );
+				if( !MathUtils.IsApproximate( velocity, Character.Transform.Velocity ) )
+					Character.Transform.ApplyTransformVelocityChangedEvent( velocity );
 
 				if( offset.LengthSquared() > 0 )
 					Character.Transform.ApplyTransformMovedEvent( offset );

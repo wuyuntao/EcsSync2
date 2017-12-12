@@ -1,4 +1,6 @@
-﻿namespace EcsSync2.Fps
+﻿using System;
+
+namespace EcsSync2.Fps
 {
 	static class MathUtils
 	{
@@ -22,6 +24,22 @@
 		{
 			t = Clamp( t, 0f, 1f );
 			return new Vector2D( a.X + ( b.X - a.X ) * t, a.Y + ( b.Y - a.Y ) * t );
+		}
+
+		public static bool IsApproximate(float a, float b, float error = 0.001f)
+		{
+			if( error <= 0 )
+				throw new ArgumentOutOfRangeException( nameof( error ) );
+
+			return Math.Abs( b - a ) < error;
+		}
+
+		public static bool IsApproximate(Vector2D a, Vector2D b, float error = 0.001f)
+		{
+			if( error <= 0 )
+				throw new ArgumentOutOfRangeException( nameof( error ) );
+
+			return Vector2D.Distance( a, b ) <= error;
 		}
 	}
 }

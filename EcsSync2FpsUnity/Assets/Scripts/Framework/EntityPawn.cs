@@ -1,6 +1,7 @@
 ﻿using EcsSync2.Fps;
 using UnityEngine;
 using UTransform = UnityEngine.Transform;
+using UAnimator = UnityEngine.Animator;
 
 namespace EcsSync2.FpsUnity
 {
@@ -26,6 +27,41 @@ namespace EcsSync2.FpsUnity
 			void Interpolator.IContext.SetPosition(Vector2D position)
 			{
 				m_transform.localPosition = position.ToUnityPos();
+			}
+		}
+
+		protected class AnimatorContext : Fps.Animator.IContext
+		{
+			UAnimator m_animator;
+			string m_lastState;
+
+			public AnimatorContext(UAnimator animator)
+			{
+				m_animator = animator;
+			}
+
+			public void SetBool(string name, bool value)
+			{
+				m_animator.SetBool( name, value );
+			}
+
+			public void SetFloat(string name, float value)
+			{
+				m_animator.SetFloat( name, value );
+			}
+
+			public void SetInt(string name, int value)
+			{
+				m_animator.SetInteger( name, value );
+			}
+
+			public void SetState(string name)
+			{
+				if( m_lastState != name )
+				{
+					m_animator.SetTrigger( name );
+					m_lastState = name;
+				}
 			}
 		}
 	}
