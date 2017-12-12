@@ -9,9 +9,8 @@ namespace EcsSync2.Fps
 			void SetPosition(Vector2D vector);
 		}
 
-		public IContext Context { get; set; }
-
 		Transform m_transform;
+		IContext m_context;
 
 		protected override void OnInitialize()
 		{
@@ -22,7 +21,7 @@ namespace EcsSync2.Fps
 
 		protected override void OnUpdate()
 		{
-			Context?.SetPosition( m_transform.Position );
+			m_context?.SetPosition( m_transform.Position );
 		}
 
 		protected override void OnCommandReceived(ComponentCommand command)
@@ -54,6 +53,17 @@ namespace EcsSync2.Fps
 		protected internal override ComponentSnapshot CreateSnapshot()
 		{
 			return null;
+		}
+
+		public IContext Context
+		{
+			get { return m_context; }
+			set
+			{
+				m_context = value;
+
+				OnUpdate();
+			}
 		}
 	}
 }

@@ -23,7 +23,6 @@ namespace EcsSync2.Fps
 	}
 
 	[ProtoContract]
-	[ProtoInclude( 1, typeof( AnimatorSnapshot ) )]
 	public class RendererSnapshot : ComponentSnapshot
 	{
 		public List<RenderState> States = new List<RenderState>();
