@@ -45,6 +45,8 @@ namespace EcsSync2
 	[ProtoInclude( 4, typeof( ConnectingSnapshot ) )]
 	[ProtoInclude( 5, typeof( ConnectedSnapshot ) )]
 	[ProtoInclude( 6, typeof( DisconnectedSnapshot ) )]
+	[ProtoInclude( 7, typeof( JumperSnapshot ) )]
+	[ProtoInclude( 8, typeof( AnimatorSnapshot ) )]
 	public abstract class ComponentSnapshot : SerializableReferencable
 	{
 		[ProtoMember( 11 )]

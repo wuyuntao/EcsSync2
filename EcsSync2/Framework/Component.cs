@@ -18,7 +18,7 @@ namespace EcsSync2
 		public ComponentSettings Settings { get; private set; }
 		public bool IsDestroyed { get; private set; }
 
-		TickScheduler.TickContext? m_context;
+		TickScheduler.TickContext? m_tickContext;
 		ComponentSnapshot m_state;
 		bool m_hasState;
 
@@ -27,7 +27,7 @@ namespace EcsSync2
 		Timeline m_predictionTimeline;
 		List<IDisposable> m_eventHandlers;
 
-		public TickScheduler.TickContextType? TickType => m_context != null ? (TickScheduler.TickContextType?)m_context.Value.Type : null;
+		public TickScheduler.TickContextType? TickType => m_tickContext != null ? (TickScheduler.TickContextType?)m_tickContext.Value.Type : null;
 
 		#region Life-cycle
 
@@ -61,7 +61,7 @@ namespace EcsSync2
 			{
 				// CreateSnapshot 总是包含 Allocate，不需要额外 retain
 				m_state = state;
-				SetState( m_context.Value, state );
+				SetState( m_tickContext.Value, state );
 			}
 
 			OnStart();
@@ -104,7 +104,7 @@ namespace EcsSync2
 
 			//Entity.SceneManager.Simulator.Context.Log( "RecoverSnapshot {0}, {1}, {2}", this, m_context, state );
 
-			switch( m_context.Value.Type )
+			switch( m_tickContext.Value.Type )
 			{
 				case TickScheduler.TickContextType.Reconciliation:
 					{
@@ -121,7 +121,7 @@ namespace EcsSync2
 					}
 			}
 
-			SetState( m_context.Value, state );
+			SetState( m_tickContext.Value, state );
 
 			OnSnapshotRecovered( state );
 
@@ -153,6 +153,8 @@ namespace EcsSync2
 
 			@event.Release();
 		}
+
+		protected uint Time => m_tickContext.Value.Time;
 
 		#endregion
 
@@ -199,7 +201,7 @@ namespace EcsSync2
 				m_state?.Release();
 				m_state = value;
 				m_state.Retain();
-				SetState( m_context.Value, value );
+				SetState( m_tickContext.Value, value );
 			}
 		}
 
@@ -264,17 +266,17 @@ namespace EcsSync2
 			if( TickScheduler.CurrentContext == null )
 				throw new InvalidOperationException( "Tick context not exist" );
 
-			if( m_context == TickScheduler.CurrentContext.Value )
+			if( m_tickContext == TickScheduler.CurrentContext.Value )
 				return;
 
-			m_context = TickScheduler.CurrentContext.Value;
+			m_tickContext = TickScheduler.CurrentContext.Value;
 
 			if( m_hasState && getState )
 			{
 				m_state.Release();
-				m_state = GetState( m_context.Value );
+				m_state = GetState( m_tickContext.Value );
 				// 插值情况时，总是返回已 clone 的状态，所以不需额外 retain
-				if( m_context.Value.Type != TickScheduler.TickContextType.Interpolation )
+				if( m_tickContext.Value.Type != TickScheduler.TickContextType.Interpolation )
 					m_state.Retain();
 			}
 		}

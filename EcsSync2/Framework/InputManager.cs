@@ -16,7 +16,7 @@ namespace EcsSync2
 		Vector2D m_joystickDirection = new Vector2D( 0, 1 );
 		float m_joystickMagnitude = 0;
 		bool[] m_buttons = new bool[3];
-		
+
 		public InputManager(Simulator simulator)
 			: base( simulator )
 		{
@@ -61,6 +61,9 @@ namespace EcsSync2
 				if( scene.LocalCharacter != null )
 				{
 					MoveCharacterCommand( frame, scene.LocalCharacter.MotionController );
+
+					if( m_buttons[2] )
+						JumpCommand( frame, scene.LocalCharacter.Jumper );
 				}
 				else if( scene.LocalPlayer != null )
 				{
@@ -91,6 +94,14 @@ namespace EcsSync2
 			c.InputMagnitude = m_joystickMagnitude;
 
 			//Simulator.Context.Log( "MoveCharacterCommand {0}, {1}", frame, motion );
+		}
+
+		void JumpCommand(CommandFrame frame, Jumper jumper)
+		{
+			var c = frame.AddCommand<JumpCommand>();
+			c.ComponentId = jumper.Id;
+
+			//Simulator.Context.Log( "JumpCommand {0}, {1}", frame, motion );
 		}
 	}
 }

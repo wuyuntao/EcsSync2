@@ -159,5 +159,7 @@ namespace EcsSync2.Fps
 		}
 
 		Character Character => (Character)Entity;
+
+		internal CharacterMotionControllerSnapshot TheState => (CharacterMotionControllerSnapshot)State;
 	}
 }

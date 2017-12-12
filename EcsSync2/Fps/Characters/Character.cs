@@ -13,6 +13,7 @@ namespace EcsSync2.Fps
 	{
 		public Transform Transform { get; private set; }
 		public CharacterMotionController MotionController { get; private set; }
+		public Jumper Jumper { get; private set; }
 		public Interpolator Interpolator { get; private set; }
 		public Animator Animator { get; private set; }
 
@@ -20,9 +21,10 @@ namespace EcsSync2.Fps
 		{
 			Transform = AddComponent<Transform>( new TransformSettings() );
 			MotionController = AddComponent<CharacterMotionController>();
+			Jumper = AddComponent<Jumper>();
 
 			Interpolator = AddComponent<Interpolator>();
-			Animator = AddComponent<Animator>();
+			Animator = AddComponent<CharacterAnimator>();
 		}
 
 		public CharacterSettings TheSettings => (CharacterSettings)Settings;

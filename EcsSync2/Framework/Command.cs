@@ -20,6 +20,7 @@ namespace EcsSync2
 	[ProtoContract]
 	[ProtoInclude( 1, typeof( PlayerConnectCommand ) )]
 	[ProtoInclude( 2, typeof( MoveCharacterCommand ) )]
+	[ProtoInclude( 3, typeof( JumpCommand ) )]
 	public abstract class ComponentCommand : Command
 	{
 		[ProtoMember( 11 )]

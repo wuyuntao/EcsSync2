@@ -21,9 +21,9 @@ namespace EcsSync2.FpsUnity
 			if( !IsStandalone )
 				m_client = new LiteNetClient( this );
 
-			Instantiate( Level );
+			Instantiate( Level, transform );
 			Instantiate( UICanvasPrefab );
-			m_camera = Instantiate( CharacterCameraPrefab ).GetComponent<CharacterCamera>();
+			m_camera = Instantiate( CharacterCameraPrefab, transform ).GetComponent<CharacterCamera>();
 		}
 
 		#region Simulator.IContext

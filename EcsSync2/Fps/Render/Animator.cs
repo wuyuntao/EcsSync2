@@ -189,7 +189,7 @@ namespace EcsSync2.Fps
 		public float Value { get; set; }
 	}
 
-	public sealed class Animator : Renderer2
+	public class Animator : Renderer2
 	{
 		public interface IContext
 		{
@@ -303,6 +303,42 @@ namespace EcsSync2.Fps
 			ApplyEvent( e );
 		}
 
+		public void ApplyAnimatorBoolParameterChangedEvent(string name, bool value)
+		{
+			if( string.IsNullOrEmpty( name ) )
+				throw new ArgumentNullException( nameof( name ) );
+
+			var e = CreateEvent<AnimatorBoolParameterChangedEvent>();
+			e.Name = name;
+			e.Value = value;
+
+			ApplyEvent( e );
+		}
+
+		public void ApplyAnimatorIntParameterChangedEvent(string name, int value)
+		{
+			if( string.IsNullOrEmpty( name ) )
+				throw new ArgumentNullException( nameof( name ) );
+
+			var e = CreateEvent<AnimatorIntParameterChangedEvent>();
+			e.Name = name;
+			e.Value = value;
+
+			ApplyEvent( e );
+		}
+
+		public void ApplyAnimatorFloatParameterChangedEvent(string name, float value)
+		{
+			if( string.IsNullOrEmpty( name ) )
+				throw new ArgumentNullException( nameof( name ) );
+
+			var e = CreateEvent<AnimatorFloatParameterChangedEvent>();
+			e.Name = name;
+			e.Value = value;
+
+			ApplyEvent( e );
+		}
+
 		protected override void OnDestroy()
 		{
 		}
@@ -319,7 +355,7 @@ namespace EcsSync2.Fps
 		{
 		}
 
-		AnimatorSnapshot TheState => (AnimatorSnapshot)State;
+		protected AnimatorSnapshot TheState => (AnimatorSnapshot)State;
 
 		public IContext Context
 		{
