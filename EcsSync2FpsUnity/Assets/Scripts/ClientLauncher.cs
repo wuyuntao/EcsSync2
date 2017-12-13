@@ -10,26 +10,20 @@ namespace EcsSync2.FpsUnity
 		public int ServerPort = 3687;
 		public ulong UserId = 1000;
 
-		//public ScenePawn ScenePawn;
-		public Camera Camera;
-		public UIStatus UIStatus;
+		public SimulatorContext SceneRoot = null;
 
 		SimulatorContext m_simulatorContext;
 		Simulator m_simulator;
 
 		void Awake()
 		{
-			m_simulatorContext = new SimulatorContext();
+			var go = Instantiate( SceneRoot.gameObject );
+			m_simulatorContext = go.GetComponent<SimulatorContext>();
+			m_simulatorContext.Client = new LiteNetClient( m_simulatorContext );
+
 			m_simulator = new Simulator( m_simulatorContext, false, true, null, UserId );
-
-			//var go = Instantiate( ScenePawn.gameObject );
-			//var pawn = go.GetComponent<ScenePawn>();
-			//pawn.Camera = Camera;
-			//pawn.Initialize( m_simulator );
-
 			m_simulator.SceneManager.LoadScene<BattleScene>();
 			m_simulator.NetworkClient.Start( ServerAddress, ServerPort );
-
 			m_simulator.NetworkClient.OnLogin += OnLogin;
 		}
 
@@ -45,9 +39,9 @@ namespace EcsSync2.FpsUnity
 
 		void UpdateStatus()
 		{
-			if( m_simulator != null )
+			if( m_simulatorContext.UIStatus != null )
 			{
-				UIStatus.RTT = m_simulator.SynchronizedClock.Rtt;
+				m_simulatorContext.UIStatus.RTT = m_simulator.SynchronizedClock.Rtt;
 			}
 		}
 

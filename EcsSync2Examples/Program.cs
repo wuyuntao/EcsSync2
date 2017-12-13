@@ -7,7 +7,8 @@ namespace EcsSync2.Examples
 	{
 		static void Main(string[] args)
 		{
-			Task.Run( (Action)StandaloneTest.Run );
+			Task.Run( (Action)ServerTest.Run );
+			//Task.Run( (Action)StandaloneTest.Run );
 			//Task.Run( (Action)FakeNetworkTest.Run );
 
 			Console.WriteLine( "Press any key to exit" );

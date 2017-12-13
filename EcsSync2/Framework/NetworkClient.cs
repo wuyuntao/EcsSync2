@@ -137,7 +137,7 @@ namespace EcsSync2
 		{
 			if( m_stream != null )
 			{
-				var commandFrame = Simulator.ClientTickScheduler.FetchCommandFrame2();
+				var commandFrame = Simulator.ClientTickScheduler.FetchCommandFrame();
 				if( commandFrame != null )
 				{
 					m_stream.Send( commandFrame );

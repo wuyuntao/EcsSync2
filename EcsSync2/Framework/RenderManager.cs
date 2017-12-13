@@ -14,7 +14,7 @@ namespace EcsSync2
 		}
 
 		IContext m_context;
-		TickScheduler.TickContext m_tickContext = new TickScheduler.TickContext( TickScheduler.TickContextType.Interpolation, 0 );
+		TickScheduler.TickContext m_tickContext = new TickScheduler.TickContext( TickScheduler.TickContextType.Interpolation, 0, 0 );
 		List<Entity> m_newEntities = new List<Entity>();
 		List<Entity> m_destroyedEntities = new List<Entity>();
 		List<Renderer> m_renderers = new List<Renderer>();
@@ -49,13 +49,26 @@ namespace EcsSync2
 
 		internal void BeginRender()
 		{
-			var time = (uint)Math.Round( Math.Max( 0f, Simulator.SynchronizedClock.Time * 1000f - Configuration.SimulationDeltaTime ) );
-			if( time <= m_tickContext.Time )
+			uint localTime;
+			uint remoteTime;
+			if( Simulator.ClientTickScheduler != null )
+			{
+				if( Simulator.ClientTickScheduler.FullSyncTime == null )
+					return;
+
+				localTime = RoundToMs( Simulator.SynchronizedClock.Time + Simulator.SynchronizedClock.Rtt / 2 );
+				remoteTime = RoundToMs( Simulator.SynchronizedClock.Time - Simulator.SynchronizedClock.Rtt / 2 - InterpolationDelay / 1000f );
+			}
+			else
+			{
+				localTime = remoteTime = RoundToMs( Simulator.SynchronizedClock.Time - Configuration.SimulationDeltaTime / 1000f );
+			}
+			if( localTime < m_tickContext.LocalTime || remoteTime < m_tickContext.RemoteTime )
 				return;
 
 			//Simulator.Context.Log( "Render {0}, {1}", time, Simulator.StandaloneTickScheduler.Time );
 
-			m_tickContext = new TickScheduler.TickContext( TickScheduler.TickContextType.Interpolation, time );
+			m_tickContext = new TickScheduler.TickContext( TickScheduler.TickContextType.Interpolation, localTime, remoteTime );
 			Simulator.TickScheduler.EnterContext( m_tickContext );
 
 			foreach( var entity in m_newEntities )
@@ -81,6 +94,11 @@ namespace EcsSync2
 		internal void EndRender()
 		{
 			Simulator.TickScheduler.LeaveContext();
+		}
+
+		static uint RoundToMs(float seconds)
+		{
+			return (uint)Math.Round( Math.Max( 0f, seconds * 1000 ) );
 		}
 
 		internal TickScheduler.TickContext? CurrentContext => m_tickContext;

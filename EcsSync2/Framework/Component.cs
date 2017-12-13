@@ -154,8 +154,6 @@ namespace EcsSync2
 			@event.Release();
 		}
 
-		protected uint Time => m_tickContext.Value.Time;
-
 		#endregion
 
 		#region Public Interface
@@ -257,6 +255,8 @@ namespace EcsSync2
 			//AddEventInvocation( m_context, invocation );
 		}
 
+		protected uint Time => Entity.IsLocalEntity ? m_tickContext.Value.LocalTime : m_tickContext.Value.RemoteTime;
+
 		#endregion
 
 		#region Private Helpers
@@ -289,19 +289,19 @@ namespace EcsSync2
 					return GetSyncState( context );
 
 				case TickScheduler.TickContextType.Reconciliation:
-					if( m_reconciliationTimeline != null && m_reconciliationTimeline.TryFind( context.Time, out ComponentSnapshot s1 ) )
+					if( m_reconciliationTimeline != null && m_reconciliationTimeline.TryFind( context.LocalTime, out ComponentSnapshot s1 ) )
 						return s1;
 
 					return GetSyncState( context );
 
 				case TickScheduler.TickContextType.Prediction:
-					if( m_predictionTimeline != null && m_predictionTimeline.TryFind( context.Time, out ComponentSnapshot s2 ) )
+					if( m_predictionTimeline != null && m_predictionTimeline.TryFind( context.LocalTime, out ComponentSnapshot s2 ) )
 						return s2;
 
 					return GetSyncState( context );
 
 				case TickScheduler.TickContextType.Interpolation:
-					if( m_predictionTimeline != null && m_predictionTimeline.TryInterpolate( context.Time, out ComponentSnapshot s3 ) )
+					if( m_predictionTimeline != null && m_predictionTimeline.TryInterpolate( Entity.IsLocalEntity ? context.LocalTime : context.RemoteTime, out ComponentSnapshot s3 ) )
 						return s3;
 
 					return InterpolateSyncState( context );
@@ -316,7 +316,7 @@ namespace EcsSync2
 			// 如果是纯客户端本地预测对象，可能没有 sync timeline
 			if( m_syncTimeline != null )
 			{
-				if( m_syncTimeline.TryFind( context.Time, out ComponentSnapshot snapshot ) )
+				if( m_syncTimeline.TryFind( context.LocalTime, out ComponentSnapshot snapshot ) )
 					return snapshot;
 
 				if( m_syncTimeline.FirstPoint != null )
@@ -334,7 +334,7 @@ namespace EcsSync2
 		{
 			if( m_syncTimeline != null )
 			{
-				if( m_syncTimeline.TryInterpolate( context.Time, out ComponentSnapshot snapshot ) )
+				if( m_syncTimeline.TryInterpolate( Entity.IsLocalEntity ? context.LocalTime : context.RemoteTime, out ComponentSnapshot snapshot ) )
 					return snapshot;
 
 				if( m_syncTimeline.FirstPoint != null )
@@ -353,15 +353,15 @@ namespace EcsSync2
 			switch( context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
-					EnsureTimeline( context.Type, ref m_syncTimeline ).Add( context.Time, state );
+					EnsureTimeline( context.Type, ref m_syncTimeline ).Add( context.LocalTime, state );
 					break;
 
 				case TickScheduler.TickContextType.Reconciliation:
-					EnsureTimeline( context.Type, ref m_reconciliationTimeline ).Add( context.Time, state );
+					EnsureTimeline( context.Type, ref m_reconciliationTimeline ).Add( context.LocalTime, state );
 					break;
 
 				case TickScheduler.TickContextType.Prediction:
-					EnsureTimeline( context.Type, ref m_predictionTimeline ).Add( context.Time, state );
+					EnsureTimeline( context.Type, ref m_predictionTimeline ).Add( context.LocalTime, state );
 
 					if( TickScheduler is ClientTickScheduler cts )
 						cts.AddPredictiveComponents( this );
@@ -387,12 +387,12 @@ namespace EcsSync2
 			switch( context.Type )
 			{
 				case TickScheduler.TickContextType.Sync:
-					var removed1 = m_syncTimeline?.RemoveBefore( context.Time );
+					var removed1 = m_syncTimeline?.RemoveBefore( context.LocalTime );
 					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed1 );
 					break;
 
 				case TickScheduler.TickContextType.Prediction:
-					var removed2 = m_predictionTimeline?.RemoveBefore( context.Time );
+					var removed2 = m_predictionTimeline?.RemoveBefore( context.LocalTime );
 					//Entity.SceneManager.Simulator.Context.Log( "{0}: RemoveStatesBefore {1}, removed {2}", this, context, removed2 );
 					break;
 

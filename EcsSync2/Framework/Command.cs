@@ -25,12 +25,5 @@ namespace EcsSync2
 	{
 		[ProtoMember( 11 )]
 		public uint ComponentId;
-
-		protected override void OnReset()
-		{
-			ComponentId = 0;
-
-			base.OnReset();
-		}
 	}
 }

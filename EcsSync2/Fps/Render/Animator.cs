@@ -71,6 +71,20 @@ namespace EcsSync2.Fps
 			return s;
 		}
 
+		protected internal override bool IsApproximate(ComponentSnapshot other)
+		{
+			if( !( other is AnimatorSnapshot s ) )
+				return false;
+
+			return
+				IsApproximate( ComponentId, s.ComponentId ) &&
+				IsApproximate( Revision, s.Revision ) &&
+				StateName == s.StateName &&
+				IsApproximate<AnimatorBoolParameter, bool>( BoolParameters, s.BoolParameters, (b1, b2) => b1 == b2 ) &&
+				IsApproximate<AnimatorIntParameter, int>( IntParameters, s.IntParameters, (v1, v2) => IsApproximate( v1, v2 ) ) &&
+				IsApproximate<AnimatorFloatParameter, float>( FloatParameters, s.FloatParameters, (v1, v2) => IsApproximate( v1, v2 ) );
+		}
+
 		protected override void OnReset()
 		{
 			StateName = null;
@@ -80,6 +94,22 @@ namespace EcsSync2.Fps
 		}
 
 		#region Parameter Helpers
+
+		bool IsApproximate<TParameter, TValue>(List<TParameter> list1, List<TParameter> list2, Func<TValue, TValue, bool> comparer)
+			where TParameter : IAnimatorParamter<TValue>
+			where TValue : struct
+		{
+			if( list1.Count != list2.Count )
+				return false;
+
+			for( int i = 0; i < list1.Count; i++ )
+			{
+				if( list1[i].Name != list2[i].Name || !( comparer( list1[i].Value, list2[i].Value ) ) )
+					return false;
+			}
+
+			return true;
+		}
 
 		public bool GetBool(string name)
 		{
@@ -153,9 +183,8 @@ namespace EcsSync2.Fps
 
 		protected override void OnReset()
 		{
+			ComponentId = 0;
 			State = null;
-
-			base.OnReset();
 		}
 	}
 
@@ -167,6 +196,13 @@ namespace EcsSync2.Fps
 
 		[ProtoMember( 2 )]
 		public bool Value { get; set; }
+
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+			Name = null;
+			Value = false;
+		}
 	}
 
 	[ProtoContract]
@@ -177,6 +213,13 @@ namespace EcsSync2.Fps
 
 		[ProtoMember( 2 )]
 		public int Value { get; set; }
+
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+			Name = null;
+			Value = 0;
+		}
 	}
 
 	[ProtoContract]
@@ -187,6 +230,13 @@ namespace EcsSync2.Fps
 
 		[ProtoMember( 2 )]
 		public float Value { get; set; }
+
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+			Name = null;
+			Value = 0;
+		}
 	}
 
 	public class Animator : Renderer
@@ -275,7 +325,7 @@ namespace EcsSync2.Fps
 
 		void TryUpdateContext(bool force = false)
 		{
-			if( force || m_lastRevision != TheState.Revision )
+			if( m_context != null && ( force || m_lastRevision != TheState.Revision ) )
 			{
 				foreach( var p in TheState.BoolParameters )
 					m_context.SetBool( p.Name, p.Value );

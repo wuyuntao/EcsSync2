@@ -22,6 +22,16 @@ namespace EcsSync2.Fps
 			return s;
 		}
 
+		protected internal override bool IsApproximate(ComponentSnapshot other)
+		{
+			if( !( other is JumperSnapshot s ) )
+				return false;
+
+			return
+				IsApproximate( ComponentId, s.ComponentId ) &&
+				IsApproximate( JumpStopTime, s.JumpStopTime );
+		}
+
 		protected override void OnReset()
 		{
 			ComponentId = 0;
@@ -34,11 +44,21 @@ namespace EcsSync2.Fps
 	{
 		[ProtoMember( 1 )]
 		public uint StopTime;
+
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+			StopTime = 0;
+		}
 	}
 
 	[ProtoContract]
 	public class JumpStoppedEvent : ComponentEvent
 	{
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+		}
 	}
 
 	public class Jumper : Component

@@ -17,22 +17,31 @@ namespace EcsSync2
 		{
 			public readonly TickContextType Type;
 
-			public readonly uint Time;
+			public readonly uint LocalTime;
+
+			public readonly uint RemoteTime;
 
 			public TickContext(TickContextType type, uint time)
 			{
 				Type = type;
-				Time = time;
+				LocalTime = RemoteTime = time;
+			}
+
+			public TickContext(TickContextType type, uint localTime, uint remoteTime)
+			{
+				Type = type;
+				LocalTime = localTime;
+				RemoteTime = remoteTime;
 			}
 
 			public override string ToString()
 			{
-				return $"{nameof( TickContext )}({Type}-{Time})";
+				return $"{nameof( TickContext )}({Type}:L{LocalTime}/R{RemoteTime})";
 			}
 
 			public override int GetHashCode()
 			{
-				return Type.GetHashCode() ^ Time.GetHashCode();
+				return Type.GetHashCode() ^ LocalTime.GetHashCode();
 			}
 
 			public override bool Equals(object obj)
@@ -45,7 +54,7 @@ namespace EcsSync2
 
 			public bool Equals(TickContext other)
 			{
-				return Type == other.Type && Time == other.Time;
+				return Type == other.Type && LocalTime == other.LocalTime;
 			}
 
 			public static bool operator ==(TickContext ctx1, TickContext ctx2)

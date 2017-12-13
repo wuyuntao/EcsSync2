@@ -9,14 +9,11 @@ namespace EcsSync2
 		TickContext m_syncTickContext = new TickContext( TickContextType.Sync, 0 );
 		TickContext m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, 0 );
 		TickContext m_predictionTickContext = new TickContext( TickContextType.Prediction, 0 );
-		TickContext m_interpolationTickContext = new TickContext( TickContextType.Interpolation, 0 );
 
 		List<Component> m_syncedComponents = new List<Component>();
 		List<Component> m_predictiveComponents = new List<Component>();
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
-		Queue<CommandFrame> m_commandFrames = new Queue<CommandFrame>();
-
-		public uint? StartFixedTime { get; private set; }
+		internal uint? FullSyncTime { get; private set; }
 
 		public ClientTickScheduler(Simulator simulator)
 			: base( simulator )
@@ -25,11 +22,26 @@ namespace EcsSync2
 
 		internal override void Tick()
 		{
+			Simulator.NetworkClient.ReceiveMessages();
 			ApplySyncFrames();
-			ReconcilePredictions();
-			Predict();
 
-			//Simulator.Context.Log( "Tick sync: {0}, predict: {1}", m_syncTickContext.Time, m_predictionTickContext.Time );
+			if( FullSyncTime == null )        // Not synchronizied yet
+				return;
+
+			ReconcilePredictions();
+
+			for( int i = 0; i < Configuration.MaxTickCount; i++ )
+			{
+				var deltaTime = Configuration.SimulationDeltaTime / 1000f;
+				var nextTime = m_predictionTickContext.LocalTime / 1000f + deltaTime;
+				var predictionTime = Simulator.SynchronizedClock.Time + Simulator.SynchronizedClock.Rtt / 2f + deltaTime;
+				if( predictionTime < nextTime )
+					break;
+
+				Predict();
+
+				//Simulator.Context.Log( "Tick sync: {0}, predict: {1}", m_syncTickContext.Time, m_predictionTickContext.Time );
+			}
 		}
 
 		#region Synchronization
@@ -37,9 +49,6 @@ namespace EcsSync2
 		public void ReceiveSyncFrame(SyncFrame frame)
 		{
 			Debug.Assert( frame.Time != 0 );
-
-			if( StartFixedTime == null )
-				StartFixedTime = frame.Time;
 
 			// 加入 sync frame 处理队列
 			Simulator.ReferencableAllocator.Allocate( frame );
@@ -77,6 +86,10 @@ namespace EcsSync2
 
 		void ApplyFullSyncFrame(FullSyncFrame frame)
 		{
+			FullSyncTime = frame.Time;
+			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, frame.Time );
+			m_predictionTickContext = new TickContext( TickContextType.Prediction, frame.Time );
+
 			//Simulator.Context.Log( "{0}|ApplyFullSyncFrame {1}", Simulator.FixedTime, frame.Time );
 
 			foreach( var es in frame.Entities )
@@ -126,9 +139,9 @@ namespace EcsSync2
 			// 清理冗余的 Sync Timeline
 			var expiration = (uint)Math.Round( Simulator.SynchronizedClock.Rtt / 2f * 1000f + Simulator.RenderManager.InterpolationDelay * 2 );
 			// TODO 验证 m_syncTickContext.Time > expiration 是否正确
-			if( m_syncTickContext.Time > expiration )
+			if( m_syncTickContext.LocalTime > expiration )
 			{
-				var context = new TickContext( TickContextType.Sync, m_syncTickContext.Time - expiration );
+				var context = new TickContext( TickContextType.Sync, m_syncTickContext.LocalTime - expiration );
 
 				foreach( var component in m_syncedComponents )
 					component.RemoveStatesBefore( context );
@@ -144,8 +157,8 @@ namespace EcsSync2
 		void ReconcilePredictions()
 		{
 			// 没有新的同步帧，或没有新的预测帧需要和解
-			if( m_syncTickContext.Time <= m_reconciliationTickContext.Time ||
-				m_predictionTickContext.Time < m_syncTickContext.Time )
+			if( m_syncTickContext.LocalTime <= m_reconciliationTickContext.LocalTime ||
+				m_predictionTickContext.LocalTime < m_syncTickContext.LocalTime )
 			{
 				//Simulator.Context.Log( "{0}|No need to reconcile #1 Sync: {1}, Reconciliation: {2}, Prediction: {3}",
 				//	Simulator.FixedTime, m_syncTickContext.Time, m_reconciliationTickContext.Time, m_predictionTickContext.Time );
@@ -154,7 +167,7 @@ namespace EcsSync2
 			}
 
 			// 更新和解时间
-			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_syncTickContext.Time );
+			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_syncTickContext.LocalTime );
 
 			var components = m_predictiveComponents;
 
@@ -181,9 +194,9 @@ namespace EcsSync2
 			LeaveContext();
 
 			// 以和解模式更新到最新预测的状态
-			while( m_reconciliationTickContext.Time < m_predictionTickContext.Time )
+			while( m_reconciliationTickContext.LocalTime < m_predictionTickContext.LocalTime )
 			{
-				m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_reconciliationTickContext.Time + Configuration.SimulationDeltaTime );
+				m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_reconciliationTickContext.LocalTime + Configuration.SimulationDeltaTime );
 				//Simulator.Context.Log( "{0}|Simulate for reconciliation {1}", Simulator.FixedTime, m_reconciliationTickContext.Time );
 
 				EnterContext( m_reconciliationTickContext );
@@ -196,7 +209,7 @@ namespace EcsSync2
 			}
 
 			// 重置和解时间
-			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_syncTickContext.Time );
+			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_syncTickContext.LocalTime );
 
 			// 清理已确认命令
 			CleanUpAcknowledgedCommands();
@@ -204,7 +217,7 @@ namespace EcsSync2
 
 		bool RequireReconciliation(List<Component> components)
 		{
-			var predictionContext = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.Time );
+			var predictionContext = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.LocalTime );
 
 			foreach( var component in components )
 			{
@@ -216,7 +229,7 @@ namespace EcsSync2
 				if( !syncState.IsApproximate( predictionState ) )
 				{
 					Simulator.Context.LogWarning( "Found prediction error. Prediction: {0}, {1}, Sync: {2}, {3}",
-						predictionContext.Time, predictionState, m_syncTickContext.Time, syncState );
+						predictionContext.LocalTime, predictionState, m_syncTickContext.LocalTime, syncState );
 
 					return true;
 				}
@@ -227,7 +240,7 @@ namespace EcsSync2
 
 		void ReconcilePredictiveComponents(List<Component> components)
 		{
-			var predictionTickContext = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.Time );
+			var predictionTickContext = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.LocalTime );
 			//Simulator.Context.LogWarning( "{0}|Recover prediction snapshot {1}", Simulator.FixedTime, predictionTickContext.Time );
 			EnterContext( predictionTickContext );
 			foreach( var component in components )
@@ -252,13 +265,13 @@ namespace EcsSync2
 
 		void CleanUpAcknowledgedCommands()
 		{
-			Simulator.CommandQueue.RemoveBefore( Simulator.LocalUserId.Value, m_syncTickContext.Time );
+			Simulator.CommandQueue.RemoveBefore( Simulator.LocalUserId.Value, m_syncTickContext.LocalTime );
 		}
 
 		void CleanUpPredictionSnapshots(List<Component> components)
 		{
 			// 清理**预测**时间轴
-			var context = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.Time );
+			var context = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.LocalTime );
 
 			foreach( var component in components )
 				component.RemoveStatesBefore( context );
@@ -276,22 +289,22 @@ namespace EcsSync2
 		void Predict()
 		{
 			// TODO 验证 m_predictionTickContext.Time + Configuration.SimulationDeltaTime 是否正确
-			m_predictionTickContext = new TickContext( TickContextType.Prediction, m_predictionTickContext.Time + Configuration.SimulationDeltaTime );
+			m_predictionTickContext = new TickContext( TickContextType.Prediction, m_predictionTickContext.LocalTime + Configuration.SimulationDeltaTime );
 
 			EnterContext( m_predictionTickContext );
 
 			Simulator.InputManager.SetInput();
-
-			var f = Simulator.InputManager.CreateCommands();
-			m_commandFrames.Enqueue( f );
-			f.Retain();
+			Simulator.InputManager.CreateCommands();
 
 			DispatchCommands( m_predictionTickContext );
 			FixedUpdate();
+			Simulator.EventDispatcher.Dispatch();
 
 			Simulator.InputManager.ResetInput();
 
 			LeaveContext();
+
+			Simulator.NetworkClient.SendMessages();
 		}
 
 		internal void AddPredictiveComponents(Component component)
@@ -307,7 +320,7 @@ namespace EcsSync2
 
 		void DispatchCommands(TickContext ctx)
 		{
-			var frame = Simulator.CommandQueue.Find( Simulator.LocalUserId.Value, ctx.Time );
+			var frame = Simulator.CommandQueue.Find( Simulator.LocalUserId.Value, ctx.LocalTime );
 
 			DispatchCommands( frame );
 		}
@@ -322,17 +335,9 @@ namespace EcsSync2
 
 		#endregion
 
-		public CommandFrame FetchCommandFrame()
+		internal CommandFrame FetchCommandFrame()
 		{
-			if( m_commandFrames.Count > 0 )
-				return m_commandFrames.Dequeue();
-			else
-				return null;
-		}
-
-		internal CommandFrame FetchCommandFrame2()
-		{
-			var frame = Simulator.CommandQueue.Find( Simulator.LocalUserId.Value, m_predictionTickContext.Time );
+			var frame = Simulator.CommandQueue.Find( Simulator.LocalUserId.Value, m_predictionTickContext.LocalTime );
 			frame.Retain();
 			return frame;
 		}

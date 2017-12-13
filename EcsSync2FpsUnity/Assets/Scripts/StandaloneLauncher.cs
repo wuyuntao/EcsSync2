@@ -16,10 +16,8 @@ namespace EcsSync2.FpsUnity
 		{
 			var go = Instantiate( SceneRoot.gameObject );
 			var context = go.GetComponent<SimulatorContext>();
-			context.IsStandalone = true;
 
-			m_simulator = new Simulator( context,
-				true, true, Seed, UserId );
+			m_simulator = new Simulator( context, true, true, Seed, UserId );
 			m_simulator.SceneManager.LoadScene<BattleScene>();
 		}
 

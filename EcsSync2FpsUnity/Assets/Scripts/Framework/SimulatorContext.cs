@@ -11,19 +11,18 @@ namespace EcsSync2.FpsUnity
 		public CharacterPawn CharacterPawnPrefab;
 		public GameObject UICanvasPrefab;
 		public GameObject Level;
-		public bool IsStandalone;
 
-		LiteNetClient m_client;
-		CharacterCamera m_camera;
+		public LiteNetClient Client { get; set; }
+		public CharacterCamera Camera { get; private set; }
+		public UIStatus UIStatus { get; private set; }
 
 		void Start()
 		{
-			if( !IsStandalone )
-				m_client = new LiteNetClient( this );
-
 			Instantiate( Level, transform );
-			Instantiate( UICanvasPrefab );
-			m_camera = Instantiate( CharacterCameraPrefab, transform ).GetComponent<CharacterCamera>();
+			Camera = Instantiate( CharacterCameraPrefab, transform ).GetComponent<CharacterCamera>();
+
+			var uiCanvas = Instantiate( UICanvasPrefab );
+			UIStatus = uiCanvas.transform.Find( "Status" ).GetComponent<UIStatus>();
 		}
 
 		#region Simulator.IContext
@@ -79,7 +78,7 @@ namespace EcsSync2.FpsUnity
 				pawn.Initialize( character );
 
 				if( character.IsLocalCharacter )
-					m_camera.FollowTarget = pawn.CameraPod;
+					Camera.FollowTarget = pawn.CameraPod;
 			}
 		}
 
@@ -98,24 +97,24 @@ namespace EcsSync2.FpsUnity
 
 		public Action<NetworkManager.IStream> OnConnected
 		{
-			get { return m_client.OnConnected; }
-			set { m_client.OnConnected = value; }
+			get { return Client.OnConnected; }
+			set { Client.OnConnected = value; }
 		}
 
 		public Action<NetworkManager.IStream> OnDisconnected
 		{
-			get { return m_client.OnDisconnected; }
-			set { m_client.OnDisconnected = value; }
+			get { return Client.OnDisconnected; }
+			set { Client.OnDisconnected = value; }
 		}
 
 		void NetworkClient.IClientContext.Connect(string address, int port)
 		{
-			m_client.Connect( address, port );
+			Client.Connect( address, port );
 		}
 
 		void NetworkManager.IContext.Poll()
 		{
-			m_client.Poll();
+			Client.Poll();
 		}
 
 		#endregion

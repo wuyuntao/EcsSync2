@@ -1,30 +1,33 @@
 ﻿namespace EcsSync2.Fps
 {
-    public abstract class Renderer : Component
-    {
-        RenderManager RenderManager { get; set; }
+	public abstract class Renderer : Component
+	{
+		RenderManager RenderManager { get; set; }
 
-        #region Life-cycle
+		#region Life-cycle
 
-        internal void Update()
-        {
-            EnsureTickContext();
+		internal void Update()
+		{
+			EnsureTickContext();
 
-            OnUpdate();
-        }
+			OnUpdate();
+		}
 
-        #endregion
+		#endregion
 
-        #region Public Interface
+		#region Public Interface
 
-        protected override void OnInitialize()
-        {
-            RenderManager = Entity.SceneManager.Simulator.RenderManager;
-            RenderManager.AddRenderer(this);
-        }
+		protected override void OnInitialize()
+		{
+			if( Entity.SceneManager.Simulator.RenderManager != null )
+			{
+				RenderManager = Entity.SceneManager.Simulator.RenderManager;
+				RenderManager.AddRenderer( this );
+			}
+		}
 
-        protected abstract void OnUpdate();
+		protected abstract void OnUpdate();
 
-        #endregion
-    }
+		#endregion
+	}
 }
