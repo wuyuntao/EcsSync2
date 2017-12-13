@@ -6,6 +6,10 @@ namespace EcsSync2.Fps
 	[ProtoContract]
 	public class JumpCommand : ComponentCommand
 	{
+		protected override void OnReset()
+		{
+			ComponentId = 0;
+		}
 	}
 
 	[ProtoContract]

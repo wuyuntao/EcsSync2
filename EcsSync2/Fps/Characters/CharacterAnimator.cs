@@ -8,8 +8,11 @@ namespace EcsSync2.Fps
 		{
 			base.OnStart();
 
-			var c = (Character)Entity;
-			c.Jumper.OnJumpStarted.AddHandler( OnJumpStarted );
+			if( Entity.IsLocalEntity )
+			{
+				var c = (Character)Entity;
+				c.Jumper.OnJumpStarted.AddHandler( OnJumpStarted );
+			}
 		}
 
 		void OnJumpStarted(Jumper jumper)
@@ -21,17 +24,20 @@ namespace EcsSync2.Fps
 		{
 			base.OnFixedUpdate();
 
-			var c = (Character)Entity;
-			if( !c.Jumper.IsJumping )
+			if( Entity.IsLocalEntity )
 			{
-				var isWalking = c.MotionController.TheState.InputMagnitude > 0;
-				if( isWalking && TheState.StateName != "Walk" )
+				var c = (Character)Entity;
+				if( !c.Jumper.IsJumping )
 				{
-					ApplyAnimatorStateChangedEvent( "Walk" );
-				}
-				else if( !isWalking && TheState.StateName != "Idle" )
-				{
-					ApplyAnimatorStateChangedEvent( "Idle" );
+					var isWalking = c.MotionController.TheState.InputMagnitude > 0;
+					if( isWalking && TheState.StateName != "Walk" )
+					{
+						ApplyAnimatorStateChangedEvent( "Walk" );
+					}
+					else if( !isWalking && TheState.StateName != "Idle" )
+					{
+						ApplyAnimatorStateChangedEvent( "Idle" );
+					}
 				}
 			}
 		}

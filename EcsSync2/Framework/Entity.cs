@@ -103,8 +103,11 @@ namespace EcsSync2
 			foreach( var c in Components )
 			{
 				var cs = c.CreateSnapshot();
-				s.Components.Add( cs );
-				cs.Retain();
+				if( cs != null )
+				{
+					s.Components.Add( cs );
+					cs.Retain();
+				}
 			}
 
 			return s;

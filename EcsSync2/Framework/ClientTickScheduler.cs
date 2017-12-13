@@ -288,7 +288,6 @@ namespace EcsSync2
 
 		void Predict()
 		{
-			// TODO 验证 m_predictionTickContext.Time + Configuration.SimulationDeltaTime 是否正确
 			m_predictionTickContext = new TickContext( TickContextType.Prediction, m_predictionTickContext.LocalTime + Configuration.SimulationDeltaTime );
 
 			EnterContext( m_predictionTickContext );

@@ -78,7 +78,6 @@ namespace EcsSync2.Fps
 
 			return
 				IsApproximate( ComponentId, s.ComponentId ) &&
-				IsApproximate( Revision, s.Revision ) &&
 				StateName == s.StateName &&
 				IsApproximate<AnimatorBoolParameter, bool>( BoolParameters, s.BoolParameters, (b1, b2) => b1 == b2 ) &&
 				IsApproximate<AnimatorIntParameter, int>( IntParameters, s.IntParameters, (v1, v2) => IsApproximate( v1, v2 ) ) &&
@@ -87,6 +86,8 @@ namespace EcsSync2.Fps
 
 		protected override void OnReset()
 		{
+			ComponentId = 0;
+			Revision = 0;
 			StateName = null;
 			BoolParameters.Clear();
 			IntParameters.Clear();

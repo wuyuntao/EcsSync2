@@ -135,7 +135,7 @@ namespace EcsSync2.Fps
 				case TransformMovedEvent e:
 					var s1 = (TransformSnapshot)State.Clone();
 					//if( Entity is Character c1 && !c1.IsLocalCharacter )
-					//Entity.SceneManager.Simulator.Context.Log( $"{this} received {nameof( TransformMovedEvent )} {e.Position} <- {s1.Position}" );
+					//	Entity.SceneManager.Simulator.Context.Log( $"{this} received {nameof( TransformMovedEvent )} {e.Position} <- {s1.Position}" );
 					s1.Position = e.Position;
 					OnMoved.Invoke( this );
 					return s1;
