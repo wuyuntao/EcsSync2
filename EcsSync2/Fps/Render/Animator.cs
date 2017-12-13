@@ -189,7 +189,7 @@ namespace EcsSync2.Fps
 		public float Value { get; set; }
 	}
 
-	public class Animator : Renderer2
+	public class Animator : Renderer
 	{
 		public interface IContext
 		{
@@ -364,7 +364,10 @@ namespace EcsSync2.Fps
 			{
 				m_context = value;
 
-				TryUpdateContext( true );
+				if( m_context != null )
+					TryUpdateContext( true );
+				else
+					m_lastRevision = 0;
 			}
 		}
 	}

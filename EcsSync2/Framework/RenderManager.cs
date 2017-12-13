@@ -17,7 +17,7 @@ namespace EcsSync2
 		TickScheduler.TickContext m_tickContext = new TickScheduler.TickContext( TickScheduler.TickContextType.Interpolation, 0 );
 		List<Entity> m_newEntities = new List<Entity>();
 		List<Entity> m_destroyedEntities = new List<Entity>();
-		List<Renderer2> m_renderers = new List<Renderer2>();
+		List<Renderer> m_renderers = new List<Renderer>();
 
 		public RenderManager(Simulator simulator)
 			: base( simulator )
@@ -42,7 +42,7 @@ namespace EcsSync2
 			m_destroyedEntities.Add( entity );
 		}
 
-		internal void AddRenderer(Renderer2 renderer)
+		internal void AddRenderer(Renderer renderer)
 		{
 			m_renderers.Add( renderer );
 		}

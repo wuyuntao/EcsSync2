@@ -2,7 +2,7 @@
 
 namespace EcsSync2.Fps
 {
-	public class Interpolator : Renderer2
+	public class Interpolator : Renderer
 	{
 		public interface IContext
 		{
