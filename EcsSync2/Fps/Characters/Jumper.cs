@@ -88,7 +88,7 @@ namespace EcsSync2.Fps
 			switch( command )
 			{
 				case JumpCommand c:
-					if( !IsJumping )
+					if( ( Entity.SceneManager.Simulator.IsServer || Entity.IsLocalEntity ) && !IsJumping )
 						ApplyJumpStartedEvent();
 					break;
 

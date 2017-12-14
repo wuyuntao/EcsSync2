@@ -55,7 +55,7 @@ namespace EcsSync2.Fps
 			m_writeCount++;
 			m_maxBufferSize = Math.Max( m_maxBufferSize, (int)m_stream.Length );
 
-			if( ( m_writeCount % 1000 ) == 0 )
+			if( ( m_writeCount % 10000 ) == 0 )
 				Logger?.Log( "WriteCount: {0}, MaxWriteBufferSize: {1}", m_writeCount, m_maxBufferSize );
 		}
 	}

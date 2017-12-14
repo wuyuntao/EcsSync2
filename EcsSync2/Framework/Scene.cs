@@ -97,8 +97,6 @@ namespace EcsSync2
 			e.EntityId = SceneManager.Simulator.InstanceIdAllocator.Allocate();
 			e.Settings = settings;
 			ApplyEvent( e );
-
-			SceneManager.Simulator.Context.Log( "ApplyEntityCreatedEvent {0}, {1}, {2}", e.EntityId, e.Settings, SceneManager.Simulator.TickScheduler.CurrentContext );
 		}
 
 		public void ApplyEntityRemovedEvent(InstanceId id)
@@ -106,8 +104,6 @@ namespace EcsSync2
 			var e = SceneManager.Simulator.ReferencableAllocator.Allocate<EntityRemovedEvent>();
 			e.EntityId = SceneManager.Simulator.InstanceIdAllocator.Allocate();
 			ApplyEvent( e );
-
-			SceneManager.Simulator.Context.Log( "ApplyEntityRemovedEvent {0}, {1}", e.EntityId, SceneManager.Simulator.TickScheduler.CurrentContext );
 		}
 
 		internal void ReceiveCommand(SceneCommand command)
@@ -151,10 +147,12 @@ namespace EcsSync2
 			{
 				case EntityCreatedEvent e:
 					CreateEntity( e.EntityId, e.Settings );
+					SceneManager.Simulator.Context.Log( "OnEntityCreatedEvent {0}, {1}, {2}", e.EntityId, e.Settings, SceneManager.Simulator.TickScheduler.CurrentContext );
 					break;
 
 				case EntityRemovedEvent e:
 					SceneManager.RemoveEntity( e.EntityId );
+					SceneManager.Simulator.Context.Log( "OnEntityRemovedEvent {0}, {1}", e.EntityId, SceneManager.Simulator.TickScheduler.CurrentContext );
 					break;
 
 				default:

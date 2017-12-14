@@ -8,7 +8,7 @@ namespace EcsSync2.Fps
 		{
 			base.OnStart();
 
-			if( Entity.IsLocalEntity )
+			if( Entity.SceneManager.Simulator.IsServer || Entity.IsLocalEntity )
 			{
 				var c = (Character)Entity;
 				c.Jumper.OnJumpStarted.AddHandler( OnJumpStarted );
@@ -24,7 +24,7 @@ namespace EcsSync2.Fps
 		{
 			base.OnFixedUpdate();
 
-			if( Entity.IsLocalEntity )
+			if( Entity.SceneManager.Simulator.IsServer || Entity.IsLocalEntity )
 			{
 				var c = (Character)Entity;
 				if( !c.Jumper.IsJumping )

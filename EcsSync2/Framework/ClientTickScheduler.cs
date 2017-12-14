@@ -136,16 +136,17 @@ namespace EcsSync2
 
 		void CleanUpSyncSnapshots()
 		{
-			// 清理冗余的 Sync Timeline
-			var expiration = (uint)Math.Round( Simulator.SynchronizedClock.Rtt / 2f * 1000f + Simulator.RenderManager.InterpolationDelay * 2 );
-			// TODO 验证 m_syncTickContext.Time > expiration 是否正确
-			if( m_syncTickContext.LocalTime > expiration )
-			{
-				var context = new TickContext( TickContextType.Sync, m_syncTickContext.LocalTime - expiration );
+			if( Simulator.RenderManager.CurrentContext == null )
+				return;
 
-				foreach( var component in m_syncedComponents )
-					component.RemoveStatesBefore( context );
-			}
+			if( Simulator.RenderManager.CurrentContext.Value.RemoteTime < Configuration.SimulationDeltaTime )
+				return;
+
+			// 清理冗余的 Sync Timeline
+			var context = new TickContext( TickContextType.Sync, Simulator.RenderManager.CurrentContext.Value.RemoteTime - Configuration.SimulationDeltaTime );
+
+			foreach( var component in m_syncedComponents )
+				component.RemoveStatesBefore( context );
 
 			m_syncedComponents.Clear();
 		}
@@ -203,16 +204,17 @@ namespace EcsSync2
 				DispatchCommands( m_reconciliationTickContext );
 				FixedUpdate();
 				LeaveContext();
-
-				// 和解所有时间点的预测的状态
-				ReconcilePredictiveComponents( components );
 			}
+
+			// 和解所有时间点的预测的状态
+			ReconcilePredictiveComponents( components );
 
 			// 重置和解时间
 			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, m_syncTickContext.LocalTime );
 
-			// 清理已确认命令
+			// 清理已确认命令和和解快照
 			CleanUpAcknowledgedCommands();
+			CleanUpReconciliationSnapshots();
 		}
 
 		bool RequireReconciliation(List<Component> components)
@@ -228,8 +230,8 @@ namespace EcsSync2
 				var syncState = component.GetState( m_syncTickContext );
 				if( !syncState.IsApproximate( predictionState ) )
 				{
-					Simulator.Context.LogWarning( "Found prediction error. Prediction: {0}, {1}, Sync: {2}, {3}",
-						predictionContext.LocalTime, predictionState, m_syncTickContext.LocalTime, syncState );
+					Simulator.Context.LogWarning( "Found prediction error of '{4}'({5}). Prediction: {0}, {1}, Sync: {2}, {3}",
+						predictionContext.LocalTime, predictionState, m_syncTickContext.LocalTime, syncState, component.Entity, component.Entity.IsLocalEntity );
 
 					return true;
 				}
@@ -253,12 +255,10 @@ namespace EcsSync2
 					continue;
 
 				// 以和解后的状态和最新预测的状态的中间值，来纠正最新的预测
-				if( Configuration.ComponentReconciliationRatio < 1 )
-					reconciliationState = predictionState.Interpolate( reconciliationState, Configuration.ComponentReconciliationRatio );
+				//if( Configuration.ComponentReconciliationRatio < 1 )
+				//	reconciliationState = predictionState.Interpolate( reconciliationState, Configuration.ComponentReconciliationRatio );
 
-				component.RecoverSnapshot( reconciliationState, isReconciliation: true );
-
-				CleanUpReconciliationSnapshots( component );
+				component.RecoverSnapshot( reconciliationState );
 			}
 			LeaveContext();
 		}
@@ -270,14 +270,20 @@ namespace EcsSync2
 
 		void CleanUpPredictionSnapshots(List<Component> components)
 		{
+			if( Simulator.RenderManager.CurrentContext == null )
+				return;
+
+			if( Simulator.RenderManager.CurrentContext.Value.RemoteTime < Configuration.SimulationDeltaTime )
+				return;
+
 			// 清理**预测**时间轴
-			var context = new TickContext( TickContextType.Prediction, m_reconciliationTickContext.LocalTime );
+			var context = new TickContext( TickContextType.Prediction, Simulator.RenderManager.CurrentContext.Value.RemoteTime - Configuration.SimulationDeltaTime );
 
 			foreach( var component in components )
 				component.RemoveStatesBefore( context );
 		}
 
-		void CleanUpReconciliationSnapshots(Component component)
+		void CleanUpReconciliationSnapshots()
 		{
 			// TODO 完全清理**纠正**时间轴
 		}

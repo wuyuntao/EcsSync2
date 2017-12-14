@@ -10,8 +10,6 @@ namespace EcsSync2
 
 	public abstract class Component : Disposable
 	{
-		public EventHandler<Component> OnStateReconciled;
-
 		public TickScheduler TickScheduler { get; private set; }
 		public Entity Entity { get; private set; }
 		public InstanceId Id { get; private set; }
@@ -39,8 +37,6 @@ namespace EcsSync2
 
 			TickScheduler = entity.SceneManager.Simulator.TickScheduler;
 			TickScheduler.AddComponent( this );
-
-			OnStateReconciled = CreateEventHandler<Component>();
 
 			OnInitialize();
 		}
@@ -96,7 +92,7 @@ namespace EcsSync2
 			OnFixedUpdate();
 		}
 
-		internal void RecoverSnapshot(ComponentSnapshot state, bool isReconciliation = false)
+		internal void RecoverSnapshot(ComponentSnapshot state)
 		{
 			Debug.Assert( state != null );
 
@@ -116,7 +112,7 @@ namespace EcsSync2
 				case TickScheduler.TickContextType.Prediction:
 					{
 						var timeline = EnsureTimeline( TickScheduler.TickContextType.Prediction, ref m_predictionTimeline );
-						timeline.Clear();
+						//timeline.Clear();
 						break;
 					}
 			}
@@ -124,9 +120,6 @@ namespace EcsSync2
 			SetState( m_tickContext.Value, state );
 
 			OnSnapshotRecovered( state );
-
-			if( isReconciliation )
-				OnStateReconciled.Invoke( this );
 		}
 
 		internal void ReceiveCommand(ComponentCommand command)
@@ -321,7 +314,7 @@ namespace EcsSync2
 
 				if( m_syncTimeline.FirstPoint != null )
 				{
-					Entity.SceneManager.Simulator.Context.LogWarning( "Cannot find sync snapshot for {0} ({1}), Use first snapshot instead {2}", this, context, m_syncTimeline.FirstPoint );
+					//Entity.SceneManager.Simulator.Context.LogWarning( "Cannot find sync snapshot for {0} ({1}), Use first snapshot instead {2}", this, context, m_syncTimeline.FirstPoint );
 
 					return m_syncTimeline.FirstPoint.Snapshot;
 				}
@@ -339,7 +332,7 @@ namespace EcsSync2
 
 				if( m_syncTimeline.FirstPoint != null )
 				{
-					Entity.SceneManager.Simulator.Context.LogWarning( "Cannot find sync snapshot for {0} ({1}), Use first snapshot instead {2}", this, context, m_syncTimeline.FirstPoint );
+					//Entity.SceneManager.Simulator.Context.LogWarning( "Cannot find sync snapshot for {0} ({1}), Use first snapshot instead {2}", this, context, m_syncTimeline.FirstPoint );
 
 					return m_syncTimeline.FirstPoint.Snapshot.Clone();
 				}

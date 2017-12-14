@@ -87,7 +87,7 @@ namespace EcsSync2.Fps
 			switch( command )
 			{
 				case MoveCharacterCommand c:
-					if( Entity.SceneManager.Simulator.IsServer || ( Entity is Character character && character.TheSettings.UserId == Entity.SceneManager.Simulator.LocalUserId ) )
+					if( ( Entity.SceneManager.Simulator.IsServer || Entity.IsLocalEntity ) )
 					{
 						var e = CreateEvent<InputChangedEvent>();
 						var s = (CharacterMotionControllerSnapshot)State;
@@ -119,7 +119,7 @@ namespace EcsSync2.Fps
 
 		protected override void OnFixedUpdate()
 		{
-			if( Entity.SceneManager.Simulator.IsServer || Character.IsLocalCharacter )
+			if( ( Entity.SceneManager.Simulator.IsServer || Entity.IsLocalEntity ) )
 			{
 				var s = (CharacterMotionControllerSnapshot)State;
 				var velocity = s.InputDirection * s.InputMagnitude * s.MaxSpeed;
