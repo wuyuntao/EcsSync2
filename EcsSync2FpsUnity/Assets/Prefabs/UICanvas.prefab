@@ -339,8 +339,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Text: {fileID: 114107042900534888}
+  UpdateInterval: 0.2
   FPS: 0
+  MinDeltaTime: 1
+  MaxDeltaTime: 0
   RTT: 0
+  IND: 0
 --- !u!114 &114573924904929370
 MonoBehaviour:
   m_ObjectHideFlags: 1

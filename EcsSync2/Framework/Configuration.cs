@@ -4,7 +4,7 @@
 	{
 		public const int StopExhaustCommandBufferSize = 6;
 
-		public const uint SimulationDeltaTime = 50;
+		public const uint SimulationDeltaTime = 1000 / 33;
 
 		public const uint SynchronizationDeltaTime = SimulationDeltaTime * 3;
 

@@ -42,6 +42,7 @@ namespace EcsSync2.FpsUnity
 			if( m_simulatorContext.UIStatus != null )
 			{
 				m_simulatorContext.UIStatus.RTT = m_simulator.SynchronizedClock.Rtt;
+				m_simulatorContext.UIStatus.IND = m_simulator.RenderManager.InterpolationDelay / 1000f;
 			}
 		}
 
