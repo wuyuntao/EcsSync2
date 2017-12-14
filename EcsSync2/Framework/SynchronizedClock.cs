@@ -27,13 +27,11 @@ namespace EcsSync2
 				m_rtts.Dequeue();
 			m_averageRtt = m_rtts.Average();
 
-			//m_averageRtt = rtt;
-
-			m_remoteTime = ( serverTime + m_averageRtt / 2f );
+			m_remoteTime = ( serverTime + rtt / 2f );
 
 			if( Math.Abs( m_time - m_remoteTime ) > Configuration.SynchorizedClockDesyncThreshold )
 			{
-				Simulator.Context.LogWarning( "Clone desynchronizing happens. remoteTime: {0}, time: {1}", m_remoteTime, m_time );
+				Simulator.Context.LogWarning( "Clock desynchronizing happens. remoteTime: {0}, time: {1}", m_remoteTime, m_time );
 				m_time = Math.Max( m_time, m_remoteTime );
 			}
 		}
@@ -44,9 +42,11 @@ namespace EcsSync2
 			m_localTime += m_deltaTime;
 			m_remoteTime += m_deltaTime;
 
-			if( m_time + m_deltaTime > m_remoteTime + Configuration.SynchorizedClockAdjustmentThreshold )
+			// 微调 deltaTime
+			var adjustmentThreshold = m_deltaTime * Configuration.SynchronizedClockAdjustmentRatio * 2;
+			if( m_time + m_deltaTime > m_remoteTime + adjustmentThreshold )
 				m_deltaTime *= ( 1 - Configuration.SynchronizedClockAdjustmentRatio );
-			else if( m_time + m_deltaTime < m_remoteTime - Configuration.SynchorizedClockAdjustmentThreshold )
+			else if( m_time + m_deltaTime < m_remoteTime - adjustmentThreshold )
 				m_deltaTime *= ( 1 + Configuration.SynchronizedClockAdjustmentRatio );
 
 			m_time += m_deltaTime;
