@@ -15,6 +15,11 @@ namespace EcsSync2
 		{
 			//if( frame.Commands.Count > 0 && Simulator.IsServer )
 			//	Simulator.Context.Log( "EqueueCommands for {0}, {1}, {2}", userId, frame, frame.Time );
+			if( Simulator.ServerTickScheduler != null )
+			{
+				if( frame.Time <= Simulator.ServerTickScheduler.Time )
+					Simulator.Context.LogWarning( "Received late command from user {0}, Time: {1} <= {2}", userId, frame.Time, Simulator.ServerTickScheduler.Time );
+			}
 
 			frame.Retain();
 

@@ -34,7 +34,9 @@ namespace EcsSync2
 			{
 				var deltaTime = Configuration.SimulationDeltaTime / 1000f;
 				var nextTime = m_predictionTickContext.LocalTime / 1000f + deltaTime;
-				var predictionTime = Simulator.SynchronizedClock.Time + Simulator.SynchronizedClock.Rtt / 2f + deltaTime;
+				// 增加预测的提前时间 RTT / 2 + DeltaTime * 2，比暴雪的算法多了一帧
+				// 可能是因为服务端模拟器的理念是提前一帧更新（表示未来的一帧内发生的事情，即没有 Time = 0 的逻辑帧）
+				var predictionTime = Simulator.SynchronizedClock.Time + Simulator.SynchronizedClock.Rtt / 2f + deltaTime * 2;
 				if( predictionTime < nextTime )
 					break;
 

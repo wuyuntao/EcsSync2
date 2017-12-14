@@ -49,6 +49,7 @@ namespace EcsSync2
 
 		internal void BeginRender()
 		{
+			var deltaTime = Configuration.SimulationDeltaTime / 1000f;
 			uint localTime;
 			uint remoteTime;
 			if( Simulator.ClientTickScheduler != null )
@@ -56,16 +57,16 @@ namespace EcsSync2
 				if( Simulator.ClientTickScheduler.FullSyncTime == null )
 					return;
 
-				localTime = RoundToMs( Simulator.SynchronizedClock.Time + Simulator.SynchronizedClock.Rtt / 2 );
-				remoteTime = RoundToMs( Simulator.SynchronizedClock.Time - Simulator.SynchronizedClock.Rtt / 2 - Configuration.SimulationDeltaTime / 1000f - InterpolationDelay / 1000f );
+				localTime = RoundToMs( Simulator.SynchronizedClock.Time + Simulator.SynchronizedClock.Rtt / 2 + deltaTime );
+				remoteTime = RoundToMs( Simulator.SynchronizedClock.Time - Simulator.SynchronizedClock.Rtt / 2 - deltaTime - InterpolationDelay / 1000f );
 			}
 			else
 			{
-				localTime = remoteTime = RoundToMs( Simulator.SynchronizedClock.Time - Configuration.SimulationDeltaTime / 1000f );
+				localTime = remoteTime = RoundToMs( Simulator.SynchronizedClock.Time - deltaTime / 1000f );
 			}
 			if( localTime <= m_tickContext.LocalTime || remoteTime <= m_tickContext.RemoteTime )
 			{
-				//Simulator.Context.LogWarning( $"Skip rendering {localTime} < {m_tickContext.LocalTime} || {remoteTime} < {m_tickContext.RemoteTime}" );
+				Simulator.Context.LogWarning( $"Skip rendering {localTime} < {m_tickContext.LocalTime} || {remoteTime} < {m_tickContext.RemoteTime}" );
 				return;
 			}
 

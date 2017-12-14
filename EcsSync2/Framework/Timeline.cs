@@ -163,8 +163,11 @@ namespace EcsSync2
 				if( i == m_head + m_count - 1 )
 				{
 					snapshot = prevPoint.Snapshot.Extrapolate( prevPoint.Time, time );
-					//m_allocator.Simulator.Context.LogWarning( "Extrapolation happened. Type: {0}, Snapshot {1}(#{2}), Time: {3} / {4}", 
-					//	m_type, snapshot.GetType().Name, snapshot.ComponentId, prevPoint, time );
+					//if( snapshot is Fps.TransformSnapshot )
+					//{
+					//	m_allocator.Simulator.Context.LogWarning( "Extrapolation happened. Type: {0}, Snapshot {1}(#{2}), Time: {3} / {4}",
+					//		m_type, snapshot.GetType().Name, snapshot.ComponentId, prevPoint, time );
+					//}
 					return true;
 				}
 

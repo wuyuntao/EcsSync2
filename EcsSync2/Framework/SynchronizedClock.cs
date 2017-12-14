@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EcsSync2
 {
@@ -6,7 +8,8 @@ namespace EcsSync2
 	{
 		float m_localTime;
 		float m_remoteTime;
-		float m_rtt;
+		Queue<float> m_rtts = new Queue<float>();
+		float m_averageRtt;
 		float m_time;
 		float m_deltaTime;
 
@@ -19,11 +22,20 @@ namespace EcsSync2
 		{
 			//Simulator.Context.Log( "Synchronize st: {0}, rtt: {1}, time: {2}", serverTime, rtt, m_time );
 
-			m_remoteTime = ( serverTime + rtt / 2f );
-			m_rtt = rtt;
+			m_rtts.Enqueue( rtt );
+			if( m_rtts.Count > Configuration.AverageRttCount )
+				m_rtts.Dequeue();
+			m_averageRtt = m_rtts.Average();
+
+			//m_averageRtt = rtt;
+
+			m_remoteTime = ( serverTime + m_averageRtt / 2f );
 
 			if( Math.Abs( m_time - m_remoteTime ) > Configuration.SynchorizedClockDesyncThreshold )
+			{
+				Simulator.Context.LogWarning( "Clone desynchronizing happens. remoteTime: {0}, time: {1}", m_remoteTime, m_time );
 				m_time = Math.Max( m_time, m_remoteTime );
+			}
 		}
 
 		public void Tick(float deltaTime)
@@ -49,6 +61,6 @@ namespace EcsSync2
 
 		public float LocalTime => m_localTime;
 
-		public float Rtt => m_rtt;
+		public float Rtt => m_averageRtt;
 	}
 }
