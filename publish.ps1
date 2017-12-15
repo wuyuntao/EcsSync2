@@ -1,0 +1,1 @@
+dotnet publish -o ..\Publish -c DEBUG -f netcoreapp2.0 .\EcsSync2Examples\EcsSync2Examples.csproj
