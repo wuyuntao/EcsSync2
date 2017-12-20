@@ -13,7 +13,6 @@ namespace EcsSync2.FpsUnity
 
 		SimulatorContext m_simulatorContext;
 		Simulator m_simulator;
-		float m_time = -1;
 
 		void Awake()
 		{

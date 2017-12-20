@@ -25,16 +25,17 @@ namespace EcsSync2
 		{
 			//Simulator.Context.Log( "Synchronize st: {0}, rtt: {1}, time: {2}", serverTime, rtt, m_time );
 
-			//m_rtts.Enqueue( rtt );
-			//if( m_rtts.Count > Configuration.AverageRttCount )
-			//	m_rtts.Dequeue();
-			//m_averageRtt = m_rtts.Average();
-			m_averageRtt = rtt;
+			m_rtts.Enqueue( rtt );
+			if( m_rtts.Count > Configuration.AverageRttCount )
+				m_rtts.Dequeue();
+			m_averageRtt = m_rtts.Average();
+			//m_averageRtt = rtt;
+
 			m_remoteTime = ( serverTime + rtt / 2f + m_speedUpDeltaTime );
 
-			if( Math.Abs( m_time - m_remoteTime ) > Configuration.SynchorizedClockDesyncThreshold )
+			if( Math.Abs( m_time - m_remoteTime ) > rtt * 2 )
 			{
-				Simulator.Context.LogWarning( "Clock desynchronizing happens. remoteTime: {0}, time: {1}", m_remoteTime, m_time );
+				Simulator.Context.LogWarning( "Clock desynchronizing happens. remoteTime: {0}, time: {1}, rtt: {2}", m_remoteTime, m_time, rtt );
 				m_time = Math.Max( m_time, m_remoteTime );
 			}
 		}
