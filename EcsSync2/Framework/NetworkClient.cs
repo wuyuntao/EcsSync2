@@ -40,7 +40,7 @@ namespace EcsSync2
 
 			Simulator.Context.Log( "Client OnConnected {0}", m_stream );
 
-			var req = new LoginRequestMessage()
+			var req = new LoginRequest()
 			{
 				UserId = Simulator.LocalUserId.Value,
 				ClientTime = (uint)Math.Round( Simulator.SynchronizedClock.LocalTime * 1000 ),
@@ -88,11 +88,11 @@ namespace EcsSync2
 		{
 			switch( message )
 			{
-				case LoginResponseMessage m:
+				case LoginResponse m:
 					OnLoginResponse( m );
 					break;
 
-				case HeartbeatResponseMessage m:
+				case HeartbeatResponse m:
 					OnHeartbeat( m );
 					break;
 
@@ -109,7 +109,7 @@ namespace EcsSync2
 			}
 		}
 
-		void OnLoginResponse(LoginResponseMessage res)
+		void OnLoginResponse(LoginResponse res)
 		{
 			var rtt = Simulator.SynchronizedClock.LocalTime - res.ClientTime / 1000f;
 			Simulator.SynchronizedClock.Synchronize( res.ServerTime / 1000f, rtt );
@@ -117,7 +117,7 @@ namespace EcsSync2
 			OnLogin?.Invoke();
 		}
 
-		void OnHeartbeat(HeartbeatResponseMessage res)
+		void OnHeartbeat(HeartbeatResponse res)
 		{
 			var rtt = Simulator.SynchronizedClock.LocalTime - res.ClientTime / 1000f;
 			Simulator.SynchronizedClock.Synchronize( res.ServerTime / 1000f, rtt );
@@ -148,7 +148,7 @@ namespace EcsSync2
 
 				if( Simulator.SynchronizedClock.LocalTime - m_lastHeartbeatTime > Configuration.HeartbeatIntervalTime / 1000f )
 				{
-					var req = new HeartbeatRequestMessage()
+					var req = new HeartbeatRequest()
 					{
 						ClientTime = (uint)Math.Round( Simulator.SynchronizedClock.LocalTime * 1000 )
 					};

@@ -159,11 +159,11 @@ namespace EcsSync2
 
 			switch( message )
 			{
-				case LoginRequestMessage m:
+				case LoginRequest m:
 					OnLoginRequest( session, m );
 					break;
 
-				case HeartbeatRequestMessage m:
+				case HeartbeatRequest m:
 					OnHeartbeatRequest( session, m );
 					break;
 
@@ -176,12 +176,12 @@ namespace EcsSync2
 			}
 		}
 
-		void OnLoginRequest(Session session, LoginRequestMessage req)
+		void OnLoginRequest(Session session, LoginRequest req)
 		{
 			session.OnLoginSucceeded( req.UserId );
 			Simulator.Context.Log( "OnLoginRequest {0}, {1}", session, req );
 
-			var res = new LoginResponseMessage()
+			var res = new LoginResponse()
 			{
 				Ok = true,
 				ClientTime = req.ClientTime,
@@ -197,9 +197,9 @@ namespace EcsSync2
 			};
 		}
 
-		void OnHeartbeatRequest(Session session, HeartbeatRequestMessage req)
+		void OnHeartbeatRequest(Session session, HeartbeatRequest req)
 		{
-			var res = new HeartbeatResponseMessage()
+			var res = new HeartbeatResponse()
 			{
 				ClientTime = req.ClientTime,
 				ServerTime = (uint)Math.Round( Simulator.SynchronizedClock.LocalTime * 1000 ),

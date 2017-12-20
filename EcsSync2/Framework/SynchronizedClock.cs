@@ -13,6 +13,9 @@ namespace EcsSync2
 		float m_time;
 		float m_deltaTime;
 
+		bool m_speedUp;
+		float m_speedUpDeltaTime;
+
 		public SynchronizedClock(Simulator simulator)
 			: base( simulator )
 		{
@@ -22,12 +25,12 @@ namespace EcsSync2
 		{
 			//Simulator.Context.Log( "Synchronize st: {0}, rtt: {1}, time: {2}", serverTime, rtt, m_time );
 
-			m_rtts.Enqueue( rtt );
-			if( m_rtts.Count > Configuration.AverageRttCount )
-				m_rtts.Dequeue();
-			m_averageRtt = m_rtts.Average();
-
-			m_remoteTime = ( serverTime + rtt / 2f );
+			//m_rtts.Enqueue( rtt );
+			//if( m_rtts.Count > Configuration.AverageRttCount )
+			//	m_rtts.Dequeue();
+			//m_averageRtt = m_rtts.Average();
+			m_averageRtt = rtt;
+			m_remoteTime = ( serverTime + rtt / 2f + m_speedUpDeltaTime );
 
 			if( Math.Abs( m_time - m_remoteTime ) > Configuration.SynchorizedClockDesyncThreshold )
 			{
@@ -38,6 +41,27 @@ namespace EcsSync2
 
 		public void Tick(float deltaTime)
 		{
+			const float changeRatio = 0.05f;
+
+			if( m_speedUp )
+			{
+				var deltaTimeChange = deltaTime * changeRatio;
+				m_speedUpDeltaTime += deltaTimeChange;
+				deltaTime += deltaTimeChange;
+			}
+			else if( m_speedUpDeltaTime > 0 )
+			{
+				var deltaTimeChange = Math.Min( deltaTime * changeRatio, m_speedUpDeltaTime );
+				m_speedUpDeltaTime -= deltaTimeChange;
+				deltaTime -= deltaTimeChange;
+
+				if( m_speedUpDeltaTime <= 1e-6 )
+				{
+					//Simulator.Context.Log( "m_speedUpDeltaTime return 0 {0}", m_time );
+					m_speedUpDeltaTime = 0;
+				}
+			}
+
 			m_deltaTime = deltaTime;
 			m_localTime += m_deltaTime;
 			m_remoteTime += m_deltaTime;
@@ -62,5 +86,17 @@ namespace EcsSync2
 		public float LocalTime => m_localTime;
 
 		public float Rtt => m_averageRtt;
+
+		public bool SpeedUp
+		{
+			get => m_speedUp;
+			set
+			{
+				//if( m_speedUp != value )
+				//	Simulator.Context.Log( "SpeedUp Changed {0}, {1}", m_time, value );
+
+				m_speedUp = value;
+			}
+		}
 	}
 }

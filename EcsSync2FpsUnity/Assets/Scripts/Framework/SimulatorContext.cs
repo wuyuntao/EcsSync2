@@ -59,7 +59,7 @@ namespace EcsSync2.FpsUnity
 
 		bool InputManager.IContext.GetButton(string name)
 		{
-			return CrossPlatformInputManager.GetButtonUp( name );
+			return CrossPlatformInputManager.GetButton( name );
 		}
 
 		#endregion

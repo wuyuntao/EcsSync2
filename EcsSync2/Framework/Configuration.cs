@@ -8,7 +8,7 @@
 
 		public const uint SynchronizationDeltaTime = SimulationDeltaTime * 3;
 
-		public const float SynchorizedClockDesyncThreshold = 0.1f;
+		public const float SynchorizedClockDesyncThreshold = 0.2f;
 
 		public const float SynchorizedClockAdjustmentThreshold = 0.1f;
 

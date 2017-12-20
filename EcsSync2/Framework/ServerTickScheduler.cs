@@ -6,6 +6,7 @@ namespace EcsSync2
 	{
 		TickContext m_context = new TickContext( TickContextType.Sync, 0 );
 		SortedList<ulong, CommandFrame> m_dispatchedCommands = new SortedList<ulong, CommandFrame>();
+		SortedList<ulong, ClockStatus> m_clocks = new SortedList<ulong, ClockStatus>();
 		SortedList<uint, DeltaSyncFrame> m_deltaSyncFrames = new SortedList<uint, DeltaSyncFrame>();
 
 		public ServerTickScheduler(Simulator simulator)
@@ -93,11 +94,24 @@ namespace EcsSync2
 					DispatchCommands( lastFrame );
 					//Simulator.Context.LogWarning( "Dispatch last commands {0} since current frame is not received", lastFrame );
 
-					// TODO 按需加速客户端
+					// 当前命令帧缺失，加速客户端
+					m_clocks[userId] = new ClockStatus( userId, true );
 				}
 				else
 				{
-					// TODO 按需恢复客户端加速
+					// 如果下一阵，按需恢复客户端加速
+					var time = m_context.LocalTime + Configuration.SimulationDeltaTime;
+					if( Simulator.CommandQueue.Find( userId, time ) == null )
+					{
+						m_clocks[userId] = new ClockStatus( userId, true );
+					}
+					else
+					{
+						time = m_context.LocalTime + Configuration.SimulationDeltaTime * 3;
+
+						if( Simulator.CommandQueue.Find( userId, time ) != null )
+							m_clocks[userId] = new ClockStatus( userId, false );
+					}
 				}
 
 				// 清理已应用命令
@@ -159,6 +173,7 @@ namespace EcsSync2
 		internal DeltaSyncFrame FetchDeltaSyncFrame()
 		{
 			var f = EnsureFrame( m_context.LocalTime );
+			f.Clocks.AddRange( m_clocks.Values );
 			f.Retain();
 			return f;
 		}

@@ -1,5 +1,4 @@
-﻿using System;
-using EcsSync2.Fps;
+﻿using EcsSync2.Fps;
 using UnityEngine;
 
 namespace EcsSync2.FpsUnity
@@ -14,6 +13,7 @@ namespace EcsSync2.FpsUnity
 
 		SimulatorContext m_simulatorContext;
 		Simulator m_simulator;
+		float m_time = -1;
 
 		void Awake()
 		{
@@ -49,6 +49,17 @@ namespace EcsSync2.FpsUnity
 		void Update()
 		{
 			m_simulator.Simulate( Time.deltaTime );
+
+			if( m_simulatorContext.UIStatus != null )
+			{
+				m_simulatorContext.UIStatus.MinSimulatorDeltaTime = Mathf.Min(
+					m_simulatorContext.UIStatus.MinSimulatorDeltaTime,
+					m_simulator.SynchronizedClock.DeltaTime );
+
+				m_simulatorContext.UIStatus.MaxSimulatorDeltaTime = Mathf.Max(
+					m_simulatorContext.UIStatus.MaxSimulatorDeltaTime,
+					m_simulator.SynchronizedClock.DeltaTime );
+			}
 		}
 	}
 }

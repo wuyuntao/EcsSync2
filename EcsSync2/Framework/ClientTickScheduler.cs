@@ -134,6 +134,15 @@ namespace EcsSync2
 				else
 					throw new NotSupportedException( e.ToString() );
 			}
+
+			foreach( var cs in frame.Clocks )
+			{
+				if( cs.UserId == Simulator.LocalUserId )
+				{
+					Simulator.SynchronizedClock.SpeedUp = cs.SpeedUp;
+					break;
+				}
+			}
 		}
 
 		void CleanUpSyncSnapshots()
@@ -257,7 +266,7 @@ namespace EcsSync2
 					continue;
 
 				// 以和解后的状态和最新预测的状态的中间值，来纠正最新的预测
-				//if( Configuration.ComponentReconciliationRatio < 1 )
+				//if( component is Fps.Transform && Configuration.ComponentReconciliationRatio < 1 )
 				//	reconciliationState = predictionState.Interpolate( reconciliationState, Configuration.ComponentReconciliationRatio );
 
 				component.RecoverSnapshot( reconciliationState );

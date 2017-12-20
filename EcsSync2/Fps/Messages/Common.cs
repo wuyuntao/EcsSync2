@@ -3,7 +3,7 @@
 namespace EcsSync2.Fps
 {
 	[ProtoContract]
-	public class LoginRequestMessage : Message
+	public class LoginRequest : Message
 	{
 		[ProtoMember( 1 )]
 		public ulong UserId;
@@ -13,7 +13,7 @@ namespace EcsSync2.Fps
 	}
 
 	[ProtoContract]
-	public class LoginResponseMessage : Message
+	public class LoginResponse : Message
 	{
 		[ProtoMember( 1 )]
 		public bool Ok;
@@ -26,14 +26,14 @@ namespace EcsSync2.Fps
 	}
 
 	[ProtoContract]
-	public class HeartbeatRequestMessage : Message
+	public class HeartbeatRequest : Message
 	{
 		[ProtoMember( 1 )]
 		public uint ClientTime;
 	}
 
 	[ProtoContract]
-	public class HeartbeatResponseMessage : Message
+	public class HeartbeatResponse : Message
 	{
 		[ProtoMember( 1 )]
 		public uint ClientTime;

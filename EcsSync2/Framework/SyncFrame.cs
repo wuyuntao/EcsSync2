@@ -44,10 +44,29 @@ namespace EcsSync2
 	}
 
 	[ProtoContract]
+	public struct ClockStatus
+	{
+		[ProtoMember( 1 )]
+		public ulong UserId;
+
+		[ProtoMember( 2 )]
+		public bool SpeedUp;
+
+		public ClockStatus(ulong userId, bool speedUp)
+		{
+			UserId = userId;
+			SpeedUp = speedUp;
+		}
+	}
+
+	[ProtoContract]
 	public class DeltaSyncFrame : SyncFrame
 	{
 		[ProtoMember( 21 )]
 		public List<Event> Events = new List<Event>();
+
+		[ProtoMember( 22 )]
+		public List<ClockStatus> Clocks = new List<ClockStatus>();
 
 		public override string ToString()
 		{
@@ -68,6 +87,7 @@ namespace EcsSync2
 				e.Release();
 
 			Events.Clear();
+			Clocks.Clear();
 
 			base.OnReset();
 		}

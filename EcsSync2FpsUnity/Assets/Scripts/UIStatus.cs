@@ -9,8 +9,10 @@ namespace EcsSync2
 		public float UpdateInterval = 0.2f;
 
 		public float FPS;
-		public float MinDeltaTime = 1;
-		public float MaxDeltaTime = 0;
+		public float MinUnityDeltaTime = 1;
+		public float MaxUnityDeltaTime = 0;
+		public float MinSimulatorDeltaTime = 1;
+		public float MaxSimulatorDeltaTime = 0;
 		public float RTT;
 		public float IND;
 
@@ -21,19 +23,24 @@ namespace EcsSync2
 
 		void Update()
 		{
-			MinDeltaTime = Mathf.Min( MinDeltaTime, Time.deltaTime );
-			MaxDeltaTime = Mathf.Max( MaxDeltaTime, Time.deltaTime );
+			MinUnityDeltaTime = Mathf.Min( MinUnityDeltaTime, Time.deltaTime );
+			MaxUnityDeltaTime = Mathf.Max( MaxUnityDeltaTime, Time.deltaTime );
 		}
 
 		void UpdateStatus()
 		{
 			FPS = ( 1 / Time.smoothDeltaTime );
 
-			Text.text = string.Format( "FPS: {0:f1} DT: {1:f1}-{2:f1} RTT: {3:f1} IND: {4:f1}",
-				FPS, MinDeltaTime * 1000, MaxDeltaTime * 1000, RTT * 1000, IND * 1000 );
+			Text.text = string.Format( "FPS: {0:f1} UDT: {1:f1}-{2:f1} SDT: {3:f1}-{4:f1} RTT: {5:f1} IND: {6:f1}",
+				FPS,
+				MinUnityDeltaTime * 1000, MaxUnityDeltaTime * 1000,
+				MinSimulatorDeltaTime * 1000, MaxSimulatorDeltaTime * 1000,
+				RTT * 1000, IND * 1000 );
 
-			MinDeltaTime = 1;
-			MaxDeltaTime = 0;
+			MinUnityDeltaTime = 1;
+			MaxUnityDeltaTime = 0;
+			MinSimulatorDeltaTime = 1;
+			MaxSimulatorDeltaTime = 0;
 		}
 	}
 }
