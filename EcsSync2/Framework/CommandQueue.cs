@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EcsSync2
 {
 	public class CommandQueue : SimulatorComponent
 	{
-		SortedList<ulong, Queue<CommandFrame>> m_queues = new SortedList<ulong, Queue<CommandFrame>>();
+		SortedList<ulong, Queue> m_queues = new SortedList<ulong, Queue>();
 
 		public CommandQueue(Simulator simulator)
 			: base( simulator )
@@ -28,32 +30,18 @@ namespace EcsSync2
 
 		public CommandFrame Find(ulong userId, uint time)
 		{
-			return Find( EnsureQueue( userId ), time );
+			return EnsureQueue( userId ).Find( time );
 		}
 
 		public CommandFrame FindFirst(ulong userId)
 		{
-			if( !m_queues.TryGetValue( userId, out Queue<CommandFrame> queue ) )
+			if( !m_queues.TryGetValue( userId, out Queue queue ) )
 				return null;
 
 			if( queue.Count == 0 )
 				return null;
 
-			return queue.Peek();
-		}
-
-		CommandFrame Find(Queue<CommandFrame> queue, uint time)
-		{
-			foreach( var f in queue )
-			{
-				if( f.Time == time )
-					return f;
-
-				if( f.Time > time )
-					break;
-			}
-
-			return null;
+			return queue.First;
 		}
 
 		public int RemoveBefore(ulong userId, uint time)
@@ -72,11 +60,11 @@ namespace EcsSync2
 			return count;
 		}
 
-		int RemoveBefore(Queue<CommandFrame> queue, uint time)
+		int RemoveBefore(Queue queue, uint time)
 		{
 			var count = 0;
 
-			while( queue.Count > 0 && queue.Peek().Time < time )
+			while( queue.Count > 0 && queue.First.Time < time )
 			{
 				queue.Dequeue().Release();
 				count++;
@@ -85,16 +73,73 @@ namespace EcsSync2
 			return count;
 		}
 
-		Queue<CommandFrame> EnsureQueue(ulong userId)
+		Queue EnsureQueue(ulong userId)
 		{
-			if( !m_queues.TryGetValue( userId, out Queue<CommandFrame> queue ) )
+			if( !m_queues.TryGetValue( userId, out Queue queue ) )
 			{
-				queue = new Queue<CommandFrame>();
+				queue = new Queue( userId );
 				m_queues.Add( userId, queue );
 			}
 			return queue;
 		}
 
 		public IEnumerable<ulong> UserIds => m_queues.Keys;
+
+		public IEnumerable<Queue> Queues => m_queues.Values;
+
+		public class Queue
+		{
+			ulong m_userId;
+			Queue<CommandFrame> m_frames = new Queue<CommandFrame>();
+			uint m_firstFrameTime;
+			uint m_lastFrameTime;
+
+			public Queue(ulong userId)
+			{
+				m_userId = userId;
+			}
+
+			public CommandFrame Find(uint time)
+			{
+				foreach( var f in m_frames )
+				{
+					if( f.Time == time )
+						return f;
+
+					if( f.Time > time )
+						break;
+				}
+
+				return null;
+			}
+
+			public void Enqueue(CommandFrame frame)
+			{
+				m_frames.Enqueue( frame );
+
+				if( m_firstFrameTime == 0 )
+					m_firstFrameTime = frame.Time;
+
+				if( m_lastFrameTime < frame.Time )
+					m_lastFrameTime = frame.Time;
+			}
+
+			public CommandFrame Dequeue()
+			{
+				return m_frames.Dequeue();
+			}
+
+			public ulong UserId => m_userId;
+
+			public int Count => m_frames.Count;
+
+			public CommandFrame First => m_frames.Peek();
+
+			public CommandFrame Last => m_frames.Last();
+
+			public uint FirstFrameTime => m_firstFrameTime;
+
+			public uint LastFrameTime => m_lastFrameTime;
+		}
 	}
 }

@@ -14,6 +14,8 @@ namespace EcsSync2
 		List<Component> m_predictiveComponents = new List<Component>();
 		Queue<SyncFrame> m_syncFrames = new Queue<SyncFrame>();
 		internal uint? FullSyncTime { get; private set; }
+		int m_commandAdvanceTime;
+		float m_deltaTimeOdd;
 
 		public ClientTickScheduler(Simulator simulator)
 			: base( simulator )
@@ -30,20 +32,46 @@ namespace EcsSync2
 
 			ReconcilePredictions();
 
+			m_deltaTimeOdd += CalculateDeltaTime();
+
 			for( int i = 0; i < Configuration.MaxTickCount; i++ )
 			{
-				var deltaTime = Configuration.SimulationDeltaTime / 1000f;
+				/*
 				var nextTime = m_predictionTickContext.LocalTime / 1000f + deltaTime;
 				// 增加预测的提前时间 RTT / 2 + DeltaTime * 2，比暴雪的算法多了一帧
 				// 可能是因为服务端模拟器的理念是提前一帧更新（表示未来的一帧内发生的事情，即没有 Time = 0 的逻辑帧）
 				var predictionTime = Simulator.SynchronizedClock.Time + Simulator.SynchronizedClock.Rtt / 2f + deltaTime * 2;
 				if( predictionTime < nextTime )
 					break;
+				*/
+				if( m_deltaTimeOdd > Configuration.SimulationDeltaTime / 1000f )
+				{
+					Predict();
+					//Simulator.Context.Log( "Tick sync: {0}, predict: {1}", m_syncTickContext.LocalTime, m_predictionTickContext.LocalTime );
 
-				Predict();
-
-				//Simulator.Context.Log( "Tick sync: {0}, predict: {1}", m_syncTickContext.Time, m_predictionTickContext.Time );
+					m_deltaTimeOdd -= Configuration.SimulationDeltaTime / 1000f;
+				}
+				else
+					break;
 			}
+		}
+
+		float CalculateDeltaTime()
+		{
+			var deltaTime = Simulator.SynchronizedClock.DeltaTime;
+
+			if( m_commandAdvanceTime > Configuration.SimulationDeltaTime * 2 )
+			{
+				deltaTime *= 0.95f;
+				//Simulator.Context.Log( "Decrease prediction time {0} / {1}", deltaTime, m_commandAdvanceTime );
+			}
+			else if( m_commandAdvanceTime < Configuration.SimulationDeltaTime * 1 )
+			{
+				deltaTime /= 0.95f;
+				//Simulator.Context.Log( "Increase prediction time {0} / {1}", deltaTime, m_commandAdvanceTime );
+			}
+
+			return deltaTime;
 		}
 
 		#region Synchronization
@@ -91,6 +119,7 @@ namespace EcsSync2
 			FullSyncTime = frame.Time;
 			m_reconciliationTickContext = new TickContext( TickContextType.Reconciliation, frame.Time );
 			m_predictionTickContext = new TickContext( TickContextType.Prediction, frame.Time );
+			Simulator.RenderManager.CreateTickContext( frame.Time );
 
 			//Simulator.Context.Log( "{0}|ApplyFullSyncFrame {1}", Simulator.FixedTime, frame.Time );
 
@@ -140,6 +169,8 @@ namespace EcsSync2
 				if( cs.UserId == Simulator.LocalUserId )
 				{
 					Simulator.SynchronizedClock.SpeedUp = cs.SpeedUp;
+					m_commandAdvanceTime = cs.CommandAdvanceTime;
+					//Simulator.SynchronizedClock.CommandDeltaTime = cs.DeltaTime / 1000f;
 					break;
 				}
 			}
@@ -357,5 +388,11 @@ namespace EcsSync2
 			frame.Retain();
 			return frame;
 		}
+
+		public uint SyncTickTime => m_syncTickContext.LocalTime;
+
+		public uint PredictionTickTime => m_predictionTickContext.LocalTime;
+
+		public int CommandAdvanceTime => m_commandAdvanceTime;
 	}
 }

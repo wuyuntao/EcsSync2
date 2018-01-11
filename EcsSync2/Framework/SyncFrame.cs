@@ -50,13 +50,16 @@ namespace EcsSync2
 		public ulong UserId;
 
 		[ProtoMember( 2 )]
-		public bool SpeedUp;
+		public int CommandAdvanceTime;
 
-		public ClockStatus(ulong userId, bool speedUp)
+		public ClockStatus(ulong userId, int deltaTime)
 		{
 			UserId = userId;
-			SpeedUp = speedUp;
+			CommandAdvanceTime = deltaTime;
 		}
+
+		[ProtoIgnore]
+		public bool SpeedUp => CommandAdvanceTime > 0;
 	}
 
 	[ProtoContract]

@@ -44,35 +44,35 @@ namespace EcsSync2
 		{
 			const float changeRatio = 0.05f;
 
-			if( m_speedUp )
-			{
-				var deltaTimeChange = deltaTime * changeRatio;
-				m_speedUpDeltaTime += deltaTimeChange;
-				deltaTime += deltaTimeChange;
-			}
-			else if( m_speedUpDeltaTime > 0 )
-			{
-				var deltaTimeChange = Math.Min( deltaTime * changeRatio, m_speedUpDeltaTime );
-				m_speedUpDeltaTime -= deltaTimeChange;
-				deltaTime -= deltaTimeChange;
+			//if( m_speedUp )
+			//{
+			//	var deltaTimeChange = deltaTime * changeRatio;
+			//	m_speedUpDeltaTime += deltaTimeChange;
+			//	deltaTime += deltaTimeChange;
+			//}
+			//else if( m_speedUpDeltaTime > 0 )
+			//{
+			//	var deltaTimeChange = Math.Min( deltaTime * changeRatio, m_speedUpDeltaTime );
+			//	m_speedUpDeltaTime -= deltaTimeChange;
+			//	deltaTime -= deltaTimeChange;
 
-				if( m_speedUpDeltaTime <= 1e-6 )
-				{
-					//Simulator.Context.Log( "m_speedUpDeltaTime return 0 {0}", m_time );
-					m_speedUpDeltaTime = 0;
-				}
-			}
+			//	if( m_speedUpDeltaTime <= 1e-6 )
+			//	{
+			//		//Simulator.Context.Log( "m_speedUpDeltaTime return 0 {0}", m_time );
+			//		m_speedUpDeltaTime = 0;
+			//	}
+			//}
 
 			m_deltaTime = deltaTime;
 			m_localTime += m_deltaTime;
 			m_remoteTime += m_deltaTime;
 
 			// 微调 deltaTime
-			var adjustmentThreshold = m_deltaTime * Configuration.SynchronizedClockAdjustmentRatio * 2;
-			if( m_time + m_deltaTime > m_remoteTime + adjustmentThreshold )
-				m_deltaTime *= ( 1 - Configuration.SynchronizedClockAdjustmentRatio );
-			else if( m_time + m_deltaTime < m_remoteTime - adjustmentThreshold )
-				m_deltaTime *= ( 1 + Configuration.SynchronizedClockAdjustmentRatio );
+			//var adjustmentThreshold = m_deltaTime * Configuration.SynchronizedClockAdjustmentRatio * 2;
+			//if( m_time + m_deltaTime > m_remoteTime + adjustmentThreshold )
+			//	m_deltaTime *= ( 1 - Configuration.SynchronizedClockAdjustmentRatio );
+			//else if( m_time + m_deltaTime < m_remoteTime - adjustmentThreshold )
+			//	m_deltaTime *= ( 1 + Configuration.SynchronizedClockAdjustmentRatio );
 
 			m_time += m_deltaTime;
 
@@ -99,5 +99,7 @@ namespace EcsSync2
 				m_speedUp = value;
 			}
 		}
+
+		public int CommandDeltaTime { get; internal set; }
 	}
 }
