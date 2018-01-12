@@ -22,6 +22,7 @@ namespace EcsSync2
 		float m_remoteDeltaTimeOdd;
 		bool? m_localDeltaTimeDilation;
 		bool? m_remoteDeltaTimeDilation;
+		float? m_interpolationDelayCheckTime;
 
 		public RenderManager(Simulator simulator)
 			: base( simulator )
@@ -72,7 +73,7 @@ namespace EcsSync2
 					Simulator.ClientTickScheduler.PredictionTickTime - Configuration.SimulationDeltaTime,
 					m_tickContext.LocalTime );
 
-				InterpolationDelay = (uint)Math.Round( Configuration.SimulationDeltaTime + Simulator.SynchronizedClock.RttStdErr * 1000 );
+				//InterpolationDelay = (uint)Math.Round( Configuration.SimulationDeltaTime + Simulator.SynchronizedClock.RttStdErr * 1000 );
 				remoteTime = CalculateNextTickMs(
 					ref m_remoteDeltaTimeOdd,
 					ref m_remoteDeltaTimeDilation,
@@ -82,12 +83,44 @@ namespace EcsSync2
 				//if( localTime >= Simulator.ClientTickScheduler.PredictionTickTime )
 				//	Simulator.Context.LogWarning( "Extrapolate predtiction {0} > {1}", localTime, Simulator.ClientTickScheduler.PredictionTickTime );
 
-				if( remoteTime >= Simulator.ClientTickScheduler.SyncTickTime )
+				if( remoteTime + Configuration.SimulationDeltaTime >= Simulator.ClientTickScheduler.SyncTickTime )
 				{
-					Simulator.Context.LogWarning( "Extrapolate sync {0} > {1}, Dilation {2}", remoteTime, Simulator.ClientTickScheduler.SyncTickTime, m_remoteDeltaTimeDilation );
+					m_interpolationDelayCheckTime = null;
 
-					//if( m_remoteDeltaTimeDilation != true )
-					//	InterpolationDelay += 50;
+					var newInterpolationDelay = remoteTime + Configuration.SimulationDeltaTime * 2 - Simulator.ClientTickScheduler.SyncTickTime;
+					if( newInterpolationDelay > InterpolationDelay )
+					{
+						InterpolationDelay = newInterpolationDelay;
+					}
+				}
+				else if( InterpolationDelay > Configuration.SimulationDeltaTime )
+				{
+					if( remoteTime + InterpolationDelay <= Simulator.ClientTickScheduler.SyncTickTime )
+					{
+						if( m_interpolationDelayCheckTime == null )
+						{
+							m_interpolationDelayCheckTime = Simulator.SynchronizedClock.LocalTime;
+							//Simulator.Context.Log( "Start decrease IND {0}", m_interpolationDelayCheckTime );
+						}
+						else if( Simulator.SynchronizedClock.LocalTime - m_interpolationDelayCheckTime.Value > 1 )
+						{
+							InterpolationDelay = Math.Max( InterpolationDelay - 10, Configuration.SimulationDeltaTime );
+							//Simulator.Context.Log( "Complete decrease IND {0} / {1}", m_interpolationDelayCheckTime, InterpolationDelay );
+							m_interpolationDelayCheckTime = null;
+
+						}
+					}
+					else
+					{
+						//Simulator.Context.Log( "Reset decrease IND {0}", m_interpolationDelayCheckTime );
+						m_interpolationDelayCheckTime = null;
+					}
+				}
+
+				if( remoteTime > Simulator.ClientTickScheduler.SyncTickTime )
+				{
+					Simulator.Context.LogWarning( "Extrapolate sync {0} > {1}, Dilation {2}, IND: {3}",
+						remoteTime, Simulator.ClientTickScheduler.SyncTickTime, m_remoteDeltaTimeDilation, InterpolationDelay );
 				}
 				//else if( InterpolationDelay > targetInterpolationDelay )
 				//{
