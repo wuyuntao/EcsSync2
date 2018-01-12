@@ -10,6 +10,7 @@ namespace EcsSync2
 		float m_remoteTime;
 		Queue<float> m_rtts = new Queue<float>();
 		float m_averageRtt;
+		float m_rttStdErr;
 		float m_time;
 		float m_deltaTime;
 
@@ -28,7 +29,7 @@ namespace EcsSync2
 			m_rtts.Enqueue( rtt );
 			if( m_rtts.Count > Configuration.AverageRttCount )
 				m_rtts.Dequeue();
-			m_averageRtt = m_rtts.Average();
+			CalculateStdErr( m_rtts, m_rtts.Count - 1, out m_averageRtt, out m_rttStdErr );
 			//m_averageRtt = rtt;
 
 			m_remoteTime = ( serverTime + rtt / 2f + m_speedUpDeltaTime );
@@ -38,6 +39,12 @@ namespace EcsSync2
 				Simulator.Context.LogWarning( "Clock desynchronizing happens. remoteTime: {0}, time: {1}, rtt: {2}", m_remoteTime, m_time, rtt );
 				m_time = Math.Max( m_time, m_remoteTime );
 			}
+		}
+
+		void CalculateStdErr(IEnumerable<float> numbers, int divisor, out float average, out float stdErr)
+		{
+			var mean = average = numbers.Average();
+			stdErr = (float)Math.Sqrt( numbers.Sum( x => ( x - mean ) * ( x - mean ) ) / divisor );
 		}
 
 		public void Tick(float deltaTime)
@@ -87,6 +94,8 @@ namespace EcsSync2
 		public float LocalTime => m_localTime;
 
 		public float Rtt => m_averageRtt;
+
+		public float RttStdErr => m_rttStdErr;
 
 		public bool SpeedUp
 		{

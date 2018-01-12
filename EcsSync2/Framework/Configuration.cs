@@ -24,6 +24,6 @@
 
 		public const int MaxTickCount = 10;
 
-		public const int AverageRttCount = 10;
+		public const int AverageRttCount = 30;
 	}
 }

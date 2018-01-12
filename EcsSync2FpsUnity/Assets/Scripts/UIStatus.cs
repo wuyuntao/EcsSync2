@@ -15,6 +15,7 @@ namespace EcsSync2
 		public float MaxSimulatorDeltaTime = 0;
 		public float RTT;
 		public float IND;
+		public float CAT;
 
 		void Start()
 		{
@@ -31,11 +32,11 @@ namespace EcsSync2
 		{
 			FPS = ( 1 / Time.smoothDeltaTime );
 
-			Text.text = string.Format( "FPS: {0:f1} UDT: {1:f1}-{2:f1} SDT: {3:f1}-{4:f1} RTT: {5:f1} IND: {6:f1}",
+			Text.text = string.Format( "FPS: {0:f1} UDT: {1:f1}-{2:f1} SDT: {3:f1}-{4:f1} RTT: {5:f1} IND: {6:f1} CAT {7:f1}",
 				FPS,
 				MinUnityDeltaTime * 1000, MaxUnityDeltaTime * 1000,
 				MinSimulatorDeltaTime * 1000, MaxSimulatorDeltaTime * 1000,
-				RTT * 1000, IND * 1000 );
+				RTT * 1000, IND * 1000, CAT * 1000 );
 
 			MinUnityDeltaTime = 1;
 			MaxUnityDeltaTime = 0;
