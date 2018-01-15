@@ -50,13 +50,16 @@ namespace EcsSync2.Fps
 		[ProtoMember( 2 )]
 		public string StateName;
 
-		[ProtoMember( 3 )]
-		public List<AnimatorBoolParameter> BoolParameters = new List<AnimatorBoolParameter>();
+		[ProtoMember( 3, IsRequired = false )]
+		public uint? StateContext;
 
 		[ProtoMember( 4 )]
-		public List<AnimatorIntParameter> IntParameters = new List<AnimatorIntParameter>();
+		public List<AnimatorBoolParameter> BoolParameters = new List<AnimatorBoolParameter>();
 
 		[ProtoMember( 5 )]
+		public List<AnimatorIntParameter> IntParameters = new List<AnimatorIntParameter>();
+
+		[ProtoMember( 6 )]
 		public List<AnimatorFloatParameter> FloatParameters = new List<AnimatorFloatParameter>();
 
 		public override ComponentSnapshot Clone()
@@ -79,6 +82,7 @@ namespace EcsSync2.Fps
 			return
 				IsApproximate( ComponentId, s.ComponentId ) &&
 				StateName == s.StateName &&
+				StateContext == s.StateContext &&
 				IsApproximate<AnimatorBoolParameter, bool>( BoolParameters, s.BoolParameters, (b1, b2) => b1 == b2 ) &&
 				IsApproximate<AnimatorIntParameter, int>( IntParameters, s.IntParameters, (v1, v2) => IsApproximate( v1, v2 ) ) &&
 				IsApproximate<AnimatorFloatParameter, float>( FloatParameters, s.FloatParameters, (v1, v2) => IsApproximate( v1, v2 ) );
@@ -89,6 +93,7 @@ namespace EcsSync2.Fps
 			ComponentId = 0;
 			Revision = 0;
 			StateName = null;
+			StateContext = null;
 			BoolParameters.Clear();
 			IntParameters.Clear();
 			FloatParameters.Clear();
@@ -182,6 +187,9 @@ namespace EcsSync2.Fps
 		[ProtoMember( 1 )]
 		public string State;
 
+		[ProtoMember( 2, IsRequired = false )]
+		public uint? StateContext;
+
 		protected override void OnReset()
 		{
 			ComponentId = 0;
@@ -244,7 +252,7 @@ namespace EcsSync2.Fps
 	{
 		public interface IContext
 		{
-			void SetState(string name);
+			void SetState(string name, uint? context);
 
 			void SetBool(string name, bool value);
 
@@ -292,6 +300,7 @@ namespace EcsSync2.Fps
 			var s = (AnimatorSnapshot)State.Clone();
 			s.Revision++;
 			s.StateName = e.State;
+			s.StateContext = e.StateContext;
 			return s;
 		}
 
@@ -337,19 +346,20 @@ namespace EcsSync2.Fps
 				foreach( var p in TheState.FloatParameters )
 					m_context.SetFloat( p.Name, p.Value );
 
-				m_context.SetState( TheState.StateName );
+				m_context.SetState( TheState.StateName, TheState.StateContext );
 
 				m_lastRevision = TheState.Revision;
 			}
 		}
 
-		public void ApplyAnimatorStateChangedEvent(string state)
+		public void ApplyAnimatorStateChangedEvent(string state, uint? context = null)
 		{
 			if( string.IsNullOrEmpty( state ) )
 				throw new ArgumentNullException( nameof( state ) );
 
 			var e = CreateEvent<AnimatorStateChangedEvent>();
 			e.State = state;
+			e.StateContext = context;
 
 			ApplyEvent( e );
 		}

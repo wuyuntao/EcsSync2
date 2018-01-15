@@ -15,9 +15,9 @@ namespace EcsSync2.Fps
 			}
 		}
 
-		void OnJumpStarted(Jumper jumper)
+		void OnJumpStarted(Jumper jumper, uint jumpContext)
 		{
-			ApplyAnimatorStateChangedEvent( "Jump" );
+			ApplyAnimatorStateChangedEvent( "Jump", jumpContext );
 		}
 
 		protected override void OnFixedUpdate()

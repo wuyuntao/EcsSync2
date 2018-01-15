@@ -18,6 +18,9 @@ namespace EcsSync2.Fps
 		[ProtoMember( 21 )]
 		public uint JumpStopTime;
 
+		[ProtoMember( 22 )]
+		public uint JumpContext;
+
 		public override ComponentSnapshot Clone()
 		{
 			var s = this.Allocate<JumperSnapshot>();
@@ -69,13 +72,13 @@ namespace EcsSync2.Fps
 	{
 		const uint JumpDuration = 917;
 
-		public EventHandler<Jumper> OnJumpStarted;
-		public EventHandler<Jumper> OnJumpStopped;
+		public EventHandler<Jumper, uint> OnJumpStarted;
+		public EventHandler<Jumper, uint> OnJumpStopped;
 
 		protected override void OnInitialize()
 		{
-			OnJumpStarted = CreateEventHandler<Jumper>();
-			OnJumpStopped = CreateEventHandler<Jumper>();
+			OnJumpStarted = CreateEventHandler<Jumper, uint>();
+			OnJumpStopped = CreateEventHandler<Jumper, uint>();
 		}
 
 		protected internal override ComponentSnapshot CreateSnapshot()
@@ -127,7 +130,8 @@ namespace EcsSync2.Fps
 		{
 			var s = (JumperSnapshot)State.Clone();
 			s.JumpStopTime = e.StopTime;
-			OnJumpStarted.Invoke( this );
+			s.JumpContext++;
+			OnJumpStarted.Invoke( this, s.JumpContext );
 			return s;
 		}
 
@@ -135,7 +139,7 @@ namespace EcsSync2.Fps
 		{
 			var s = (JumperSnapshot)State.Clone();
 			s.JumpStopTime = 0;
-			OnJumpStopped.Invoke( this );
+			OnJumpStopped.Invoke( this, s.JumpContext );
 			return s;
 		}
 

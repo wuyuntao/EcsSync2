@@ -34,6 +34,7 @@ namespace EcsSync2.FpsUnity
 		{
 			UAnimator m_animator;
 			string m_lastState;
+			uint? m_lastStateContext;
 
 			public AnimatorContext(UAnimator animator)
 			{
@@ -55,12 +56,13 @@ namespace EcsSync2.FpsUnity
 				m_animator.SetInteger( name, value );
 			}
 
-			public void SetState(string name)
+			public void SetState(string name, uint? context)
 			{
-				if( m_lastState != name )
+				if( m_lastState != name || m_lastStateContext != context )
 				{
 					m_animator.SetTrigger( name );
 					m_lastState = name;
+					m_lastStateContext = context;
 				}
 			}
 		}
