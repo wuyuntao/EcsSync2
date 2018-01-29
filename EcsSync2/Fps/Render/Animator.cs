@@ -68,6 +68,7 @@ namespace EcsSync2.Fps
 			s.ComponentId = ComponentId;
 			s.Revision = Revision;
 			s.StateName = StateName;
+			s.StateContext = StateContext;
 			s.BoolParameters.AddRange( BoolParameters );
 			s.IntParameters.AddRange( IntParameters );
 			s.FloatParameters.AddRange( FloatParameters );
