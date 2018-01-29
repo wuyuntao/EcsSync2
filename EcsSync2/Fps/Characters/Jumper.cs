@@ -26,6 +26,7 @@ namespace EcsSync2.Fps
 			var s = this.Allocate<JumperSnapshot>();
 			s.ComponentId = ComponentId;
 			s.JumpStopTime = JumpStopTime;
+			s.JumpContext = JumpContext;
 			return s;
 		}
 
@@ -36,13 +37,15 @@ namespace EcsSync2.Fps
 
 			return
 				IsApproximate( ComponentId, s.ComponentId ) &&
-				IsApproximate( JumpStopTime, s.JumpStopTime );
+				IsApproximate( JumpStopTime, s.JumpStopTime ) &&
+				IsApproximate( JumpContext, s.JumpContext );
 		}
 
 		protected override void OnReset()
 		{
 			ComponentId = 0;
 			JumpStopTime = 0;
+			JumpContext = 0;
 		}
 	}
 

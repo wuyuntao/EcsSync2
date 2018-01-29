@@ -195,6 +195,7 @@ namespace EcsSync2.Fps
 		{
 			ComponentId = 0;
 			State = null;
+			StateContext = null;
 		}
 	}
 
