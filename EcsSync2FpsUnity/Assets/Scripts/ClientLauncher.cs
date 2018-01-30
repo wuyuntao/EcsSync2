@@ -33,7 +33,7 @@ namespace EcsSync2.FpsUnity
 
 		void Start()
 		{
-			InvokeRepeating( nameof( UpdateStatus ), 0.1f, 0.1f );
+			InvokeRepeating( "UpdateStatus", 0.1f, 0.1f );
 		}
 
 		void UpdateStatus()

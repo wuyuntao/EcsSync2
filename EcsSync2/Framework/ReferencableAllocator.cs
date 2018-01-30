@@ -1,6 +1,7 @@
 ﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -54,8 +55,8 @@ namespace EcsSync2
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
-				var attr = f.GetCustomAttribute( typeof( ProtoMemberAttribute ) );
-				if( attr == null )
+				var isMember = f.GetCustomAttributes( true ).Any( a => a is ProtoMemberAttribute );
+				if( !isMember )
 					continue;
 
 				builder.AppendFormat( "{0}={1}, ", f.Name, f.GetValue( this ) );
@@ -74,8 +75,8 @@ namespace EcsSync2
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
-				var attr = f.GetCustomAttribute( typeof( ProtoMemberAttribute ) );
-				if( attr == null )
+				var isMember = f.GetCustomAttributes( true ).Any( a => a is ProtoMemberAttribute );
+				if( !isMember )
 					continue;
 
 				var defaultValue = f.FieldType.IsValueType ? Activator.CreateInstance( f.FieldType ) : null;

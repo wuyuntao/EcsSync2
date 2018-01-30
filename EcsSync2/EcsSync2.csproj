@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net46;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;net35</TargetFrameworks>
     <DebugType>Full</DebugType>
     <!--
     <DefineConstants>ENABLE_ALLOCATOR_LOG</DefineConstants>
@@ -10,11 +10,16 @@
 
   <ItemGroup>
     <PackageReference Include="LiteNetLib" Version="0.7.6.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
     <PackageReference Include="protobuf-net" Version="2.3.2" />
   </ItemGroup>
 
-  <Target Condition="'$(TargetFramework)' == 'net46'" Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy /b /y $(TargetDir)*.pdb $(SolutionDir)EcsSync2FpsUnity\Assets\Scripts\Assemblies\&#xD;&#xA;copy /b /y $(TargetDir)*.dll $(SolutionDir)EcsSync2FpsUnity\Assets\Scripts\Assemblies\" />
-  </Target>
-
+  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
+    <Reference Include="protobuf-net">
+      <HintPath>..\Lib\protobuf-net-unity\protobuf-net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  
 </Project>

@@ -19,7 +19,7 @@ namespace EcsSync2
 
 		void Start()
 		{
-			InvokeRepeating( nameof( UpdateStatus ), UpdateInterval, UpdateInterval );
+			InvokeRepeating( "UpdateStatus", UpdateInterval, UpdateInterval );
 		}
 
 		void Update()

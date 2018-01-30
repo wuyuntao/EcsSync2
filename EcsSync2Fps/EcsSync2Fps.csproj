@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.0;net35</TargetFrameworks>
+    <RootNamespace>EcsSync2.Fps</RootNamespace>
+    <DebugType>Full</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EcsSync2\EcsSync2.csproj" />
+  </ItemGroup>
+
+  <Target Condition="'$(TargetFramework)' == 'net35'" Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="powershell $(SolutionDir)post-build.ps1" />
+  </Target>
+
+</Project>

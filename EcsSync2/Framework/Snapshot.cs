@@ -2,6 +2,7 @@
 using ProtoBuf;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace EcsSync2
@@ -59,8 +60,8 @@ namespace EcsSync2
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
-				var attr = f.GetCustomAttribute( typeof( ProtoMemberAttribute ) );
-				if( attr == null )
+				var isMember = f.GetCustomAttributes( true ).Any( a => a is ProtoMemberAttribute );
+				if( !isMember )
 					continue;
 
 				if( f.FieldType == typeof( Vector2D ) )
@@ -130,8 +131,8 @@ namespace EcsSync2
 			var fields = GetType().GetFields( BindingFlags.Public | BindingFlags.Instance );
 			foreach( var f in fields )
 			{
-				var attr = f.GetCustomAttribute( typeof( ProtoMemberAttribute ) );
-				if( attr == null )
+				var isMember = f.GetCustomAttributes( true ).Any( a => a is ProtoMemberAttribute );
+				if( !isMember )
 					continue;
 
 				f.SetValue( s, f.GetValue( this ) );
