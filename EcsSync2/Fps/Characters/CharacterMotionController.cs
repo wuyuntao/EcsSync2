@@ -4,7 +4,7 @@ using System;
 namespace EcsSync2.Fps
 {
 	[ProtoContract]
-	class CharacterMotionControllerSnapshot : ComponentSnapshot
+	public class CharacterMotionControllerSnapshot : ComponentSnapshot
 	{
 		[ProtoMember( 21 )]
 		public Vector2D InputDirection;
