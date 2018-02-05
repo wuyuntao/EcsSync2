@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using EcsSync2.Fps;
-using ProtoBuf;
-using System.IO;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
 
 namespace EcsSync2.Examples
 {
@@ -155,13 +153,13 @@ namespace EcsSync2.Examples
 				var len = 0;
 				using( var ms1 = new MemoryStream( m_buffer ) )
 				{
-					Serializer.Serialize( ms1, env );
+					Serializers.Serialize( ms1, env );
 					len = (int)ms1.Position;
 				}
 
 				using( var ms2 = new MemoryStream( m_buffer, 0, len ) )
 				{
-					env = Serializer.Deserialize<MessageEnvelop>( ms2 );
+					env = Serializers.Deserialize<MessageEnvelop>( ms2 );
 					message = env.Message;
 				}
 

@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EcsSync2Fps\EcsSync2Fps.csproj" />
     <ProjectReference Include="..\EcsSync2\EcsSync2.csproj" />
   </ItemGroup>
 

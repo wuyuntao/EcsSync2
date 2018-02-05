@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UTransform = UnityEngine.Transform;
 
 namespace EcsSync2.FpsUnity
 {
@@ -7,7 +8,7 @@ namespace EcsSync2.FpsUnity
 		[SerializeField]
 		float m_smoothTime = 0.15f;
 
-		Transform m_target;
+		UTransform m_target;
 		Vector3 m_lastPostion;
 		Vector3 m_currentVelocity;
 
@@ -31,7 +32,7 @@ namespace EcsSync2.FpsUnity
 			}
 		}
 
-		public Transform FollowTarget
+		public UTransform FollowTarget
 		{
 			get { return m_target; }
 			set

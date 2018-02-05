@@ -1,5 +1,4 @@
-﻿using EcsSync2.Fps;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace EcsSync2
@@ -134,7 +133,7 @@ namespace EcsSync2
 			lock( m_sessionLock )
 			{
 				foreach( var session in m_sessions )
-				session.ReceiveMessages();
+					session.ReceiveMessages();
 			}
 
 			EnqueueCommands();
@@ -191,10 +190,11 @@ namespace EcsSync2
 
 			var f = EnsureCommandFrame();
 			var c = f.AddCommand<CreateEntityCommand>();
-			c.Settings = new PlayerSettings()
-			{
-				UserId = req.UserId
-			};
+			// TODO Create player settings
+			//c.Settings = new PlayerSettings()
+			//{
+			//	UserId = req.UserId
+			//};
 		}
 
 		void OnHeartbeatRequest(Session session, HeartbeatRequest req)

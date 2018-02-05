@@ -1,7 +1,6 @@
-﻿using EcsSync2.Fps;
-using UnityEngine;
-using UTransform = UnityEngine.Transform;
+﻿using UnityEngine;
 using UAnimator = UnityEngine.Animator;
+using UTransform = UnityEngine.Transform;
 
 namespace EcsSync2.FpsUnity
 {
@@ -30,7 +29,7 @@ namespace EcsSync2.FpsUnity
 			}
 		}
 
-		protected class AnimatorContext : Fps.Animator.IContext
+		protected class AnimatorContext : Animator.IContext
 		{
 			UAnimator m_animator;
 			string m_lastState;

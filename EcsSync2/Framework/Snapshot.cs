@@ -1,5 +1,4 @@
-﻿using EcsSync2.Fps;
-using ProtoBuf;
+﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,14 +39,8 @@ namespace EcsSync2
 	}
 
 	[ProtoContract]
-	[ProtoInclude( 1, typeof( CharacterMotionControllerSnapshot ) )]
-	[ProtoInclude( 2, typeof( TransformSnapshot ) )]
-	[ProtoInclude( 3, typeof( ProcessControllerSnapshot ) )]
-	[ProtoInclude( 4, typeof( ConnectingSnapshot ) )]
-	[ProtoInclude( 5, typeof( ConnectedSnapshot ) )]
-	[ProtoInclude( 6, typeof( DisconnectedSnapshot ) )]
-	[ProtoInclude( 7, typeof( JumperSnapshot ) )]
-	[ProtoInclude( 8, typeof( AnimatorSnapshot ) )]
+	[ProtoInclude( 1, typeof( TransformSnapshot ) )]
+	[ProtoInclude( 2, typeof( AnimatorSnapshot ) )]
 	public abstract class ComponentSnapshot : SerializableReferencable
 	{
 		[ProtoMember( 11 )]

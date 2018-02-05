@@ -1,5 +1,4 @@
-﻿using EcsSync2.Fps;
-
+﻿
 namespace EcsSync2.Examples
 {
 	class FakeEntityPawn : Entity.IContext, Interpolator.IContext

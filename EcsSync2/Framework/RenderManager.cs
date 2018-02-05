@@ -1,5 +1,4 @@
 ﻿using System;
-using EcsSync2.Fps;
 using System.Collections.Generic;
 
 namespace EcsSync2

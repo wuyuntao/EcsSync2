@@ -1,5 +1,4 @@
-﻿using EcsSync2.Fps;
-using System;
+﻿using System;
 
 namespace EcsSync2
 {

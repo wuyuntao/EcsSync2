@@ -1,5 +1,4 @@
-﻿using EcsSync2.Fps;
-using ProtoBuf;
+﻿using ProtoBuf;
 using System.Collections.Generic;
 
 namespace EcsSync2

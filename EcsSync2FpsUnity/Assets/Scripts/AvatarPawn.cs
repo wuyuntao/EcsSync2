@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UAnimator = UnityEngine.Animator;
 using URandom = UnityEngine.Random;
 
 namespace EcsSync2.FpsUnity
@@ -7,7 +8,7 @@ namespace EcsSync2.FpsUnity
 	{
 		public MeshRenderer Head;
 		public MeshRenderer Body;
-		public Animator Animator;
+		public UAnimator Animator;
 
 		public void Randomnize(int seed)
 		{

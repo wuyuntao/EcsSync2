@@ -10,6 +10,12 @@
     <ProjectReference Include="..\EcsSync2\EcsSync2.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net35'">
+    <Reference Include="protobuf-net">
+      <HintPath>..\Lib\protobuf-net-unity\protobuf-net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  
   <Target Condition="'$(TargetFramework)' == 'net35'" Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="powershell $(SolutionDir)post-build.ps1" />
   </Target>

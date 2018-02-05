@@ -1,5 +1,4 @@
-﻿using EcsSync2.Fps;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace EcsSync2
 {
@@ -56,21 +55,22 @@ namespace EcsSync2
 			frame.Time = Simulator.TickScheduler.CurrentContext.Value.LocalTime;
 			//Simulator.Context.Log( "CreateCommands {0} / {1}", Simulator.FixedTime, frame.Time );
 
-			if( Simulator.SceneManager.Scene is BattleScene scene )
-			{
-				if( scene.LocalCharacter != null )
-				{
-					MoveCharacterCommand( frame, scene.LocalCharacter.MotionController );
+			// TODO Create commands
+			//if( Simulator.SceneManager.Scene is BattleScene scene )
+			//{
+			//	if( scene.LocalCharacter != null )
+			//	{
+			//		MoveCharacterCommand( frame, scene.LocalCharacter.MotionController );
 
-					if( m_buttons[2] )
-						JumpCommand( frame, scene.LocalCharacter.Jumper );
-				}
-				else if( scene.LocalPlayer != null )
-				{
-					if( m_buttons[2] )
-						PlayerConnectCommand( frame, scene.LocalPlayer );
-				}
-			}
+			//		if( m_buttons[2] )
+			//			JumpCommand( frame, scene.LocalCharacter.Jumper );
+			//	}
+			//	else if( scene.LocalPlayer != null )
+			//	{
+			//		if( m_buttons[2] )
+			//			PlayerConnectCommand( frame, scene.LocalPlayer );
+			//	}
+			//}
 
 			Simulator.CommandQueue.Add( frame.UserId, frame );
 
@@ -78,30 +78,30 @@ namespace EcsSync2
 			return frame;
 		}
 
-		void PlayerConnectCommand(CommandFrame frame, Player player)
-		{
-			var c = frame.AddCommand<PlayerConnectCommand>();
-			c.ComponentId = player.ConnectionManager.Id;
+		//void PlayerConnectCommand(CommandFrame frame, Player player)
+		//{
+		//	var c = frame.AddCommand<PlayerConnectCommand>();
+		//	c.ComponentId = player.ConnectionManager.Id;
 
-			//Simulator.Context.Log( "PlayerConnectCommand {0}, {1}", frame, player );
-		}
+		//	//Simulator.Context.Log( "PlayerConnectCommand {0}, {1}", frame, player );
+		//}
 
-		void MoveCharacterCommand(CommandFrame frame, CharacterMotionController motion)
-		{
-			var c = frame.AddCommand<MoveCharacterCommand>();
-			c.ComponentId = motion.Id;
-			c.InputDirection = new Vector2D( m_joystickDirection[0], m_joystickDirection[1] );
-			c.InputMagnitude = m_joystickMagnitude;
+		//void MoveCharacterCommand(CommandFrame frame, CharacterMotionController motion)
+		//{
+		//	var c = frame.AddCommand<MoveCharacterCommand>();
+		//	c.ComponentId = motion.Id;
+		//	c.InputDirection = new Vector2D( m_joystickDirection[0], m_joystickDirection[1] );
+		//	c.InputMagnitude = m_joystickMagnitude;
 
-			//Simulator.Context.Log( "MoveCharacterCommand {0}, {1}", frame, motion );
-		}
+		//	//Simulator.Context.Log( "MoveCharacterCommand {0}, {1}", frame, motion );
+		//}
 
-		void JumpCommand(CommandFrame frame, Jumper jumper)
-		{
-			var c = frame.AddCommand<JumpCommand>();
-			c.ComponentId = jumper.Id;
+		//void JumpCommand(CommandFrame frame, Jumper jumper)
+		//{
+		//	var c = frame.AddCommand<JumpCommand>();
+		//	c.ComponentId = jumper.Id;
 
-			//Simulator.Context.Log( "JumpCommand {0}, {1}", frame, motion );
-		}
+		//	//Simulator.Context.Log( "JumpCommand {0}, {1}", frame, motion );
+		//}
 	}
 }

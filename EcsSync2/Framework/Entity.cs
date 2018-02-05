@@ -1,16 +1,10 @@
-﻿using EcsSync2.Fps;
-using ProtoBuf;
+﻿using ProtoBuf;
 using System;
 using System.Collections.Generic;
 
 namespace EcsSync2
 {
 	[ProtoContract]
-	[ProtoInclude( 1, typeof( CharacterSettings ) )]
-	[ProtoInclude( 2, typeof( GameManagerSettings ) )]
-	[ProtoInclude( 3, typeof( ItemSettings ) )]
-	[ProtoInclude( 4, typeof( PlayerSettings ) )]
-	[ProtoInclude( 5, typeof( SceneElementSettings ) )]
 	public abstract class EntitySettings
 	{
 	}
@@ -113,6 +107,6 @@ namespace EcsSync2
 			return s;
 		}
 
-		protected internal virtual bool IsLocalEntity => SceneManager.Simulator.IsServer;
+		public virtual bool IsLocalEntity => SceneManager.Simulator.IsServer;
 	}
 }
