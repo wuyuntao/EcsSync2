@@ -130,6 +130,42 @@ namespace EcsSync2.Examples
 			}
 		}
 
+		bool InputManager.IContext.GetButtonUp(string name)
+		{
+			switch( name )
+			{
+				case "Fire1":
+					return m_buttons[0];
+
+				case "Fire2":
+					return m_buttons[1];
+
+				case "Jump":
+					return m_buttons[2];
+
+				default:
+					throw new NotSupportedException( name );
+			}
+		}
+
+		bool InputManager.IContext.GetButtonDown(string name)
+		{
+			switch( name )
+			{
+				case "Fire1":
+					return m_buttons[0];
+
+				case "Fire2":
+					return m_buttons[1];
+
+				case "Jump":
+					return m_buttons[2];
+
+				default:
+					throw new NotSupportedException( name );
+			}
+		}
+
 		public void SetButton(string name, bool value)
 		{
 			switch( name )

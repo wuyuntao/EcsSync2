@@ -23,7 +23,6 @@ namespace EcsSync2
 
 				EnterContext( m_tickContext );
 
-				Simulator.InputManager.SetInput();
 				Simulator.InputManager.CreateCommands();
 
 				DispatchCommands();
@@ -32,7 +31,6 @@ namespace EcsSync2
 				Simulator.EventDispatcher.Dispatch();
 
 				Simulator.CommandQueue.RemoveBefore( m_tickContext.LocalTime );
-				Simulator.InputManager.ResetInput();
 
 				LeaveContext();
 

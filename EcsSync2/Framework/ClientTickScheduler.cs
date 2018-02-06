@@ -340,14 +340,11 @@ namespace EcsSync2
 
 			EnterContext( m_predictionTickContext );
 
-			Simulator.InputManager.SetInput();
 			Simulator.InputManager.CreateCommands();
 
 			DispatchCommands( m_predictionTickContext );
 			FixedUpdate();
 			Simulator.EventDispatcher.Dispatch();
-
-			Simulator.InputManager.ResetInput();
 
 			LeaveContext();
 

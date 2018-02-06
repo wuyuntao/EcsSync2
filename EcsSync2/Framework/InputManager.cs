@@ -1,20 +1,24 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
 
 namespace EcsSync2
 {
 	public class InputManager : SimulatorComponent
 	{
+		public delegate void InputHandler(CommandFrame frame);
+
 		public interface IContext
 		{
 			float GetAxis(string name);
 
 			bool GetButton(string name);
+			bool GetButtonUp(string m_button);
+			bool GetButtonDown(string m_button);
 		}
 
 		IContext m_context;
-		Vector2D m_joystickDirection = new Vector2D( 0, 1 );
-		float m_joystickMagnitude = 0;
-		bool[] m_buttons = new bool[3];
+		SortedList<string, Input> m_inputs = new SortedList<string, Input>();
+		List<InputHandler> m_handlers = new List<InputHandler>();
 
 		public InputManager(Simulator simulator)
 			: base( simulator )
@@ -22,55 +26,66 @@ namespace EcsSync2
 			m_context = (IContext)Simulator.Context;
 		}
 
-		internal void SetInput()
+		public void RegisterJoystick(string name, string axis0, string axis1)
 		{
-			var axis = new Vector2D( m_context.GetAxis( "Horizontal" ), m_context.GetAxis( "Vertical" ) );
-			Debug.Assert( axis.IsValid() );
-			m_joystickMagnitude = axis.Length();
-			if( m_joystickMagnitude > 0 )
-			{
-				axis.Normalize();
-				m_joystickDirection = axis;
-			}
-			Debug.Assert( m_joystickDirection.IsValid() );
-			Debug.Assert( !float.IsNaN( m_joystickMagnitude ) );
+			if( m_inputs.ContainsKey( name ) )
+				throw new InvalidOperationException( $"Input '{name}' already exists" );
 
-			m_buttons[0] = m_context.GetButton( "Fire1" );
-			m_buttons[1] = m_context.GetButton( "Fire2" );
-			m_buttons[2] = m_context.GetButton( "Jump" );
+			m_inputs.Add( name, new Joystick( this, axis0, axis1 ) );
 		}
 
-		internal void ResetInput()
+		public void RegisterButton(string name, string button)
 		{
-			m_joystickMagnitude = 0;
-			m_buttons[0] = false;
-			m_buttons[1] = false;
-			m_buttons[2] = false;
+			if( m_inputs.ContainsKey( name ) )
+				throw new InvalidOperationException( $"Input '{name}' already exists" );
+
+			m_inputs.Add( name, new Button( this, button ) );
+		}
+
+		public void UnregisterInput(string name)
+		{
+			m_inputs.Remove( name );
+		}
+
+		TInput GetInput<TInput>(string name)
+			where TInput : Input
+		{
+			m_inputs.TryGetValue( name, out var input );
+			return input as TInput;
+		}
+
+		public Joystick GetJoystick(string name)
+		{
+			return GetInput<Joystick>( name );
+		}
+
+		public Button GetButton(string name)
+		{
+			return GetInput<Button>( name );
+		}
+
+		public void RegisterHandler(InputHandler handler)
+		{
+			m_handlers.Add( handler );
+		}
+
+		public void UnregisterHandler(InputHandler handler)
+		{
+			m_handlers.Remove( handler );
 		}
 
 		internal CommandFrame CreateCommands()
 		{
+			foreach( var input in m_inputs.Values )
+				input.Read();
+
 			var frame = Simulator.ReferencableAllocator.Allocate<CommandFrame>();
 			frame.UserId = Simulator.LocalUserId.Value;
 			frame.Time = Simulator.TickScheduler.CurrentContext.Value.LocalTime;
 			//Simulator.Context.Log( "CreateCommands {0} / {1}", Simulator.FixedTime, frame.Time );
 
-			// TODO Create commands
-			//if( Simulator.SceneManager.Scene is BattleScene scene )
-			//{
-			//	if( scene.LocalCharacter != null )
-			//	{
-			//		MoveCharacterCommand( frame, scene.LocalCharacter.MotionController );
-
-			//		if( m_buttons[2] )
-			//			JumpCommand( frame, scene.LocalCharacter.Jumper );
-			//	}
-			//	else if( scene.LocalPlayer != null )
-			//	{
-			//		if( m_buttons[2] )
-			//			PlayerConnectCommand( frame, scene.LocalPlayer );
-			//	}
-			//}
+			foreach( var handler in m_handlers )
+				handler( frame );
 
 			Simulator.CommandQueue.Add( frame.UserId, frame );
 
@@ -78,30 +93,70 @@ namespace EcsSync2
 			return frame;
 		}
 
-		//void PlayerConnectCommand(CommandFrame frame, Player player)
-		//{
-		//	var c = frame.AddCommand<PlayerConnectCommand>();
-		//	c.ComponentId = player.ConnectionManager.Id;
+		public abstract class Input
+		{
+			internal Input(InputManager inputManager)
+			{
+				InputManager = inputManager;
+			}
 
-		//	//Simulator.Context.Log( "PlayerConnectCommand {0}, {1}", frame, player );
-		//}
+			internal abstract void Read();
 
-		//void MoveCharacterCommand(CommandFrame frame, CharacterMotionController motion)
-		//{
-		//	var c = frame.AddCommand<MoveCharacterCommand>();
-		//	c.ComponentId = motion.Id;
-		//	c.InputDirection = new Vector2D( m_joystickDirection[0], m_joystickDirection[1] );
-		//	c.InputMagnitude = m_joystickMagnitude;
+			internal InputManager InputManager { get; }
+		}
 
-		//	//Simulator.Context.Log( "MoveCharacterCommand {0}, {1}", frame, motion );
-		//}
+		public class Joystick : Input
+		{
+			string m_xAxis;
+			string m_yAxis;
 
-		//void JumpCommand(CommandFrame frame, Jumper jumper)
-		//{
-		//	var c = frame.AddCommand<JumpCommand>();
-		//	c.ComponentId = jumper.Id;
+			internal Joystick(InputManager inputManager, string xAxis, string yAxis)
+				: base( inputManager )
+			{
+				m_xAxis = xAxis;
+				m_yAxis = yAxis;
+			}
 
-		//	//Simulator.Context.Log( "JumpCommand {0}, {1}", frame, motion );
-		//}
+			internal override void Read()
+			{
+				var x = InputManager.m_context.GetAxis( m_xAxis );
+				var y = InputManager.m_context.GetAxis( m_yAxis );
+				var direction = new Vector2D( x, y );
+				var Magnitude = direction.Length();
+				if( Magnitude > 0 )
+				{
+					direction.Normalize();
+					Direction = direction;
+				}
+			}
+
+			public Vector2D Direction { get; private set; } = new Vector2D( 0, 1 );
+
+			public float Magnitude { get; private set; }
+		}
+
+		public class Button : Input
+		{
+			string m_button;
+
+			internal Button(InputManager inputManager, string button)
+				: base( inputManager )
+			{
+				m_button = button;
+			}
+
+			internal override void Read()
+			{
+				Up = InputManager.m_context.GetButtonUp( m_button );
+				Down = InputManager.m_context.GetButtonDown( m_button );
+				Press = InputManager.m_context.GetButton( m_button );
+			}
+
+			public bool Up { get; private set; }
+
+			public bool Down { get; private set; }
+
+			public bool Press { get; private set; }
+		}
 	}
 }
