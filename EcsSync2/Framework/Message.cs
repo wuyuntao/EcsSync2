@@ -22,11 +22,16 @@ namespace EcsSync2
 		public uint ClientTime;
 	}
 
+	public enum LoginResult
+	{
+		Ok,
+	}
+
 	[ProtoContract]
 	public class LoginResponse : Message
 	{
 		[ProtoMember( 1 )]
-		public bool Ok;
+		public LoginResult Result;
 
 		[ProtoMember( 2 )]
 		public uint ClientTime;

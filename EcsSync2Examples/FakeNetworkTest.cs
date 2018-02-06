@@ -49,7 +49,7 @@ namespace EcsSync2.Examples
 
 		async static void RunServer()
 		{
-			var simulatorContext = new SimulatorContext( s_launcher.Network );
+			var simulatorContext = new SimulatorContext( createServer: s_launcher.Network.CreateServer );
 			var simulator = new Simulator( simulatorContext, true, false, 1, null );
 			simulator.SceneManager.LoadScene<BattleScene>();
 			simulator.NetworkServer.Start( 5000 );
@@ -79,7 +79,7 @@ namespace EcsSync2.Examples
 					await Task.Delay( TickInterval );
 			}
 
-			var simulatorContext = new SimulatorContext( s_launcher.Network );
+			var simulatorContext = new SimulatorContext( createClient: s_launcher.Network.CreateClient );
 			var userId = Interlocked.Increment( ref s_userId );
 			var simulator = new Simulator( simulatorContext, false, true, 1, (ulong)userId );
 			simulator.SceneManager.LoadScene<BattleScene>();

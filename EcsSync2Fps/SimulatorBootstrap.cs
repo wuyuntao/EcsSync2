@@ -2,21 +2,23 @@
 {
 	public static class SimulatorBootstrap
 	{
-		public static Simulator BuildServer(Simulator.IContext context, int randomSeed)
+		public static Simulator StartServer(Simulator.IContext context, int randomSeed, int port)
 		{
 			var simulator = new Simulator( context, true, false, randomSeed, null );
 			InitializeSimulator( simulator );
+			simulator.NetworkServer.Start( port );
 			return simulator;
 		}
 
-		public static Simulator BuildClient(Simulator.IContext context, uint localUserId)
+		public static Simulator StartClient(Simulator.IContext context, ulong localUserId, string serverAddress, int serverPort)
 		{
 			var simulator = new Simulator( context, false, true, null, localUserId );
 			InitializeSimulator( simulator );
+			simulator.NetworkClient.Start( serverAddress, serverPort );
 			return simulator;
 		}
 
-		public static Simulator BuildStandalone(Simulator.IContext context, int randomSeed, uint localUserId)
+		public static Simulator StartStandalone(Simulator.IContext context, int randomSeed, ulong localUserId)
 		{
 			var simulator = new Simulator( context, true, true, randomSeed, localUserId );
 			InitializeSimulator( simulator );
@@ -43,7 +45,7 @@
 
 		static void OnPlayerConnectCommand(CommandFrame frame, BattleScene scene)
 		{
-			if( scene.LocalPlayer == null )
+			if( scene.LocalPlayer != null && scene.LocalCharacter == null )
 			{
 				var button = scene.SceneManager.Simulator.InputManager.GetButton( "Jump" );
 				if( button.Press )

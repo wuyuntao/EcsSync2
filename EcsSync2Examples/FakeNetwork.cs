@@ -5,7 +5,7 @@ using System.IO;
 
 namespace EcsSync2.Examples
 {
-	class FakeNetwork : INetwork
+	class FakeNetwork
 	{
 		uint m_maxId;
 		Server m_server;

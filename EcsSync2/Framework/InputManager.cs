@@ -121,12 +121,13 @@ namespace EcsSync2
 			{
 				var x = InputManager.m_context.GetAxis( m_xAxis );
 				var y = InputManager.m_context.GetAxis( m_yAxis );
-				var direction = new Vector2D( x, y );
-				var Magnitude = direction.Length();
+				var axis = new Vector2D( x, y );
+
+				Magnitude = axis.Length();
 				if( Magnitude > 0 )
 				{
-					direction.Normalize();
-					Direction = direction;
+					axis.Normalize();
+					Direction = axis;
 				}
 			}
 

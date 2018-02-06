@@ -4,7 +4,7 @@ using System;
 namespace EcsSync2.Fps
 {
 	[ProtoContract]
-	[ProtoSubType( typeof( ComponentSnapshot ), 3 )]
+	[ProtoSubType( typeof( ComponentSnapshot ), 33 )]
 	public class ProcessControllerSnapshot : ComponentSnapshot
 	{
 	}

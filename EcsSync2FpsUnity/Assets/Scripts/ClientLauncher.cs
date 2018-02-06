@@ -19,9 +19,7 @@ namespace EcsSync2.FpsUnity
 			var go = Instantiate( SceneRoot.gameObject );
 			m_simulatorContext = go.GetComponent<SimulatorContext>();
 
-			m_simulator = new Simulator( m_simulatorContext, false, true, null, UserId );
-			m_simulator.SceneManager.LoadScene<BattleScene>();
-			m_simulator.NetworkClient.Start( ServerAddress, ServerPort );
+			m_simulator = SimulatorBootstrap.StartClient( m_simulatorContext, UserId, ServerAddress, ServerPort );
 			m_simulator.NetworkClient.OnLogin += OnLogin;
 		}
 

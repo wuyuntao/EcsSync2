@@ -4,7 +4,7 @@ using System;
 namespace EcsSync2.Fps
 {
 	[ProtoContract]
-	[ProtoSubType( typeof( ComponentSnapshot ), 4 )]
+	[ProtoSubType( typeof( ComponentSnapshot ), 35 )]
 	public class ConnectingSnapshot : ComponentSnapshot
 	{
 		protected override void OnReset()
@@ -21,7 +21,7 @@ namespace EcsSync2.Fps
 	}
 
 	[ProtoContract]
-	[ProtoSubType( typeof( ComponentSnapshot ), 5 )]
+	[ProtoSubType( typeof( ComponentSnapshot ), 24 )]
 	public class ConnectedSnapshot : ComponentSnapshot
 	{
 		protected override void OnReset()
@@ -38,7 +38,7 @@ namespace EcsSync2.Fps
 	}
 
 	[ProtoContract]
-	[ProtoSubType( typeof( ComponentSnapshot ), 6 )]
+	[ProtoSubType( typeof( ComponentSnapshot ), 36 )]
 	public class DisconnectedSnapshot : ComponentSnapshot
 	{
 		protected override void OnReset()

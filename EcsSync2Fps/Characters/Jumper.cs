@@ -14,7 +14,7 @@ namespace EcsSync2.Fps
 	}
 
 	[ProtoContract]
-	[ProtoSubType( typeof( ComponentSnapshot ), 7 )]
+	[ProtoSubType( typeof( ComponentSnapshot ), 32 )]
 	public class JumperSnapshot : ComponentSnapshot
 	{
 		[ProtoMember( 21 )]

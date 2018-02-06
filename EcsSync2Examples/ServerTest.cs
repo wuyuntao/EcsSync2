@@ -6,12 +6,11 @@ namespace EcsSync2.Examples
 {
 	static class ServerTest
 	{
+
 		public static async void Run()
 		{
-			var simulatorContext = new SimulatorContext( Network.Default );
-			var simulator = new Simulator( simulatorContext, true, false, 1, null );
-			simulator.SceneManager.LoadScene<BattleScene>();
-			simulator.NetworkServer.Start( 3687 );
+			var simulatorContext = new SimulatorContext( createServer: CreateServer );
+			var simulator = SimulatorBootstrap.StartServer( simulatorContext, 1, 3687 );
 
 			var stopwatch = Stopwatch.StartNew();
 			var deltaTime = 8;
@@ -26,19 +25,6 @@ namespace EcsSync2.Examples
 			}
 		}
 
-		class Network : INetwork
-		{
-			public static readonly Network Default = new Network();
-
-			NetworkClient.INetworkClient NetworkClient.IContext.CreateClient()
-			{
-				return new LiteNetClient( null );
-			}
-
-			NetworkServer.INetworkServer NetworkServer.IContext.CreateServer()
-			{
-				return new LiteNetServer( null );
-			}
-		}
+		public static NetworkServer.INetworkServer CreateServer() => new LiteNetServer( null );
 	}
 }

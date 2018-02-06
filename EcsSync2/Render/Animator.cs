@@ -42,7 +42,6 @@ namespace EcsSync2
 	}
 
 	[ProtoContract]
-	[ProtoSubType( typeof( ComponentSnapshot ), 8 )]
 	public class AnimatorSnapshot : ComponentSnapshot
 	{
 		[ProtoMember( 1 )]

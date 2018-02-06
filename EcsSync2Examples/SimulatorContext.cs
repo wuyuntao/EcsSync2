@@ -4,30 +4,41 @@ using System.Collections.Generic;
 
 namespace EcsSync2.Examples
 {
-	interface INetwork : NetworkServer.IContext, NetworkClient.IContext
-	{
-	}
-
 	class SimulatorContext : Simulator.IContext, InputManager.IContext, RenderManager.IContext, NetworkServer.IContext, NetworkClient.IContext
 	{
 		float[] m_axis = new float[2];
 		bool[] m_buttons = new bool[3];
 		Dictionary<InstanceId, FakeEntityPawn> m_pawns = new Dictionary<InstanceId, FakeEntityPawn>();
-		INetwork m_network;
+		Func<NetworkServer.INetworkServer> m_createServer;
+		Func<NetworkClient.INetworkClient> m_createClient;
 
-		public SimulatorContext(INetwork network)
+		public SimulatorContext(Func<NetworkServer.INetworkServer> createServer = null, Func<NetworkClient.INetworkClient> createClient = null)
 		{
-			m_network = network;
+			m_createServer = createServer;
+			m_createClient = createClient;
 		}
 
 		NetworkServer.INetworkServer NetworkServer.IContext.CreateServer()
 		{
-			return m_network.CreateServer();
+			return m_createServer();
 		}
 
 		NetworkClient.INetworkClient NetworkClient.IContext.CreateClient()
 		{
-			return m_network.CreateClient();
+			return m_createClient();
+		}
+
+		LoginResult NetworkServer.IContext.VerifyLogin(ulong userId)
+		{
+			return LoginResult.Ok;
+		}
+
+		EntitySettings NetworkServer.IContext.CreatePlayerSettings(ulong userId)
+		{
+			return new PlayerSettings()
+			{
+				UserId = userId,
+			};
 		}
 
 		float InputManager.IContext.GetAxis(string name)

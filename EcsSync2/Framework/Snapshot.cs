@@ -39,8 +39,8 @@ namespace EcsSync2
 	}
 
 	[ProtoContract]
-	[ProtoInclude( 1, typeof( TransformSnapshot ) )]
-	[ProtoInclude( 2, typeof( AnimatorSnapshot ) )]
+	[ProtoInclude( 21, typeof( TransformSnapshot ) )]
+	[ProtoInclude( 22, typeof( AnimatorSnapshot ) )]
 	public abstract class ComponentSnapshot : SerializableReferencable
 	{
 		[ProtoMember( 11 )]

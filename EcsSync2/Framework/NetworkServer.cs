@@ -13,6 +13,10 @@ namespace EcsSync2
 		public interface IContext
 		{
 			INetworkServer CreateServer();
+
+			LoginResult VerifyLogin(ulong userId);
+
+			EntitySettings CreatePlayerSettings(ulong userId);
 		}
 
 		#region Session
@@ -184,25 +188,34 @@ namespace EcsSync2
 
 		void OnLoginRequest(Session session, LoginRequest req)
 		{
-			session.OnLoginSucceeded( req.UserId );
-			Simulator.Context.Log( "OnLoginRequest {0}, {1}", session, req );
-
-			// TODO Login process may be implemented by user
-			var res = new LoginResponse()
+			var status = m_context.VerifyLogin( req.UserId );
+			if( status == LoginResult.Ok )
 			{
-				Ok = true,
-				ClientTime = req.ClientTime,
-				ServerTime = (uint)Math.Round( Simulator.SynchronizedClock.LocalTime * 1000 )
-			};
-			session.Stream.Send( res );
+				session.OnLoginSucceeded( req.UserId );
+				Simulator.Context.Log( "OnLoginRequest {0}, {1}", session, req );
 
-			var f = EnsureCommandFrame();
-			var c = f.AddCommand<CreateEntityCommand>();
-			// TODO Create player settings
-			//c.Settings = new PlayerSettings()
-			//{
-			//	UserId = req.UserId
-			//};
+				var res = new LoginResponse()
+				{
+					Result = status,
+					ClientTime = req.ClientTime,
+					ServerTime = (uint)Math.Round( Simulator.SynchronizedClock.LocalTime * 1000 )
+				};
+				session.Stream.Send( res );
+
+				var f = EnsureCommandFrame();
+				var c = f.AddCommand<CreateEntityCommand>();
+				c.Settings = m_context.CreatePlayerSettings( req.UserId );
+			}
+			else
+			{
+				Simulator.Context.Log( "OnLoginRequest {0}, {1}", req, status );
+
+				var res = new LoginResponse()
+				{
+					Result = status,
+				};
+				session.Stream.Send( res );
+			}
 		}
 
 		void OnHeartbeatRequest(Session session, HeartbeatRequest req)
