@@ -1,7 +1,7 @@
 ﻿using System;
 using LiteNetLib;
 
-namespace EcsSync2.Fps
+namespace EcsSync2
 {
 	class LiteNetStream : NetworkManager.IStream
 	{

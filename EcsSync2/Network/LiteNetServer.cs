@@ -3,7 +3,7 @@ using LiteNetLib.Utils;
 using System;
 using System.IO;
 
-namespace EcsSync2.Fps
+namespace EcsSync2
 {
 	public sealed class LiteNetServer : NetworkServer.IServerContext
 	{

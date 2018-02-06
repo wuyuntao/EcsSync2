@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace EcsSync2.Fps
+namespace EcsSync2
 {
 	class NetPeerWriter
 	{
