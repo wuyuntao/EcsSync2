@@ -8,8 +8,7 @@ namespace EcsSync2.Examples
 	{
 		public static async void Run()
 		{
-			var server = new LiteNetServer( null );
-			var simulatorContext = new SimulatorContext( server );
+			var simulatorContext = new SimulatorContext( Network.Default );
 			var simulator = new Simulator( simulatorContext, true, false, 1, null );
 			simulator.SceneManager.LoadScene<BattleScene>();
 			simulator.NetworkServer.Start( 3687 );
@@ -24,6 +23,21 @@ namespace EcsSync2.Examples
 				var elaspedSecs = (float)stopwatch.Elapsed.TotalSeconds;
 				simulator.Simulate( elaspedSecs - lastSimulateTime );
 				lastSimulateTime = elaspedSecs;
+			}
+		}
+
+		class Network : INetwork
+		{
+			public static readonly Network Default = new Network();
+
+			NetworkClient.INetworkClient NetworkClient.IContext.CreateClient()
+			{
+				return new LiteNetClient( null );
+			}
+
+			NetworkServer.INetworkServer NetworkServer.IContext.CreateServer()
+			{
+				return new LiteNetServer( null );
 			}
 		}
 	}

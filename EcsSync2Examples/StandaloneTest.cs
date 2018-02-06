@@ -8,7 +8,7 @@ namespace EcsSync2.Examples
 	{
 		public static void Run()
 		{
-			var simulatorContext = new SimulatorContext();
+			var simulatorContext = new SimulatorContext( null );
 			var simulator = new Simulator( simulatorContext, true, true, 1, 1 );
 			simulator.SceneManager.LoadScene<BattleScene>();
 

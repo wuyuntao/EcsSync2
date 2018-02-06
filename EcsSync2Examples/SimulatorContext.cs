@@ -4,82 +4,30 @@ using System.Collections.Generic;
 
 namespace EcsSync2.Examples
 {
-	class SimulatorContext : Simulator.IContext, InputManager.IContext, RenderManager.IContext, NetworkServer.IServerContext, NetworkClient.IClientContext
+	interface INetwork : NetworkServer.IContext, NetworkClient.IContext
 	{
-		NetworkServer.IServerContext m_server;
-		NetworkClient.IClientContext m_client;
+	}
+
+	class SimulatorContext : Simulator.IContext, InputManager.IContext, RenderManager.IContext, NetworkServer.IContext, NetworkClient.IContext
+	{
 		float[] m_axis = new float[2];
 		bool[] m_buttons = new bool[3];
 		Dictionary<InstanceId, FakeEntityPawn> m_pawns = new Dictionary<InstanceId, FakeEntityPawn>();
+		INetwork m_network;
 
-		public SimulatorContext(NetworkServer.IServerContext server = null, NetworkClient.IClientContext client = null)
+		public SimulatorContext(INetwork network)
 		{
-			m_server = server;
-			m_client = client;
+			m_network = network;
 		}
 
-		Action<NetworkManager.IStream> NetworkManager.IContext.OnConnected
+		NetworkServer.INetworkServer NetworkServer.IContext.CreateServer()
 		{
-			get
-			{
-				if( m_server != null )
-					return m_server.OnConnected;
-				else if( m_client != null )
-					return m_client.OnConnected;
-				else
-					throw new NotSupportedException();
-			}
-			set
-			{
-				if( m_server != null )
-					m_server.OnConnected = value;
-				else if( m_client != null )
-					m_client.OnConnected = value;
-				else
-					throw new NotSupportedException();
-			}
+			return m_network.CreateServer();
 		}
 
-		Action<NetworkManager.IStream> NetworkManager.IContext.OnDisconnected
+		NetworkClient.INetworkClient NetworkClient.IContext.CreateClient()
 		{
-			get
-			{
-				if( m_server != null )
-					return m_server.OnDisconnected;
-				else if( m_client != null )
-					return m_client.OnDisconnected;
-				else
-					throw new NotSupportedException();
-			}
-			set
-			{
-				if( m_server != null )
-					m_server.OnDisconnected = value;
-				else if( m_client != null )
-					m_client.OnDisconnected = value;
-				else
-					throw new NotSupportedException();
-			}
-		}
-
-		void NetworkServer.IServerContext.Bind(int port)
-		{
-			m_server?.Bind( port );
-		}
-
-		void NetworkClient.IClientContext.Connect(string address, int port)
-		{
-			m_client?.Connect( address, port );
-		}
-
-		void NetworkManager.IContext.Poll()
-		{
-			if( m_server != null )
-				m_server.Poll();
-			else if( m_client != null )
-				m_client.Poll();
-			else
-				throw new NotSupportedException();
+			return m_network.CreateClient();
 		}
 
 		float InputManager.IContext.GetAxis(string name)

@@ -5,14 +5,13 @@ using UnityStandardAssets.CrossPlatformInput;
 
 namespace EcsSync2.FpsUnity
 {
-	public class SimulatorContext : MonoBehaviour, Simulator.IContext, InputManager.IContext, NetworkClient.IClientContext, RenderManager.IContext
+	public class SimulatorContext : MonoBehaviour, Simulator.IContext, InputManager.IContext, NetworkClient.IContext, RenderManager.IContext
 	{
 		public CharacterCamera CharacterCameraPrefab;
 		public CharacterPawn CharacterPawnPrefab;
 		public GameObject UICanvasPrefab;
 		public GameObject Level;
 
-		public LiteNetClient Client { get; set; }
 		public CharacterCamera Camera { get; private set; }
 		public UIStatus UIStatus { get; private set; }
 
@@ -62,6 +61,16 @@ namespace EcsSync2.FpsUnity
 			return CrossPlatformInputManager.GetButton( name );
 		}
 
+		bool InputManager.IContext.GetButtonUp(string name)
+		{
+			return CrossPlatformInputManager.GetButtonUp( name );
+		}
+
+		bool InputManager.IContext.GetButtonDown(string name)
+		{
+			return CrossPlatformInputManager.GetButtonDown( name );
+		}
+
 		#endregion
 
 		#region RenderManager
@@ -95,26 +104,9 @@ namespace EcsSync2.FpsUnity
 
 		#region NetworkClient.IClientContext
 
-		public Action<NetworkManager.IStream> OnConnected
+		NetworkClient.INetworkClient NetworkClient.IContext.CreateClient()
 		{
-			get { return Client.OnConnected; }
-			set { Client.OnConnected = value; }
-		}
-
-		public Action<NetworkManager.IStream> OnDisconnected
-		{
-			get { return Client.OnDisconnected; }
-			set { Client.OnDisconnected = value; }
-		}
-
-		void NetworkClient.IClientContext.Connect(string address, int port)
-		{
-			Client.Connect( address, port );
-		}
-
-		void NetworkManager.IContext.Poll()
-		{
-			Client.Poll();
+			return new LiteNetClient( this );
 		}
 
 		#endregion

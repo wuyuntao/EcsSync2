@@ -5,7 +5,7 @@ using System.IO;
 
 namespace EcsSync2.Examples
 {
-	class FakeNetwork
+	class FakeNetwork : INetwork
 	{
 		uint m_maxId;
 		Server m_server;
@@ -14,20 +14,20 @@ namespace EcsSync2.Examples
 		ConcurrentQueue<Tuple<Action, float>> m_delayedActions = new ConcurrentQueue<Tuple<Action, float>>();
 		float m_time;
 
-		public NetworkServer.IServerContext CreateServer()
+		public NetworkServer.INetworkServer CreateServer()
 		{
 			m_server = new Server( this, ++m_maxId );
 			return m_server;
 		}
 
-		public NetworkClient.IClientContext CreateClient()
+		public NetworkClient.INetworkClient CreateClient()
 		{
 			var client = new Client( this, ++m_maxId );
 			m_clients.Add( client );
 			return client;
 		}
 
-		NetworkManager.IStream CreateStream(Client client, bool clientSide)
+		NetworkManager.INetworkStream CreateStream(Client client, bool clientSide)
 		{
 			return new Stream( this, ++m_maxId, client, clientSide );
 		}
@@ -65,10 +65,10 @@ namespace EcsSync2.Examples
 			}
 		}
 
-		class Server : BaseObject, NetworkServer.IServerContext
+		class Server : BaseObject, NetworkServer.INetworkServer
 		{
-			public Action<NetworkManager.IStream> OnConnected { get; set; }
-			public Action<NetworkManager.IStream> OnDisconnected { get; set; }
+			public Action<NetworkManager.INetworkStream> OnConnected { get; set; }
+			public Action<NetworkManager.INetworkStream> OnDisconnected { get; set; }
 
 			public Server(FakeNetwork network, uint id)
 				: base( network, id )
@@ -85,15 +85,15 @@ namespace EcsSync2.Examples
 			}
 		}
 
-		class Client : BaseObject, NetworkClient.IClientContext
+		class Client : BaseObject, NetworkClient.INetworkClient
 		{
-			public Action<NetworkManager.IStream> OnConnected { get; set; }
-			public Action<NetworkManager.IStream> OnDisconnected { get; set; }
+			public Action<NetworkManager.INetworkStream> OnConnected { get; set; }
+			public Action<NetworkManager.INetworkStream> OnDisconnected { get; set; }
 
 			public float Rtt { get; } = 0.1f;
 
-			public NetworkManager.IStream ClientStream { get; private set; }
-			public NetworkManager.IStream ServerStream { get; private set; }
+			public NetworkManager.INetworkStream ClientStream { get; private set; }
+			public NetworkManager.INetworkStream ServerStream { get; private set; }
 
 			public Client(FakeNetwork network, uint id)
 				: base( network, id )
@@ -126,7 +126,7 @@ namespace EcsSync2.Examples
 			}
 		}
 
-		class Stream : BaseObject, NetworkManager.IStream
+		class Stream : BaseObject, NetworkManager.INetworkStream
 		{
 			public Action<Message> OnReceived { get; set; }
 

@@ -4,16 +4,16 @@ namespace EcsSync2
 {
 	public abstract class NetworkManager : SimulatorComponent
 	{
-		public interface IContext
+		public interface INetworkManager
 		{
-			Action<IStream> OnConnected { get; set; }
+			Action<INetworkStream> OnConnected { get; set; }
 
-			Action<IStream> OnDisconnected { get; set; }
+			Action<INetworkStream> OnDisconnected { get; set; }
 
 			void Poll();
 		}
 
-		public interface IStream
+		public interface INetworkStream
 		{
 			Action<Message> OnReceived { get; set; }
 

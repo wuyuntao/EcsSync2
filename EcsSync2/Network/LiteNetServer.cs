@@ -5,12 +5,12 @@ using System.IO;
 
 namespace EcsSync2
 {
-	public sealed class LiteNetServer : NetworkServer.IServerContext
+	public sealed class LiteNetServer : NetworkServer.INetworkServer
 	{
 		const string ConnectKey = "EcsSync2";
 
-		public Action<NetworkManager.IStream> OnConnected { get; set; }
-		public Action<NetworkManager.IStream> OnDisconnected { get; set; }
+		public Action<NetworkManager.INetworkStream> OnConnected { get; set; }
+		public Action<NetworkManager.INetworkStream> OnDisconnected { get; set; }
 
 		public ILogger Logger { get; }
 
@@ -55,7 +55,7 @@ namespace EcsSync2
 
 		void Listener_PeerDisconnectedEvent(NetPeer peer, DisconnectInfo disconnectInfo)
 		{
-			var stream = (NetworkManager.IStream)peer.Tag;
+			var stream = (NetworkManager.INetworkStream)peer.Tag;
 			OnDisconnected?.Invoke( stream );
 
 			Logger?.Log( "Listener_PeerDisconnectedEvent {0}, {1}", peer, disconnectInfo );
@@ -67,7 +67,7 @@ namespace EcsSync2
 			{
 				var env = Serializers.Deserialize<MessageEnvelop>( ms );
 
-				var stream = (NetworkManager.IStream)peer.Tag;
+				var stream = (NetworkManager.INetworkStream)peer.Tag;
 				stream.OnReceived?.Invoke( env.Message );
 			}
 		}

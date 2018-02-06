@@ -3,7 +3,7 @@ using LiteNetLib;
 
 namespace EcsSync2
 {
-	class LiteNetStream : NetworkManager.IStream
+	class LiteNetStream : NetworkManager.INetworkStream
 	{
 		public Action<Message> OnReceived { get; set; }
 

@@ -5,15 +5,21 @@ namespace EcsSync2
 {
 	public class NetworkClient : NetworkManager
 	{
-		public interface IClientContext : IContext
+		public interface INetworkClient : INetworkManager
 		{
 			void Connect(string address, int port);
 		}
 
+		public interface IContext
+		{
+			INetworkClient CreateClient();
+		}
+
 		public Action OnLogin;
 
-		IClientContext m_client;
-		IStream m_stream;
+		IContext m_context;
+		INetworkClient m_client;
+		INetworkStream m_stream;
 
 		object m_receiveLock = new object();
 		List<Message> m_receiveMessages = new List<Message>();
@@ -22,7 +28,8 @@ namespace EcsSync2
 		public NetworkClient(Simulator simulator)
 			: base( simulator )
 		{
-			m_client = (IClientContext)simulator.Context;
+			m_context = (IContext)simulator.Context;
+			m_client = m_context.CreateClient();
 			m_client.OnConnected += OnConnected;
 			m_client.OnDisconnected += OnDisconnected;
 		}
@@ -32,7 +39,7 @@ namespace EcsSync2
 			m_client.Connect( address, port );
 		}
 
-		void OnConnected(IStream stream)
+		void OnConnected(INetworkStream stream)
 		{
 			m_stream = stream;
 			m_stream.OnReceived += OnReceived;
@@ -48,7 +55,7 @@ namespace EcsSync2
 			m_stream.Send( req );
 		}
 
-		void OnDisconnected(IStream stream)
+		void OnDisconnected(INetworkStream stream)
 		{
 			if( m_stream == stream )
 			{

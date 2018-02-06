@@ -5,9 +5,14 @@ namespace EcsSync2
 {
 	public class NetworkServer : NetworkManager
 	{
-		public interface IServerContext : IContext
+		public interface INetworkServer : INetworkManager
 		{
 			void Bind(int port);
+		}
+
+		public interface IContext
+		{
+			INetworkServer CreateServer();
 		}
 
 		#region Session
@@ -16,14 +21,14 @@ namespace EcsSync2
 		{
 			NetworkServer Server { get; }
 			public uint Id { get; }
-			public IStream Stream { get; }
+			public INetworkStream Stream { get; }
 			public ulong UserId { get; private set; }
 			public bool IsNewSession { get; private set; }
 
 			object m_receiveLock = new object();
 			List<Message> m_receiveMessages = new List<Message>();
 
-			public Session(NetworkServer server, uint id, IStream stream)
+			public Session(NetworkServer server, uint id, INetworkStream stream)
 			{
 				Server = server;
 				Id = id;
@@ -79,7 +84,8 @@ namespace EcsSync2
 
 		#endregion
 
-		IServerContext m_server;
+		IContext m_context;
+		INetworkServer m_server;
 		uint m_maxSessionId;
 		object m_sessionLock = new object();
 		List<Session> m_sessions = new List<Session>();
@@ -88,7 +94,8 @@ namespace EcsSync2
 		public NetworkServer(Simulator simulator)
 			: base( simulator )
 		{
-			m_server = (IServerContext)simulator.Context;
+			m_context = (IContext)simulator.Context;
+			m_server = m_context.CreateServer();
 			m_server.OnConnected += OnConnected;
 			m_server.OnDisconnected += OnDisconnected;
 		}
@@ -98,7 +105,7 @@ namespace EcsSync2
 			m_server.Bind( port );
 		}
 
-		void OnConnected(IStream stream)
+		void OnConnected(INetworkStream stream)
 		{
 			var session = new Session( this, ++m_maxSessionId, stream );
 			lock( m_sessionLock )
@@ -109,7 +116,7 @@ namespace EcsSync2
 			Simulator.Context.Log( "Server OnConnected {0}", session );
 		}
 
-		void OnDisconnected(IStream stream)
+		void OnDisconnected(INetworkStream stream)
 		{
 			lock( m_sessionLock )
 			{
@@ -180,6 +187,7 @@ namespace EcsSync2
 			session.OnLoginSucceeded( req.UserId );
 			Simulator.Context.Log( "OnLoginRequest {0}, {1}", session, req );
 
+			// TODO Login process may be implemented by user
 			var res = new LoginResponse()
 			{
 				Ok = true,
